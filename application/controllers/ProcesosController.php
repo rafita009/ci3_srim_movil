@@ -495,14 +495,10 @@ public function editar($id_infractor) {
             'C_INFRACTOR' => $this->input->post('cedula_inf'),
             'T_INFRACTOR' => $this->input->post('telefono_inf')
         ]; 
-<<<<<<< HEAD
         // Ahora solo necesitamos el ID del ACT seleccionado
         $id_agente = [
             'ID_AGENTE' => $this->input->post('act_id') // Este es el campo hidden que recibe el ID
         ]; 
-=======
-       
->>>>>>> backend
         $placas = [
             'ID_TIPO_PLACA' => $this->input->post('tipo_placa'),
             'PLACA' => $this->input->post('num_placa')
@@ -521,11 +517,7 @@ public function editar($id_infractor) {
         $fecha_hora_entrada_vm = [
             'ID_INFRACTOR' => null, // Se incluye el ID del infractor
             'FECHA_HORA_INGRESO_VM' => $this->input->post('fecha_entrada_valoracion'),
-<<<<<<< HEAD
             'AGENTE_CUSTODIO_VM' => $this->input->post('act_custodio')  // Esto recibirá el ID_AGENTE que seleccionaste
-=======
-            'ID_AGENTE' => $this->input->post('act_custodio')  // Esto recibirá el ID_AGENTE que seleccionaste
->>>>>>> backend
         ];
         $fecha_hora_salida_vm = [
             'ID_INFRACTOR' => null, // Se incluye el ID del infractor
@@ -599,11 +591,7 @@ public function editar($id_infractor) {
             
             
             // 4. Insertar agente de procedimiento
-<<<<<<< HEAD
             $id_agente = $this->input->post('act_id');
-=======
-            $id_act_procede = $this->input->post('act_id_procede');
->>>>>>> backend
            
             // 5. Insertar placa
             if (!$this->db->insert('placas', $datos['placas'])) {
@@ -616,13 +604,8 @@ public function editar($id_infractor) {
             $proceso_data = [
                 'ID_USUARIO' => $this->session->userdata('id_usuario'),
                 'ID_INFRACTOR' => $id_infractor,
-<<<<<<< HEAD
                 'ID_PLACA' => $id_placa,
                 'ID_AGENTE' => $id_agente,
-=======
-                'ID_PLACA' => $id_placa,    
-                'ID_AGENTE' => $id_act_procede,
->>>>>>> backend
                 'NOMBRE_PROCESO' => 'Registro de Infractor',
                 'FECHA_REGISTRO' => date('Y-m-d H:i:s')
             ];
