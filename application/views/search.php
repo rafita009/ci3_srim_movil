@@ -146,7 +146,8 @@
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                            <?php $this->load->view('admin/_partials/tab_results', ['resultados' => $resultados]); ?>                                            </tbody>
+                                            <?php $this->load->view('admin/_partials/tab_results', ['resultados' => $resultados]); ?>      
+                                            </tbody>
                                         </table>
                                     </div>
 
@@ -225,43 +226,7 @@
 });
     </script>
 
-    <script>
-   // Variable global para la tabla
-let tabla;
-
-// Inicialización cuando el documento está listo
-$(document).ready(function() {
-    inicializarDataTable();
-});
-
-// Función para inicializar DataTables
-function inicializarDataTable() {
-    if ($.fn.DataTable.isDataTable('#tablaSearch')) {
-        $('#tablaSearch').DataTable().destroy();
-    }
-    $.fn.dataTable.ext.errMode = 'none'; // Oculta el mensaje de advertencia
-
-   
-    tabla = $('#tablaSearch').DataTable({
-        "language": {
-            "lengthMenu": "Mostrar _MENU_ registros por página",
-            "zeroRecords": "No se encontraron resultados",
-            "info": "Mostrando página _PAGE_ de _PAGES_",
-            "infoEmpty": "No hay registros disponibles",
-            "infoFiltered": "(filtrado de _MAX_ registros totales)",
-            "search": "Buscar:",
-            "paginate": {
-                "first": "Primero",
-                "last": "Último",
-                "next": "Siguiente",
-                "previous": "Anterior"
-            }
-        },
-        "ordering": true,
-        "responsive": true
-    });
-}
-    </script>
+  
     <script>
     var base_url = '<?php echo base_url(); ?>';
     </script>
@@ -358,6 +323,43 @@ function inicializarDataTable() {
             inputBusqueda.style.display = 'none';
         }
     }
+    </script>
+      <script>
+   // Variable global para la tabla
+let tabla;
+
+// Inicialización cuando el documento está listo
+$(document).ready(function() {
+    inicializarDataTable();
+});
+
+// Función para inicializar DataTables
+function inicializarDataTable() {
+    if ($.fn.DataTable.isDataTable('#tablaSearch')) {
+        $('#tablaSearch').DataTable().destroy();
+    }
+    $.fn.dataTable.ext.errMode = 'none'; // Oculta el mensaje de advertencia
+
+   
+    tabla = $('#tablaSearch').DataTable({
+        "language": {
+            "lengthMenu": "Mostrar _MENU_ registros por página",
+            "zeroRecords": "No se encontraron resultados",
+            "info": "Mostrando página _PAGE_ de _PAGES_",
+            "infoEmpty": "No hay registros disponibles",
+            "infoFiltered": "(filtrado de _MAX_ registros totales)",
+            "search": "Buscar:",
+            "paginate": {
+                "first": "Primero",
+                "last": "Último",
+                "next": "Siguiente",
+                "previous": "Anterior"
+            }
+        },
+        "ordering": true,
+        "responsive": true
+    });
+}
     </script>
    
 

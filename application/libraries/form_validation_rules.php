@@ -41,7 +41,12 @@ class Form_validation_rules {
                     'required' => 'El campo %s es obligatorio.',
                     'validar_cedula' => 'La cédula ingresada no es válida.'
                 ]
+<<<<<<< HEAD
             ],            
+=======
+            ],
+           
+>>>>>>> backend
             [
                 'field' => 'distrito',
                 'label' => 'Distrito',
