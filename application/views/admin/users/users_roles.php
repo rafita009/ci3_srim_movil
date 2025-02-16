@@ -48,129 +48,130 @@
                 <div class="container-fluid">
                     <div class="row">
                         <div class="col-12">
-                            <div class="card rounded shadow w-100">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3 class="card-title">Gestión de Roles</h3>
+                                </div>
                                 <div class="card-body p-3">
-                                    <i class="fas fa-user-shield text-primary mr-2 fa-lg"></i>
-                                    <h3 class="mb-0 ">Gestión de Roles</h3>
                                     <?php if ($this->session->flashdata('success')): ?>
-                                            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                                                <?= $this->session->flashdata('success'); ?>
-                                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                                    <span aria-hidden="true">&times;</span>
-                                                </button>
-                                            </div>
-                                        <?php elseif ($this->session->flashdata('error')): ?>
-                                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                                <?= $this->session->flashdata('error'); ?>
-                                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                                    <span aria-hidden="true">&times;</span>
-                                                </button>
-                                            </div>
-                                        <?php endif; ?>
+                                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                            <?= $this->session->flashdata('success'); ?>
+                                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                    <?php elseif ($this->session->flashdata('error')): ?>
+                                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                            <?= $this->session->flashdata('error'); ?>
+                                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                    <?php endif; ?>
                                     <br>
                                     <div class="d-flex align-items-center mb-3">
-                                       
+
                                         <div class="table-responsive">
-                                                <table id="tablaRoles" class="table table-bordered table-hover">
-                                                    <thead class="thead-dark">
+                                            <table id="tablaRoles" class="table table-bordered table-hover">
+                                                <thead class="thead-dark">
+                                                    <tr>
+                                                        <th>Nombre</th>
+                                                        <th>Apellido</th>
+                                                        <th>Nombre de Usuario</th>
+                                                        <th>Rol</th>
+                                                        <th>Acciones/Estado</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <?php foreach ($usuarios as $usuario): ?>
                                                         <tr>
-                                                            <th>Nombre</th>
-                                                            <th>Apellido</th>
-                                                            <th>Nombre de Usuario</th>
-                                                            <th>Rol</th>
-                                                            <th>Acciones/Estado</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        <?php foreach ($usuarios as $usuario): ?>
-                                                            <tr>
-                                                                <td><?= $usuario->NOMBRES ?></td>
-                                                                <td><?= $usuario->APELLIDOS ?></td>
-                                                                <td><?= $usuario->USUARIO ?></td>
-                                                                <td><?= $usuario->ROL ?: 'Sin rol' ?></td>
-                                                                <td class="ailgn-middle">
-                                                                    <!-- Botón para abrir el modal -->
-                                                                    <button type="button" class="btn btn-primary btn-sm" data-toggle="modal"
-                                                                        data-target="#modalCambiarRol<?= $usuario->ID_USUARIO ?>">
-                                                                        Cambiar Rol
-                                                                    </button>
+                                                            <td><?= $usuario->NOMBRES ?></td>
+                                                            <td><?= $usuario->APELLIDOS ?></td>
+                                                            <td><?= $usuario->USUARIO ?></td>
+                                                            <td><?= $usuario->ROL ?: 'Sin rol' ?></td>
+                                                            <td class="ailgn-middle">
+                                                                <!-- Botón para abrir el modal -->
+                                                                <button type="button" class="btn btn-primary btn-sm" data-toggle="modal"
+                                                                    data-target="#modalCambiarRol<?= $usuario->ID_USUARIO ?>">
+                                                                    Cambiar Rol
+                                                                </button>
 
-                                                                    <!-- Modal para cada usuario -->
-                                                                    <div class="modal fade" id="modalCambiarRol<?= $usuario->ID_USUARIO ?>"
-                                                                        tabindex="-1" role="dialog"
-                                                                        aria-labelledby="modalLabel<?= $usuario->ID_USUARIO ?>" aria-hidden="true">
-                                                                        <div class="modal-dialog" role="document">
-                                                                            <div class="modal-content">
-                                                                                <div class="modal-header">
-                                                                                    <h5 class="modal-title"
-                                                                                        id="modalLabel<?= $usuario->ID_USUARIO ?>">
-                                                                                        Cambiar Rol - <?= $usuario->NOMBRES ?>
-                                                                                        <?= $usuario->APELLIDOS ?>
-                                                                                    </h5>
-                                                                                    <button type="button" class="close" data-dismiss="modal"
-                                                                                        aria-label="Close">
-                                                                                        <span aria-hidden="true">&times;</span>
-                                                                                    </button>
-                                                                                </div>
-                                                                                <form
-                                                                                    action="<?php echo site_url('UsersController/cambiar_rol'); ?>"
-                                                                                    method="POST">
-                                                                                    <div class="modal-body">
-                                                                                        <input type="hidden" name="id_usuario"
-                                                                                            value="<?= $usuario->ID_USUARIO ?>">
-
-                                                                                        <div class="form-group">
-                                                                                            <label for="rol<?= $usuario->ID_USUARIO ?>">Seleccionar
-                                                                                                Rol</label>
-                                                                                            <select class="form-control"
-                                                                                                id="rol<?= $usuario->ID_USUARIO ?>" name="rol"
-                                                                                                required>
-                                                                                                <option value="">Seleccione un rol</option>
-                                                                                                <option value="administrador"
-                                                                                                    <?= ($usuario->ROL == 'administrador') ? 'selected' : '' ?>>
-                                                                                                    Administrador</option>
-                                                                                                <option value="usuario"
-                                                                                                    <?= ($usuario->ROL == 'usuario') ? 'selected' : '' ?>>
-                                                                                                    Usuario</option>
-                                                                                            </select>
-                                                                                        </div>
-                                                                                    </div>
-                                                                                    <div class="modal-footer">
-                                                                                        <button type="button" class="btn btn-secondary"
-                                                                                            data-dismiss="modal">Cancelar</button>
-                                                                                        <button type="submit" class="btn btn-primary">Guardar
-                                                                                            Cambios</button>
-                                                                                    </div>
-                                                                                </form>
+                                                                <!-- Modal para cada usuario -->
+                                                                <div class="modal fade" id="modalCambiarRol<?= $usuario->ID_USUARIO ?>"
+                                                                    tabindex="-1" role="dialog"
+                                                                    aria-labelledby="modalLabel<?= $usuario->ID_USUARIO ?>" aria-hidden="true">
+                                                                    <div class="modal-dialog" role="document">
+                                                                        <div class="modal-content">
+                                                                            <div class="modal-header">
+                                                                                <h5 class="modal-title"
+                                                                                    id="modalLabel<?= $usuario->ID_USUARIO ?>">
+                                                                                    Cambiar Rol - <?= $usuario->NOMBRES ?>
+                                                                                    <?= $usuario->APELLIDOS ?>
+                                                                                </h5>
+                                                                                <button type="button" class="close" data-dismiss="modal"
+                                                                                    aria-label="Close">
+                                                                                    <span aria-hidden="true">&times;</span>
+                                                                                </button>
                                                                             </div>
+                                                                            <form
+                                                                                action="<?php echo site_url('UsersController/cambiar_rol'); ?>"
+                                                                                method="POST">
+                                                                                <div class="modal-body">
+                                                                                    <input type="hidden" name="id_usuario"
+                                                                                        value="<?= $usuario->ID_USUARIO ?>">
+
+                                                                                    <div class="form-group">
+                                                                                        <label for="rol<?= $usuario->ID_USUARIO ?>">Seleccionar
+                                                                                            Rol</label>
+                                                                                        <select class="form-control"
+                                                                                            id="rol<?= $usuario->ID_USUARIO ?>" name="rol"
+                                                                                            required>
+                                                                                            <option value="">Seleccione un rol</option>
+                                                                                            <option value="administrador"
+                                                                                                <?= ($usuario->ROL == 'administrador') ? 'selected' : '' ?>>
+                                                                                                Administrador</option>
+                                                                                            <option value="usuario"
+                                                                                                <?= ($usuario->ROL == 'usuario') ? 'selected' : '' ?>>
+                                                                                                Usuario</option>
+                                                                                        </select>
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div class="modal-footer">
+                                                                                    <button type="button" class="btn btn-secondary"
+                                                                                        data-dismiss="modal">Cancelar</button>
+                                                                                    <button type="submit" class="btn btn-primary">Guardar
+                                                                                        Cambios</button>
+                                                                                </div>
+                                                                            </form>
                                                                         </div>
                                                                     </div>
+                                                                </div>
 
-                                                                    <!-- estado botones -->
-                                                                    <form action="<?= site_url('UsersController/cambiar_estado') ?>" method="POST"
-                                                                        style="display:inline;">
-                                                                        <input type="hidden" name="id_usuario" value="<?= $usuario->ID_USUARIO ?>">
-                                                                        <input type="hidden" name="estado_actual" value="<?= $usuario->ESTADO ?>">
-                                                                        <?php echo form_hidden($this->security->get_csrf_token_name(), $this->security->get_csrf_hash()); ?>
+                                                                <!-- estado botones -->
+                                                                <form action="<?= site_url('UsersController/cambiar_estado') ?>" method="POST"
+                                                                    style="display:inline;">
+                                                                    <input type="hidden" name="id_usuario" value="<?= $usuario->ID_USUARIO ?>">
+                                                                    <input type="hidden" name="estado_actual" value="<?= $usuario->ESTADO ?>">
+                                                                    <?php echo form_hidden($this->security->get_csrf_token_name(), $this->security->get_csrf_hash()); ?>
 
-                                                                        <?php if ($usuario->ESTADO == 'AC'): ?>
-                                                                            <button type="submit" class="btn btn-danger btn-sm"
-                                                                                title="Desactivar Usuario">
-                                                                                Desactivar
-                                                                            </button>
-                                                                        <?php else: ?>
-                                                                            <button type="submit" class="btn btn-success btn-sm"
-                                                                                title="Activar Usuario">
-                                                                                Activar
-                                                                            </button>
-                                                                        <?php endif; ?>
-                                                                    </form>
-                                                                </td>
-                                                               
-                                                            </tr>
-                                                        <?php endforeach; ?>
-                                                    </tbody>
-                                                </table>
+                                                                    <?php if ($usuario->ESTADO == 'AC'): ?>
+                                                                        <button type="submit" class="btn btn-danger btn-sm"
+                                                                            title="Desactivar Usuario">
+                                                                            Desactivar
+                                                                        </button>
+                                                                    <?php else: ?>
+                                                                        <button type="submit" class="btn btn-success btn-sm"
+                                                                            title="Activar Usuario">
+                                                                            Activar
+                                                                        </button>
+                                                                    <?php endif; ?>
+                                                                </form>
+                                                            </td>
+
+                                                        </tr>
+                                                    <?php endforeach; ?>
+                                                </tbody>
+                                            </table>
                                         </div>
                                     </div>
                                 </div>

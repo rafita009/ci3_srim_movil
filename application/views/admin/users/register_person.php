@@ -48,19 +48,19 @@
 
                 <div class="container-fluid">
                     <?php if ($this->session->flashdata('success')): ?>
-                    <div class="alert alert-success alert-dismissible fade show" role="alert">
-                        <?= $this->session->flashdata('success'); ?>
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <?= $this->session->flashdata('success'); ?>
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
                     <?php elseif ($this->session->flashdata('error')): ?>
-                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                        <?= $this->session->flashdata('error'); ?>
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <?= $this->session->flashdata('error'); ?>
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
                     <?php endif; ?>
 
                     <!-- Sección de Registro de Persona -->
@@ -172,70 +172,72 @@
                     <!-- Sección de Tabla de Personas -->
                     <div class="row">
                         <div class="col-12">
-                            <div class="card rounded shadow w-100">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3 class="card-title">Listado de Personas</h3>
+                                </div>
                                 <div class="card-body p-3">
-                                    <h5>Listado de Personas</h5>
                                     <div class="table-responsive">
-                                    <table id="tablaPersonas" class="table table-bordered table-hover datatable">
-                                        <thead class="thead-dark">
-                                            <tr>
-                                                <th>ID</th>
-                                                <th>Nombre</th>
-                                                <th>Apellidos</th>
-                                                <th>Email</th>
-                                                <th>Teléfono</th>
-                                                <th>Cédula</th>
-                                                <th>Acciones</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <?php foreach ($personas as $persona): ?>
-                                            <tr>
-                                                <td><?= $persona['ID_PERSONA']; ?></td>
-                                                <td><?= $persona['NOMBRES']; ?></td>
-                                                <td><?= $persona['APELLIDOS']; ?></td>
-                                                <td><?= $persona['EMAIL']; ?></td>
-                                                <td><?= $persona['TELEFONO']; ?></td>
-                                                <td><?= $persona['CEDULA']; ?></td>
-                                                <td>
-                                                    <button class="btn btn-success btn-editar-usuario"
-                                                        data-id_persona="<?= $persona['ID_PERSONA']; ?>"
-                                                        data-nombre="<?= htmlspecialchars($persona['NOMBRES'], ENT_QUOTES, 'UTF-8'); ?>"
-                                                        data-apellido="<?= htmlspecialchars($persona['APELLIDOS'], ENT_QUOTES, 'UTF-8'); ?>"
-                                                        data-cedula="<?= htmlspecialchars($persona['CEDULA'], ENT_QUOTES, 'UTF-8'); ?>"
-                                                        data-correo="<?= htmlspecialchars($persona['EMAIL'], ENT_QUOTES, 'UTF-8'); ?>"
-                                                        data-telefono="<?= htmlspecialchars($persona['TELEFONO'], ENT_QUOTES, 'UTF-8'); ?>">
-                                                        <i class="fas fa-edit"></i> Editar
-                                                    </button>
-                                                    <form method="POST"
-                                                        action="<?= site_url('UsersController/generar_usuario') ?>"
-                                                        class="d-inline">
-                                                        <input type="hidden" name="id_persona"
-                                                            value="<?= $persona['ID_PERSONA']; ?>">
-                                                        <button class="btn btn-primary btn-generar-usuario"
-                                                            data-id="<?= $persona['ID_PERSONA']; ?>">
-                                                            <i class="fas fa-user-plus"></i> Generar Usuario
-                                                        </button>
-                                                    </form>
-                                                    <form method="POST"
-                                                        action="<?= site_url('UsersController/eliminar_usuario_persona') ?>"
-                                                        class="d-inline" style="display:inline;"
-                                                        onsubmit="return confirmarEliminacion();">
-                                                        <input type="hidden" name="id_persona"
-                                                            value="<?= $persona['ID_PERSONA']; ?>">
-                                                        <button type="submit"
-                                                            class="btn btn-danger btn-eliminar-usuario"
-                                                            data-id="<?= $persona['ID_PERSONA']; ?>">
-                                                            <i class="fas fa-trash-alt"></i> Eliminar
-                                                        </button>
-                                                    </form>
-                                                </td>
-                                            </tr>
-                                            <?php endforeach; ?>
-                                        </tbody>
-                                    </table>
+                                        <table id="tablaPersonas" class="table table-bordered table-hover datatable">
+                                            <thead class="thead-dark">
+                                                <tr>
+                                                    <th>ID</th>
+                                                    <th>Nombre</th>
+                                                    <th>Apellidos</th>
+                                                    <th>Email</th>
+                                                    <th>Teléfono</th>
+                                                    <th>Cédula</th>
+                                                    <th>Acciones</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <?php foreach ($personas as $persona): ?>
+                                                    <tr>
+                                                        <td><?= $persona['ID_PERSONA']; ?></td>
+                                                        <td><?= $persona['NOMBRES']; ?></td>
+                                                        <td><?= $persona['APELLIDOS']; ?></td>
+                                                        <td><?= $persona['EMAIL']; ?></td>
+                                                        <td><?= $persona['TELEFONO']; ?></td>
+                                                        <td><?= $persona['CEDULA']; ?></td>
+                                                        <td>
+                                                            <button class="btn btn-success btn-editar-usuario"
+                                                                data-id_persona="<?= $persona['ID_PERSONA']; ?>"
+                                                                data-nombre="<?= htmlspecialchars($persona['NOMBRES'], ENT_QUOTES, 'UTF-8'); ?>"
+                                                                data-apellido="<?= htmlspecialchars($persona['APELLIDOS'], ENT_QUOTES, 'UTF-8'); ?>"
+                                                                data-cedula="<?= htmlspecialchars($persona['CEDULA'], ENT_QUOTES, 'UTF-8'); ?>"
+                                                                data-correo="<?= htmlspecialchars($persona['EMAIL'], ENT_QUOTES, 'UTF-8'); ?>"
+                                                                data-telefono="<?= htmlspecialchars($persona['TELEFONO'], ENT_QUOTES, 'UTF-8'); ?>">
+                                                                <i class="fas fa-edit"></i> Editar
+                                                            </button>
+                                                            <form method="POST"
+                                                                action="<?= site_url('UsersController/generar_usuario') ?>"
+                                                                class="d-inline">
+                                                                <input type="hidden" name="id_persona"
+                                                                    value="<?= $persona['ID_PERSONA']; ?>">
+                                                                <button class="btn btn-primary btn-generar-usuario"
+                                                                    data-id="<?= $persona['ID_PERSONA']; ?>">
+                                                                    <i class="fas fa-user-plus"></i> Generar Usuario
+                                                                </button>
+                                                            </form>
+                                                            <form method="POST"
+                                                                action="<?= site_url('UsersController/eliminar_usuario_persona') ?>"
+                                                                class="d-inline" style="display:inline;"
+                                                                onsubmit="return confirmarEliminacion();">
+                                                                <input type="hidden" name="id_persona"
+                                                                    value="<?= $persona['ID_PERSONA']; ?>">
+                                                                <button type="submit"
+                                                                    class="btn btn-danger btn-eliminar-usuario"
+                                                                    data-id="<?= $persona['ID_PERSONA']; ?>">
+                                                                    <i class="fas fa-trash-alt"></i> Eliminar
+                                                                </button>
+                                                            </form>
+                                                        </td>
+                                                    </tr>
+                                                <?php endforeach; ?>
+                                            </tbody>
+                                        </table>
                                     </div>
-                                    
+
                                 </div>
                             </div>
                         </div>
@@ -277,7 +279,7 @@
                 <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
                 <div class="modal-footer">
                     <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-                    <a class="btn btn-primary" href="<?php echo site_url();?>/LoginController/logout">Logout</a>
+                    <a class="btn btn-primary" href="<?php echo site_url(); ?>/LoginController/logout">Logout</a>
                 </div>
             </div>
         </div>
@@ -547,167 +549,167 @@
 
 
 
-    <script src="<?php echo base_url();?>public/assets/vendor/jquery/jquery.min.js"></script>
+    <script src="<?php echo base_url(); ?>public/assets/vendor/jquery/jquery.min.js"></script>
 
     <script>
-    function confirmarEliminacion() {
-        return confirm("¿Estás seguro de que deseas eliminar este usuario? Esta acción no se puede deshacer.");
-    }
+        function confirmarEliminacion() {
+            return confirm("¿Estás seguro de que deseas eliminar este usuario? Esta acción no se puede deshacer.");
+        }
     </script>
     <script>
-    $(document).on('click', '.btn-editar-usuario', function() {
-        const id = $(this).data('id_persona');
-        const nombre = $(this).data('nombre');
-        const apellido = $(this).data('apellido');
-        const cedula = $(this).data('cedula');
-        const correo = $(this).data('correo');
-        const telefono = $(this).data('telefono');
+        $(document).on('click', '.btn-editar-usuario', function() {
+            const id = $(this).data('id_persona');
+            const nombre = $(this).data('nombre');
+            const apellido = $(this).data('apellido');
+            const cedula = $(this).data('cedula');
+            const correo = $(this).data('correo');
+            const telefono = $(this).data('telefono');
 
-        // Usamos los IDs únicos del modal
-        $('#modal_id_persona').val(id);
-        $('#modal_nombre').val(nombre);
-        $('#modal_apellido').val(apellido);
-        $('#modal_cedula').val(cedula);
-        $('#modal_correo').val(correo);
-        $('#modal_telefono').val(telefono);
+            // Usamos los IDs únicos del modal
+            $('#modal_id_persona').val(id);
+            $('#modal_nombre').val(nombre);
+            $('#modal_apellido').val(apellido);
+            $('#modal_cedula').val(cedula);
+            $('#modal_correo').val(correo);
+            $('#modal_telefono').val(telefono);
 
-        $('#editarUsuarioModal').modal('show');
-    });
-    </script>
-    <script>
-    $(document).ready(function() {
-        // Evento para generar usuario
-        $(".btn-generar-usuario").click(function(e) {
-            e.preventDefault();
-
-            // Obtener el ID de la persona del botón
-            var id_persona = $(this).data("id");
-
-            // Solicitud AJAX al servidor
-            $.ajax({
-                url: "<?= base_url('index.php/UsersController/generar_usuario'); ?>", // Ajusta según tu ruta
-                type: "POST",
-                data: {
-                    id_persona: id_persona
-                },
-                dataType: "json",
-                success: function(response) {
-                    // Mostrar el modal
-                    $("#modalUsuario").modal("show");
-
-                    // Manejar la respuesta del servidor
-                    if (response.status === "success") {
-                        // Usuario creado
-                        $("#modalMensaje").text(response.message);
-                        $("#modalDetalles").show();
-                        $("#modalUsuarioGenerado").text(response.usuario);
-                        $("#modalPasswordGenerado").text(response.password);
-                        $("#modalRolAsignado").text(response
-                            .rol); // Mostrar el rol asignado
-                    } else if (response.status === "exists") {
-                        // Usuario ya existe
-                        $("#modalMensaje").text(response.message);
-                        $("#modalDetalles").show();
-                        $("#modalUsuarioGenerado").text(response.usuario);
-                        $("#modalPasswordGenerado").text("No disponible.");
-                        $("#modalRolAsignado").text(response
-                            .rol); // Mostrar el rol asignado
-                    } else {
-                        // Error general
-                        $("#modalMensaje").text(response.message);
-                        $("#modalDetalles").hide();
-                    }
-                },
-                error: function() {
-                    alert("Ocurrió un error al procesar la solicitud.");
-                }
-            });
+            $('#editarUsuarioModal').modal('show');
         });
-    });
     </script>
-
     <script>
-    $(document).ready(function() {
-        // Ocultar los mensajes de error al inicio
-        $(".error-message").hide();
+        $(document).ready(function() {
+            // Evento para generar usuario
+            $(".btn-generar-usuario").click(function(e) {
+                e.preventDefault();
 
-        // Manejar el envío del formulario
-        $("#formPersona").submit(function(e) {
-            e.preventDefault(); // Prevenir el envío predeterminado del formulario
+                // Obtener el ID de la persona del botón
+                var id_persona = $(this).data("id");
 
-            // Limpiar mensajes de error anteriores
-            $(".error-message").text("").hide();
+                // Solicitud AJAX al servidor
+                $.ajax({
+                    url: "<?= base_url('index.php/UsersController/generar_usuario'); ?>", // Ajusta según tu ruta
+                    type: "POST",
+                    data: {
+                        id_persona: id_persona
+                    },
+                    dataType: "json",
+                    success: function(response) {
+                        // Mostrar el modal
+                        $("#modalUsuario").modal("show");
 
-            // Realizar la solicitud AJAX
-            $.ajax({
-                url: "<?= base_url('index.php/PersonasController/guardar_persona'); ?>", // URL del controlador
-                type: "POST",
-                data: $(this).serialize(), // Serializar los datos del formulario
-                dataType: "json",
-                success: function(response) {
-                    if (response.status === "success") {
-                        // Mostrar datos en el modal
-                        $("#modalNombre").text(response.nombre);
-                        $("#modalApellidos").text(response.apellidos);
-                        $("#modalEmail").text(response.email);
-                        $("#modalTelefono").text(response.telefono);
-                        $("#modalCedula").text(response.cedula);
-
-                        // Mostrar el modal con los datos
-                        $("#modalPersona").modal("show");
-
-                        // Resetear el formulario después de un éxito
-                        $("#formPersona")[0].reset();
-                    } else if (response.status === "error") {
-                        // Mostrar los errores en sus respectivos campos
-                        if (response.errors) {
-                            for (var field in response.errors) {
-                                $("#" + field + "Error").text(response.errors[field])
-                                    .show();
-                            }
+                        // Manejar la respuesta del servidor
+                        if (response.status === "success") {
+                            // Usuario creado
+                            $("#modalMensaje").text(response.message);
+                            $("#modalDetalles").show();
+                            $("#modalUsuarioGenerado").text(response.usuario);
+                            $("#modalPasswordGenerado").text(response.password);
+                            $("#modalRolAsignado").text(response
+                                .rol); // Mostrar el rol asignado
+                        } else if (response.status === "exists") {
+                            // Usuario ya existe
+                            $("#modalMensaje").text(response.message);
+                            $("#modalDetalles").show();
+                            $("#modalUsuarioGenerado").text(response.usuario);
+                            $("#modalPasswordGenerado").text("No disponible.");
+                            $("#modalRolAsignado").text(response
+                                .rol); // Mostrar el rol asignado
                         } else {
-                            // Mostrar mensaje de error genérico si no hay errores específicos
-                            alert(response.message);
+                            // Error general
+                            $("#modalMensaje").text(response.message);
+                            $("#modalDetalles").hide();
                         }
+                    },
+                    error: function() {
+                        alert("Ocurrió un error al procesar la solicitud.");
                     }
-                },
-                error: function() {
-                    // Manejar errores en la solicitud
-                    alert(
-                        "Ocurrió un error al procesar la solicitud. Por favor, inténtalo de nuevo."
-                    );
-                }
+                });
             });
         });
-    });
-    </script>
-    <script>
-    $(document).ready(function() {
-        $('#modalUsuario, #modalPersona').on('hidden.bs.modal', function() {
-            location.reload(); // Recarga la página cuando el modal se cierre
-        });
-    });
     </script>
 
     <script>
-    $(document).ready(function() {
-        $('#tablaPersonas').DataTable({
-            "language": {
-                "lengthMenu": "Mostrar _MENU_ registros por página",
-                "zeroRecords": "No se encontraron resultados",
-                "info": "Mostrando página _PAGE_ de _PAGES_",
-                "infoEmpty": "No hay registros disponibles",
-                "infoFiltered": "(filtrado de _MAX_ registros totales)",
-                "search": "Buscar:",
-                "paginate": {
-                    "first": "Primero",
-                    "last": "Último",
-                    "next": "Siguiente",
-                    "previous": "Anterior"
-                }
-            }
+        $(document).ready(function() {
+            // Ocultar los mensajes de error al inicio
+            $(".error-message").hide();
+
+            // Manejar el envío del formulario
+            $("#formPersona").submit(function(e) {
+                e.preventDefault(); // Prevenir el envío predeterminado del formulario
+
+                // Limpiar mensajes de error anteriores
+                $(".error-message").text("").hide();
+
+                // Realizar la solicitud AJAX
+                $.ajax({
+                    url: "<?= base_url('index.php/PersonasController/guardar_persona'); ?>", // URL del controlador
+                    type: "POST",
+                    data: $(this).serialize(), // Serializar los datos del formulario
+                    dataType: "json",
+                    success: function(response) {
+                        if (response.status === "success") {
+                            // Mostrar datos en el modal
+                            $("#modalNombre").text(response.nombre);
+                            $("#modalApellidos").text(response.apellidos);
+                            $("#modalEmail").text(response.email);
+                            $("#modalTelefono").text(response.telefono);
+                            $("#modalCedula").text(response.cedula);
+
+                            // Mostrar el modal con los datos
+                            $("#modalPersona").modal("show");
+
+                            // Resetear el formulario después de un éxito
+                            $("#formPersona")[0].reset();
+                        } else if (response.status === "error") {
+                            // Mostrar los errores en sus respectivos campos
+                            if (response.errors) {
+                                for (var field in response.errors) {
+                                    $("#" + field + "Error").text(response.errors[field])
+                                        .show();
+                                }
+                            } else {
+                                // Mostrar mensaje de error genérico si no hay errores específicos
+                                alert(response.message);
+                            }
+                        }
+                    },
+                    error: function() {
+                        // Manejar errores en la solicitud
+                        alert(
+                            "Ocurrió un error al procesar la solicitud. Por favor, inténtalo de nuevo."
+                        );
+                    }
+                });
+            });
         });
-    });
+    </script>
+    <script>
+        $(document).ready(function() {
+            $('#modalUsuario, #modalPersona').on('hidden.bs.modal', function() {
+                location.reload(); // Recarga la página cuando el modal se cierre
+            });
+        });
+    </script>
+
+    <script>
+        $(document).ready(function() {
+            $('#tablaPersonas').DataTable({
+                "language": {
+                    "lengthMenu": "Mostrar _MENU_ registros por página",
+                    "zeroRecords": "No se encontraron resultados",
+                    "info": "Mostrando página _PAGE_ de _PAGES_",
+                    "infoEmpty": "No hay registros disponibles",
+                    "infoFiltered": "(filtrado de _MAX_ registros totales)",
+                    "search": "Buscar:",
+                    "paginate": {
+                        "first": "Primero",
+                        "last": "Último",
+                        "next": "Siguiente",
+                        "previous": "Anterior"
+                    }
+                }
+            });
+        });
     </script>
 
     <!-- DataTables JS -->
@@ -716,13 +718,13 @@
 
 
     <!-- Bootstrap core JavaScript-->
-    <script src="<?php echo base_url();?>public/assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="<?php echo base_url(); ?>public/assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 
     <!-- Core plugin JavaScript-->
-    <script src="<?php echo base_url();?>public/assets/vendor/jquery-easing/jquery.easing.min.js"></script>
+    <script src="<?php echo base_url(); ?>public/assets/vendor/jquery-easing/jquery.easing.min.js"></script>
 
     <!-- Custom scripts for all pages-->
-    <script src="<?php echo base_url();?>public/assets/js/sb-admin-2.min.js"></script>
+    <script src="<?php echo base_url(); ?>public/assets/js/sb-admin-2.min.js"></script>
 
 
 </body>
