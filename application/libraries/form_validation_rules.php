@@ -41,6 +41,9 @@ class Form_validation_rules {
                     'required' => 'El campo %s es obligatorio.',
                     'validar_cedula' => 'La cédula ingresada no es válida.'
                 ]
+<<<<<<< HEAD
+            ],            
+=======
             ],
             [
                 'field' => 'act_nombres',
@@ -60,6 +63,7 @@ class Form_validation_rules {
                 'rules' => 'required',
                 'errors' => ['required' => 'El campo %s es obligatorio.']
             ],
+>>>>>>> f6ff30043c5be546b6552614f80088870dac4a84
             [
                 'field' => 'distrito',
                 'label' => 'Distrito',
@@ -70,6 +74,27 @@ class Form_validation_rules {
                 ]
             ],
             [
+<<<<<<< HEAD
+                'field' => 'act_id',
+                'label' => 'A.C.T',
+                'rules' => 'required|numeric',
+                'errors' => [
+                    'required' => 'Debe seleccionar un %s.',
+                    'numeric' => 'Debe seleccionar un %s válido.'
+                ]
+                ],
+                [
+                    'field' => 'act_custodio',
+                    'label' => 'A.C.T custodio',
+                    'rules' => 'required|numeric',
+                    'errors' => [
+                        'required' => 'Debe seleccionar un %s.',
+                        'numeric' => 'Debe seleccionar un %s válido.'
+                    ]
+                    ],
+            [
+=======
+>>>>>>> f6ff30043c5be546b6552614f80088870dac4a84
                 'field' => 'canton',
                 'label' => 'Cantón',
                 'rules' => 'required|numeric',
