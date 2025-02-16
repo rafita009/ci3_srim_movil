@@ -9,7 +9,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>SB Admin 2 - Personas</title>
+    <title>SRIM EMP</title>
 
     <!-- Custom fonts for this template-->
     <link href="<?php echo base_url(); ?>public/assets/vendor/fontawesome-free/css/all.min.css" rel="stylesheet"
@@ -64,7 +64,7 @@
                     <?php endif; ?>
 
                     <!-- Sección de Registro de Persona -->
-                    <div class="mb-3">
+                    <div class="row">
                         <div class="col-12">
                             <div class="card rounded shadow w-100">
                                 <div class="card-body p-3">
@@ -168,7 +168,7 @@
                             </div>
                         </div>
                     </div>
-
+                    <br>
                     <!-- Sección de Tabla de Personas -->
                     <div class="row">
                         <div class="col-12">

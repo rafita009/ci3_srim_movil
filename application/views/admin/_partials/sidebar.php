@@ -23,7 +23,7 @@
 
     <!-- Heading -->
     <div class="sidebar-heading">
-        Interface
+       Gestión
     </div>
 
     <!-- Nav Item - Pages Collapse Menu -->
@@ -38,10 +38,10 @@
         class="collapse <?= ($this->uri->segment(1) == 'PersonasController' || $this->uri->segment(1) == 'RolesController') ? 'show' : '' ?>"
         aria-labelledby="headingTwo" data-parent="#accordionSidebar">
         <div class="bg-white py-2 collapse-inner rounded">
-            <h6 class="collapse-header">Gestión de Usuarios:</h6>
+            <h6 class="collapse-header">Agregar:</h6>
             <a class="collapse-item <?= ($this->uri->segment(1) == 'PersonasController' && $this->uri->segment(2) == 'index') ? 'active' : '' ?>"
                 href="<?= site_url('PersonasController/index') ?>">
-                <i class="fas fa-user-plus"></i> Agregar Usuario
+                <i class="fas fa-user-plus"></i> Usuario
             </a>
             <a class="collapse-item <?= ($this->uri->segment(1) == 'RolesController' && $this->uri->segment(2) == 'index') ? 'active' : '' ?>"
                 href="<?= site_url('RolesController/index') ?>">
@@ -64,7 +64,7 @@
         class="collapse <?= ($this->uri->segment(1) == 'ProcesosController' || $this->uri->segment(1) == 'SearchController') ? 'show' : '' ?>"
         aria-labelledby="headingProcesos" data-parent="#accordionSidebar">
         <div class="bg-white py-2 collapse-inner rounded">
-            <h6 class="collapse-header">Gestión de Procesos:</h6>
+            <h6 class="collapse-header">Gestión:</h6>
             <a class="collapse-item <?= ($this->uri->segment(1) == 'ProcesosController' && $this->uri->segment(2) == 'index') ? 'active' : '' ?>"
                 href="<?= site_url('ProcesosController/index') ?>">
                 <i class="fas fa-edit"></i> Registrar Proceso
@@ -86,7 +86,7 @@
 
     <!-- Heading -->
     <div class="sidebar-heading">
-        Addons
+        Añadir
     </div>
 
     <!-- Nav Item - Pages Collapse Menu -->
@@ -94,21 +94,17 @@
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePages" aria-expanded="true"
             aria-controls="collapsePages">
             <i class="fas fa-fw fa-folder"></i>
-            <span>Modulos</span>
+            <span>Módulos</span>
         </a>
         <div id="collapsePages" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
             <div class="bg-white py-2 collapse-inner rounded">
-                <h6 class="collapse-header">Login Screens:</h6>
+                <h6 class="collapse-header">Insertar:</h6>
                 <a class="collapse-item" href="<?= site_url('CausasController/index') ?>">Causas</a>
-                <a class="collapse-item" href="register.html">Register</a>
-                <a class="collapse-item" href="forgot-password.html">Forgot Password</a>
-                <div class="collapse-divider"></div>
-                <h6 class="collapse-header">Other Pages:</h6>
-                <a class="collapse-item" href="404.html">404 Page</a>
-                <a class="collapse-item" href="blank.html">Blank Page</a>
             </div>
         </div>
     </li>
+    <hr class="sidebar-divider">
+
 
     <!-- Nav Item - Charts -->
     <li class="nav-item">
@@ -125,7 +121,6 @@
     </li>
 
     <!-- Divider -->
-    <hr class="sidebar-divider d-none d-md-block">
 
     <!-- Sidebar Toggler (Sidebar) -->
     <div class="text-center d-none d-md-inline">

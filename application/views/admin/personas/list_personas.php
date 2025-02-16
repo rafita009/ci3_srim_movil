@@ -9,7 +9,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>SB Admin 2 - Blank</title>
+    <title>SRIM EMP</title>
 
     <!-- Custom fonts for this template-->
     <link href="<?php echo base_url(); ?>public/assets/vendor/fontawesome-free/css/all.min.css" rel="stylesheet"
@@ -45,59 +45,60 @@
                 <!-- Begin Page Content -->
                 <div class="container-fluid">
 
-                    
-                        <div class="ms-auto">
-                            <div class="btn-group">
-                                <button type="button" class="btn btn-primary">Settings</button>
-                                <button type="button"
-                                    class="btn btn-primary split-bg-primary dropdown-toggle dropdown-toggle-split"
-                                    data-bs-toggle="dropdown"> <span class="visually-hidden">Toggle Dropdown</span>
-                                </button>
-                                <div class="dropdown-menu dropdown-menu-right dropdown-menu-lg-end"> <a
-                                        class="dropdown-item" href="javascript:;">Action</a>
-                                    <a class="dropdown-item" href="javascript:;">Another action</a>
-                                    <a class="dropdown-item" href="javascript:;">Something else here</a>
-                                    <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item" href="javascript:;">Separated link</a>
-                                </div>
+                
+                    <div class="ms-auto">
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-primary">Settings</button>
+                            <button type="button"
+                                class="btn btn-primary split-bg-primary dropdown-toggle dropdown-toggle-split"
+                                data-bs-toggle="dropdown"> <span class="visually-hidden">Toggle Dropdown</span>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-right dropdown-menu-lg-end"> <a
+                                    class="dropdown-item" href="javascript:;">Action</a>
+                                <a class="dropdown-item" href="javascript:;">Another action</a>
+                                <a class="dropdown-item" href="javascript:;">Something else here</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="javascript:;">Separated link</a>
                             </div>
                         </div>
                     </div>
-                    <!--end breadcrumb-->
-                    <div class="container">
-                        <h2>Lista de Personas</h2>
-                        <?php if ($this->session->flashdata('success')): ?>
+
+                </div>
+                <!--end breadcrumb-->
+                <div class="container">
+                    <h2>Lista de Personas</h2>
+                    <?php if ($this->session->flashdata('success')): ?>
                         <div class="alert alert-success alert-dismissible fade show" role="alert">
                             <?= $this->session->flashdata('success'); ?>
                             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
-                        <?php endif; ?>
+                    <?php endif; ?>
 
-                        <?php if ($this->session->flashdata('error')): ?>
+                    <?php if ($this->session->flashdata('error')): ?>
                         <div class="alert alert-danger alert-dismissible fade show" role="alert">
                             <?= $this->session->flashdata('error'); ?>
                             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
-                        <?php endif; ?>
+                    <?php endif; ?>
 
-                        <table class="table table-bordered">
-                            <thead>
-                                <tr>
-                                    <th>Nombre</th>
-                                    <th>Apellidos</th>
-                                    <th>Email</th>
-                                    <th>Teléfono</th>
-                                    <th>Cédula</th>
-                                    <th>Acciones</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php foreach ($personas as $persona): ?>
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Apellidos</th>
+                                <th>Email</th>
+                                <th>Teléfono</th>
+                                <th>Cédula</th>
+                                <th>Acciones</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($personas as $persona): ?>
                                 <tr>
                                     <td><?= $persona['NOMBRES']; ?></td>
                                     <td><?= $persona['APELLIDOS']; ?></td>
@@ -135,23 +136,23 @@
                                         </form>
                                     </td>
                                 </tr>
-                                <?php endforeach; ?>
-                            </tbody>
-                        </table>
-                    </div>
-
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
                 </div>
-                <!-- /.container-fluid -->
 
             </div>
-            <!-- End of Main Content -->
-
-            <!-- Footer -->
-            <?php $this->load->view('admin/_partials/footer') ?>
-            <!-- End of Footer -->
+            <!-- /.container-fluid -->
 
         </div>
-        <!-- End of Content Wrapper -->
+        <!-- End of Main Content -->
+
+        <!-- Footer -->
+        <?php $this->load->view('admin/_partials/footer') ?>
+        <!-- End of Footer -->
+
+    </div>
+    <!-- End of Content Wrapper -->
 
     </div>
     <!-- End of Page Wrapper -->
@@ -175,21 +176,21 @@
                 <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
                 <div class="modal-footer">
                     <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-                    <a class="btn btn-primary" href="<?php echo site_url();?>/LoginController/logout">Logout</a>
+                    <a class="btn btn-primary" href="<?php echo site_url(); ?>/LoginController/logout">Logout</a>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Bootstrap core JavaScript-->
-    <script src="<?php echo base_url();?>public/assets/vendor/jquery/jquery.min.js"></script>
-    <script src="<?php echo base_url();?>public/assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="<?php echo base_url(); ?>public/assets/vendor/jquery/jquery.min.js"></script>
+    <script src="<?php echo base_url(); ?>public/assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 
     <!-- Core plugin JavaScript-->
-    <script src="<?php echo base_url();?>public/assets/vendor/jquery-easing/jquery.easing.min.js"></script>
+    <script src="<?php echo base_url(); ?>public/assets/vendor/jquery-easing/jquery.easing.min.js"></script>
 
     <!-- Custom scripts for all pages-->
-    <script src="<?php echo base_url();?>public/assets/js/sb-admin-2.min.js"></script>
+    <script src="<?php echo base_url(); ?>public/assets/js/sb-admin-2.min.js"></script>
 
 </body>
 
