@@ -63,4 +63,8 @@ public function get_all_agentes() {
     $this->db->order_by('APELLIDOS_ACT, NOMBRES_ACT');
     return $this->db->get()->result_array();
 }
+public function get_all_infractores()
+{
+    return $this->db->get('infractores')->result_array();
+}
 }

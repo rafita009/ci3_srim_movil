@@ -42,24 +42,7 @@ class Form_validation_rules {
                     'validar_cedula' => 'La cédula ingresada no es válida.'
                 ]
             ],
-            [
-                'field' => 'act_nombres',
-                'label' => 'Nombres del Agente',
-                'rules' => 'required',
-                'errors' => ['required' => 'El campo %s es obligatorio.']
-            ],
-            [
-                'field' => 'act_apellidos',
-                'label' => 'Apellidos del Agente',
-                'rules' => 'required',
-                'errors' => ['required' => 'El campo %s es obligatorio.']
-            ],
-            [
-                'field' => 'nro_act',
-                'label' => 'Numero del Agente',
-                'rules' => 'required',
-                'errors' => ['required' => 'El campo %s es obligatorio.']
-            ],
+           
             [
                 'field' => 'distrito',
                 'label' => 'Distrito',

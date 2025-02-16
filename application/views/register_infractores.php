@@ -30,14 +30,8 @@
 
 
 
-    <!-- Bootstrap 4 CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <!-- FontAwesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
-    <!-- jQuery -->
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-    <!-- Bootstrap 4 JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    
 </head>
 
 <body id="page-top">
@@ -187,7 +181,7 @@
                                                 </div>
 
                                                 <!-- Campo oculto para el ID -->
-                                                <input type="hidden" id="selected_act_id" name="act_id" required>
+                                                <input type="hidden" id="selected_act_id" name="act_id_procede" required>
                                                 <small id="act_idError" class="error-message text-danger"></small>
 
                                                 <!-- Información del ACT seleccionado -->
@@ -1003,7 +997,7 @@
         }
 
         function selectAct(act) {
-            $('#selected_act_id').val(act.ID_ACT_PROCEDE);
+            $('#selected_act_id').val(act.ID_AGENTE);
             $('#selectedActNumber').text(act.NRO_ACT);
             $('#selectedActName').text(`${act.APELLIDOS_ACT}, ${act.NOMBRES_ACT}`);
 

@@ -87,9 +87,9 @@ public function obtener_fotos_pertenencias($id_infractor) {
 }
 public function obtener_act_procede($id_infractor) 
 {
-    $this->db->select('act_procede.*');
-    $this->db->from('act_procede');
-    $this->db->join('procesos', 'procesos.ID_ACT_PROCEDE = act_procede.ID_ACT_PROCEDE');
+    $this->db->select('tab_agentes.*');
+    $this->db->from('tab_agentes');
+    $this->db->join('procesos', 'procesos.ID_AGENTE = tab_agentes.ID_AGENTE');
     $this->db->where('procesos.ID_INFRACTOR', $id_infractor);
     return $this->db->get()->row_array();
 }
