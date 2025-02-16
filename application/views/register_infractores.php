@@ -334,6 +334,8 @@
                                             <div class="col-md-4">
                                                 <label for="act_custodio" class="form-label fw-bold">Agente
                                                     Custodio<span class="text-danger">*</span></label>
+                                                    <br>
+                                                    <br>
                                                 <select id="act_custodio" name="act_custodio" class="form-select"
                                                     required>
                                                     <option value="">Seleccione...</option>
