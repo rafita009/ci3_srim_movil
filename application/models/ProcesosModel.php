@@ -45,8 +45,8 @@ public function get_proceso($id_infractor)
     return $query->row_array();
 }
 public function search_acts($search) {
-    $this->db->select('ID_ACT_PROCEDE, NRO_ACT, NOMBRES_ACT, APELLIDOS_ACT');
-    $this->db->from('act_procede');
+    $this->db->select('ID_AGENTE, NRO_ACT, NOMBRES_ACT, APELLIDOS_ACT');
+    $this->db->from('tab_agentes');
     $this->db->group_start();
     $this->db->like('NOMBRES_ACT', $search);
     $this->db->or_like('APELLIDOS_ACT', $search);
@@ -56,5 +56,11 @@ public function search_acts($search) {
     
     $query = $this->db->get();
     return $query->result_array();
+}
+public function get_all_agentes() {
+    $this->db->select('ID_AGENTE, NRO_ACT, NOMBRES_ACT, APELLIDOS_ACT');
+    $this->db->from('tab_agentes');
+    $this->db->order_by('APELLIDOS_ACT, NOMBRES_ACT');
+    return $this->db->get()->result_array();
 }
 }

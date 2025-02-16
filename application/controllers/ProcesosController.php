@@ -46,6 +46,7 @@ class ProcesosController extends CI_Controller
     $tipo_pruebas = $this->ProcesosModel->get_tipos_pruebas();
     // Obtiene los cdit
     $cdit = $this->ProcesosModel->get_cdit();
+    $agentes= $this->ProcesosModel->get_all_agentes();
 
 
 
@@ -57,7 +58,8 @@ class ProcesosController extends CI_Controller
          'causas' => $causas,
          'tipo_placas' => $tipo_placas,
          'tipo_pruebas' => $tipo_pruebas,
-         'cdit' => $cdit
+         'cdit' => $cdit,
+         'agentes' => $agentes
      ];
          $this->load->view('register_infractores', $data);
 }
@@ -494,8 +496,8 @@ public function editar($id_infractor) {
             'T_INFRACTOR' => $this->input->post('telefono_inf')
         ]; 
         // Ahora solo necesitamos el ID del ACT seleccionado
-        $act_procede = [
-            'ID_ACT_PROCEDE' => $this->input->post('act_id') // Este es el campo hidden que recibe el ID
+        $id_agente = [
+            'ID_AGENTE' => $this->input->post('act_id') // Este es el campo hidden que recibe el ID
         ]; 
         $placas = [
             'ID_TIPO_PLACA' => $this->input->post('tipo_placa'),
@@ -515,7 +517,7 @@ public function editar($id_infractor) {
         $fecha_hora_entrada_vm = [
             'ID_INFRACTOR' => null, // Se incluye el ID del infractor
             'FECHA_HORA_INGRESO_VM' => $this->input->post('fecha_entrada_valoracion'),
-            'AGENTE_CUSTODIO_VM' => $this->input->post('act_custodio')
+            'AGENTE_CUSTODIO_VM' => $this->input->post('act_custodio')  // Esto recibirá el ID_AGENTE que seleccionaste
         ];
         $fecha_hora_salida_vm = [
             'ID_INFRACTOR' => null, // Se incluye el ID del infractor
@@ -579,18 +581,17 @@ public function editar($id_infractor) {
             if (!$this->db->insert('infractores', $datos['infractor'])) {
                 throw new Exception('Error al insertar infractor');
             }
-            $id_act_procede = $this->input->post('act_id');
+            $id_infractor = $this->db->insert_id();
+
             // 2. Procesar fotos de infractor
             $ruta_foto_infractor = $this->guardar_foto_infractor($id_infractor, $datos['infractor'], $datos['archivos'] ); // Aquí pasamos los archivos que ya vienen en $datos
            
              // 3. Procesar fotos de pertenencias
             $rutas_fotos_pertenencias = $this->guardar_fotos_pertenencias($id_infractor, $datos['infractor'], $datos['archivos']); // Procesar fotos de pertenencias
             
-            // 4. Insertar act de procedimiento
-            if (!$this->db->insert('act_procede', $datos['act_procede'])) {
-                throw new Exception('Error al insertar act_procede');
-            }
-            $id_act_procede = $this->db->insert_id();
+            
+            // 4. Insertar agente de procedimiento
+            $id_agente = $this->input->post('act_id');
            
             // 5. Insertar placa
             if (!$this->db->insert('placas', $datos['placas'])) {
@@ -604,7 +605,7 @@ public function editar($id_infractor) {
                 'ID_USUARIO' => $this->session->userdata('id_usuario'),
                 'ID_INFRACTOR' => $id_infractor,
                 'ID_PLACA' => $id_placa,
-                'ID_ACT_PROCEDE' => $id_act_procede,
+                'ID_AGENTE' => $id_agente,
                 'NOMBRE_PROCESO' => 'Registro de Infractor',
                 'FECHA_REGISTRO' => date('Y-m-d H:i:s')
             ];
