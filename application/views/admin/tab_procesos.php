@@ -37,15 +37,15 @@
 
             <!-- Main Content -->
             <div id="content">
-                <h4>PROCESOS DE INFRACTORES</h4>
-                <h4>ejemplo regreso</h4>
+                <!-- Topbar -->
                 <!-- Topbar -->
                 <?php $this->load->view('admin/_partials/navbar') ?>
                 <!-- End of Topbar -->
 
                 <!-- Begin Page Content -->
                 <div class="container-fluid">
-
+                    <h4>Procesos de Infractores</h4>
+                    <div>Hola</div>
                     <div class="row">
                         <div class="col-12">
                             <div class="card">
