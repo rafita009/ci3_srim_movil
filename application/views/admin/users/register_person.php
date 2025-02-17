@@ -70,7 +70,7 @@
                                 <div class="card-body p-3">
                                     <div class="d-flex align-items-center mb-3">
                                         <i class="fas fa-user-plus text-primary mr-2 fa-lg"></i>
-                                        <h3 class="mb-0 ">Registro de Persona</h3>
+                                        <h3 class="mb-0 " style="color: black ">Registro de Persona</h3>
                                     </div>
                                     <form id="formPersona"
                                         action="<?= site_url('PersonasController/guardar_persona') ?>">
@@ -172,9 +172,9 @@
                     <!-- Sección de Tabla de Personas -->
                     <div class="row">
                         <div class="col-12">
-                            <div class="card">
+                            <div class="card rounded shadow-lg">
                                 <div class="card-header">
-                                    <h3 class="card-title">Listado de Personas</h3>
+                                    <h3 class="card-title" style="color: black ">Listado de Personas</h3>
                                 </div>
                                 <div class="card-body p-3">
                                     <div class="table-responsive">

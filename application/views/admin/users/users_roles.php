@@ -48,9 +48,9 @@
                 <div class="container-fluid">
                     <div class="row">
                         <div class="col-12">
-                            <div class="card">
+                            <div class="card rounded shadow">
                                 <div class="card-header">
-                                    <h3 class="card-title">Gestión de Roles</h3>
+                                    <h3 class="card-title" style="color: black ">Gestión de Roles</h3>
                                 </div>
                                 <div class="card-body p-3">
                                     <?php if ($this->session->flashdata('success')): ?>
