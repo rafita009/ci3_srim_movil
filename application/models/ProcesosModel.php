@@ -67,4 +67,10 @@ public function get_all_infractores()
 {
     return $this->db->get('infractores')->result_array();
 }
+public function find($id_infractor)
+{
+    return $this->db->where('ID_INFRACTOR', $id_infractor)
+                    ->get('infractores  ')
+                    ->row_array();
+}
 }

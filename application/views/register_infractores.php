@@ -120,25 +120,28 @@
                                     </div>
                                     <div class="col-md-8">
                                         <!-- Datos del infractor -->
-                                        <div class="row g-3">
-                                            <div class="col-md-6">
-                                                <label for="nombre_inf" class="form-label fw-bold">Nombres <span
-                                                        class="text-danger">*</span></label>
-                                                <input type="text" class="form-control" id="nombre_inf"
-                                                    name="nombre_inf" required>
-                                                <small id="nombre_infError" class="error-message text-danger"></small>
-
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label for="apellidos_inf" class="form-label fw-bold">Apellidos
-                                                    <span class="text-danger">*</span></label>
-                                                <input type="text" class="form-control" id="apellidos_inf"
-                                                    name="apellidos_inf" required>
-                                                <small id="apellidos_infError"
-                                                    class="error-message text-danger"></small>
-
-                                            </div>
-                                        </div>
+                                        <?php if(isset($infractor)): ?>
+    <input type="hidden" name="id_infractor" value="<?= $infractor['ID_INFRACTOR'] ?>">
+    <div class="row g-3">
+        <div class="col-md-6">
+            <label for="nombre_inf" class="form-label fw-bold">Nombres</label>
+            <input type="text" class="form-control" id="nombre_inf" 
+                   value="<?= $infractor['N_INFRACTOR'] ?>" readonly>
+        </div>
+        <div class="col-md-6">
+            <label for="apellidos_inf" class="form-label fw-bold">Apellidos</label>
+            <input type="text" class="form-control" id="apellidos_inf" 
+                   value="<?= $infractor['A_INFRACTOR'] ?>" readonly>
+        </div>
+    </div>
+    <div class="row g-3 mt-3">
+        <div class="col-md-6">
+            <label for="cedula_inf" class="form-label fw-bold">Cédula</label>
+            <input type="text" class="form-control" id="cedula_inf" 
+                   value="<?= $infractor['C_INFRACTOR'] ?>" readonly>
+        </div>
+    </div>
+<?php endif; ?>
 
                                         <div class="row g-3 mt-3">
                                             <div class="col-md-6">

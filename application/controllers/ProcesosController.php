@@ -29,13 +29,12 @@ class ProcesosController extends CI_Controller
         $this->rol = $this->session->userdata('ROL');
         
     }
-    public function index()
-   
- {
-
+    public function index($id_infractor = null)
+{
     // Obtener los detalles del usuario desde el modelo
     $id_usuario = $this->session->userdata('id_usuario');
     $user_details = $this->UsersModel->get_user_by_id($id_usuario);
+    
     // Obtiene los distritos para el formulario
     $distritos = $this->ProcesosModel->get_distritos();
     // Obtiene las causas
@@ -46,22 +45,28 @@ class ProcesosController extends CI_Controller
     $tipo_pruebas = $this->ProcesosModel->get_tipos_pruebas();
     // Obtiene los cdit
     $cdit = $this->ProcesosModel->get_cdit();
-    $agentes= $this->ProcesosModel->get_all_agentes();
+    $agentes = $this->ProcesosModel->get_all_agentes();
 
+    // Obtener datos del infractor si se proporciona un ID
+    $infractor = null;
+    if ($id_infractor) {
+        $infractor = $this->ProcesosModel->find($id_infractor);
+    }
+    
+    // Preparar los datos para la vista
+    $data = [
+        'usuario' => $user_details['NOMBRES'] . ' ' . $user_details['APELLIDOS'], // Nombre completo
+        'foto' => !empty($user_details['FOTO']) ? $user_details['FOTO'] : 'default_profile.png', // Foto del usuario o predeterminada
+        'distritos' => $distritos,
+        'causas' => $causas,
+        'tipo_placas' => $tipo_placas,
+        'tipo_pruebas' => $tipo_pruebas,
+        'cdit' => $cdit,
+        'agentes' => $agentes,
+        'infractor' => $infractor // Añadir los datos del infractor al array de datos
+    ];
 
-
-     // Preparar los datos para la vista
-     $data = [
-         'usuario' => $user_details['NOMBRES'] . ' ' . $user_details['APELLIDOS'], // Nombre completo
-         'foto' => !empty($user_details['FOTO']) ? $user_details['FOTO'] : 'default_profile.png' ,// Foto del usuario o predeterminada
-         'distritos' => $distritos,
-         'causas' => $causas,
-         'tipo_placas' => $tipo_placas,
-         'tipo_pruebas' => $tipo_pruebas,
-         'cdit' => $cdit,
-         'agentes' => $agentes
-     ];
-         $this->load->view('register_infractores', $data);
+    $this->load->view('register_infractores', $data);
 }
         
 public function search_acts()
@@ -488,13 +493,7 @@ public function editar($id_infractor) {
     
     private function agrupar_datos_por_tablas() 
     {
-        // Datos del infractor
-        $infractor = [
-            'N_INFRACTOR' => $this->input->post('nombre_inf'),
-            'A_INFRACTOR' => $this->input->post('apellidos_inf'),
-            'C_INFRACTOR' => $this->input->post('cedula_inf'),
-            'T_INFRACTOR' => $this->input->post('telefono_inf')
-        ]; 
+        
         // Ahora solo necesitamos el ID del ACT seleccionado
         $id_agente = [
             'ID_AGENTE' => $this->input->post('act_id') // Este es el campo hidden que recibe el ID
@@ -577,10 +576,7 @@ public function editar($id_infractor) {
     
         private function insertar_datos_secuencialmente($datos) 
         {
-            // 1. Insertar infractor (tabla base)
-            if (!$this->db->insert('infractores', $datos['infractor'])) {
-                throw new Exception('Error al insertar infractor');
-            }
+            
             $id_infractor = $this->db->insert_id();
 
             // 2. Procesar fotos de infractor
