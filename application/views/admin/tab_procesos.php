@@ -25,9 +25,9 @@
 
 <body id="page-top">
 
-    <!-- Page Wrapper -->
+    <!-- Page W rapper -->
     <div id="wrapper">
-
+        <!-- Sidebar -->
         <!-- Sidebar -->
         <?php $this->load->view('admin/_partials/sidebar') ?>
         <!-- End of Sidebar -->
@@ -37,7 +37,7 @@
 
             <!-- Main Content -->
             <div id="content">
-
+                <h4>PROCESOS DE INFRACTORES</h4>
                 <!-- Topbar -->
                 <?php $this->load->view('admin/_partials/navbar') ?>
                 <!-- End of Topbar -->
