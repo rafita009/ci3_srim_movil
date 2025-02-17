@@ -3,10 +3,6 @@ $CI =& get_instance();
 $CI->load->model('ProcesosModel');
 $infractores = $CI->ProcesosModel->get_all_infractores();
 ?>
-<!-- jQuery primero -->
-
-<!-- Bootstrap Bundle with Popper -->
-
 
 <!-- SweetAlert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
