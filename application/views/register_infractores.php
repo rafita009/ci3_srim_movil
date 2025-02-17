@@ -181,11 +181,7 @@
                                                 </div>
 
                                                 <!-- Campo oculto para el ID -->
-<<<<<<< HEAD
                                                 <input type="hidden" id="selected_act_id" name="act_id" required>
-=======
-                                                <input type="hidden" id="selected_act_id" name="act_id_procede" required>
->>>>>>> backend
                                                 <small id="act_idError" class="error-message text-danger"></small>
 
                                                 <!-- Información del ACT seleccionado -->
@@ -1001,11 +997,7 @@
         }
 
         function selectAct(act) {
-<<<<<<< HEAD
-            $('#selected_act_id').val(act.ID_ACT_PROCEDE);
-=======
             $('#selected_act_id').val(act.ID_AGENTE);
->>>>>>> backend
             $('#selectedActNumber').text(act.NRO_ACT);
             $('#selectedActName').text(`${act.APELLIDOS_ACT}, ${act.NOMBRES_ACT}`);
 

@@ -38,6 +38,7 @@
             <!-- Main Content -->
             <div id="content">
                 <h4>PROCESOS DE INFRACTORES</h4>
+                <h4>ejemplo regreso</h4>
                 <!-- Topbar -->
                 <?php $this->load->view('admin/_partials/navbar') ?>
                 <!-- End of Topbar -->
