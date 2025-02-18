@@ -55,8 +55,9 @@
                                 data-target="#modalTipoPrueba">
                                 <i class="fas fa-plus"></i> Agregar
                             </button>
-                            <a href="<?php echo site_url('CausasController/eliminados'); ?>"
-                                class="btn btn-danger">Eliminados</a>
+                            <a href="#" class="btn btn-danger" data-toggle="modal" data-target="#modalTipoPruebaEliminados">
+                                Eliminados
+                            </a>
                         </p>
                     </div>
                     <?php if ($this->session->flashdata('success')): ?>
@@ -75,7 +76,7 @@
                     </div>
                     <?php endif; ?>
                     <div class="table-responsive">
-                        <table id="tablaCausas" class="table table-bordered table-hover datatable">
+                        <table id="tablaTipoP" class="table table-bordered table-hover datatable">
                             <thead class="thead-dark">
                                 <tr>
                                     <th>Nro</th>
@@ -97,7 +98,7 @@
                                         </button>
                                     </td>
                                     <td>
-                                        <a href="<?php echo site_url('CausasController/eliminar/'.$dato['ID_TIPO_PRUEBA']); ?>"
+                                        <a href="<?php echo site_url('Tipo_p_Controller/eliminar/'.$dato['ID_TIPO_PRUEBA']); ?>"
                                             class="btn btn-danger">
                                             <i class="fas fa-trash"></i> Eliminar
                                         </a>
@@ -209,11 +210,58 @@
             </div>
         </div>
     </div>
+
+     <!-- Modal de Tipos de Prueba Eliminados -->
+<div class="modal fade" id="modalTipoPruebaEliminados" tabindex="-1" role="dialog" aria-labelledby="modalTipoPruebaEliminadosLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTipoPruebaEliminadosLabel">Tipos de Prueba Eliminados</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive">
+                    <table id="tablaTipoPruebaElim" class="table table-bordered table-hover datatable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Tipo de Prueba</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if(!empty($eliminados)): ?>
+                            <?php foreach($eliminados as $elim): ?>
+                            <tr>
+                                <td><?php echo $elim['ID_TIPO_PRUEBA']; ?></td>
+                                <td><?php echo $elim['NOMBRE_PRUEBA']; ?></td>
+                                <td>
+                                    <a href="<?php echo site_url('Tipo_p_Controller/reactivar/'.$elim['ID_TIPO_PRUEBA']); ?>"
+                                        class="btn btn-warning btn-sm">
+                                        <i class="fas fa-arrow-alt-circle-up"></i> Reingresar
+                                    </a>
+                                </td>
+                            </tr>
+                            <?php endforeach; ?>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>                               
+
     <script src="<?php echo base_url();?>public/assets/vendor/jquery/jquery.min.js"></script>
 
     <script>
     $(document).ready(function() {
-        $('#tablaCausas').DataTable({
+        $('#tablaTipoP').DataTable({
             "language": {
                 "lengthMenu": "Mostrar _MENU_ registros por página",
                 "zeroRecords": "No se encontraron resultados",
@@ -344,6 +392,34 @@
             });
         });
     });
+    </script>
+     <script>
+        $(document).ready(function() {
+    $('#tablaTipoPruebaElim').DataTable({
+        language: {
+            processing: "Procesando...",
+            search: "Buscar:",
+            lengthMenu: "Mostrar _MENU_ registros",
+            info: "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+            infoEmpty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+            infoFiltered: "(filtrado de un total de _MAX_ registros)",
+            infoPostFix: "",
+            loadingRecords: "Cargando...",
+            zeroRecords: "No se encontraron resultados",
+            emptyTable: "Ningún dato disponible en esta tabla",
+            paginate: {
+                first: "Primero",
+                previous: "Anterior",
+                next: "Siguiente",
+                last: "Último"
+            },
+            aria: {
+                sortAscending: ": Activar para ordenar la columna de manera ascendente",
+                sortDescending: ": Activar para ordenar la columna de manera descendente"
+            }
+        }
+    });
+});
     </script>
     <!-- DataTables JS -->
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>

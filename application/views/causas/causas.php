@@ -56,7 +56,10 @@
                         <button type="button" class="btn btn-info" data-toggle="modal" data-target="#modalCausa">
                             <i class="fas fa-plus"></i> Agregar
                         </button> 
-                        <a href="<?php echo site_url('CausasController/eliminados'); ?>" class="btn btn-danger">Eliminados</a>
+                        <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#modalEliminados">
+                            <i class="fas fa-trash"></i> Eliminados
+
+                        </button>
                         </p>
                     </div>
                     <?php if ($this->session->flashdata('success')): ?>
@@ -209,6 +212,52 @@
         </div>
     </div>
 </div>
+
+<!-- Modal de Eliminados -->
+<div class="modal fade" id="modalEliminados" tabindex="-1" role="dialog" aria-labelledby="modalEliminadosLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalEliminadosLabel">Causas Eliminadas</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive">
+                    <table id="tablaCausasElim" class="table table-bordered table-hover datatable">
+                        <thead>
+                            <tr>
+                                <th>Nro</th>
+                                <th>Causa</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if(!empty($eliminados)): ?>
+                            <?php foreach($eliminados as $elim): ?>
+                            <tr>
+                                <td><?php echo $elim['ID_CAUSA']; ?></td>
+                                <td><?php echo $elim['CAUSA']; ?></td>
+                                <td>
+                                    <a href="<?php echo site_url('CausasController/reactivar/'.$elim['ID_CAUSA']); ?>"
+                                        class="btn btn-warning btn-sm">
+                                        <i class="fas fa-arrow-alt-circle-up"></i> Reingresar
+                                    </a>
+                                </td>
+                            </tr>
+                            <?php endforeach; ?>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
     <script src="<?php echo base_url();?>public/assets/vendor/jquery/jquery.min.js"></script>
 
     <script>
@@ -357,7 +406,34 @@ $(document).ready(function() {
     });
 });
 </script>
-    
+    <script>
+        $(document).ready(function() {
+    $('#tablaCausasElim').DataTable({
+        language: {
+            processing: "Procesando...",
+            search: "Buscar:",
+            lengthMenu: "Mostrar _MENU_ registros",
+            info: "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+            infoEmpty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+            infoFiltered: "(filtrado de un total de _MAX_ registros)",
+            infoPostFix: "",
+            loadingRecords: "Cargando...",
+            zeroRecords: "No se encontraron resultados",
+            emptyTable: "Ningún dato disponible en esta tabla",
+            paginate: {
+                first: "Primero",
+                previous: "Anterior",
+                next: "Siguiente",
+                last: "Último"
+            },
+            aria: {
+                sortAscending: ": Activar para ordenar la columna de manera ascendente",
+                sortDescending: ": Activar para ordenar la columna de manera descendente"
+            }
+        }
+    });
+});
+    </script>
     <!-- DataTables JS -->
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>

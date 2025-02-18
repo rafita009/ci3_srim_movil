@@ -27,10 +27,13 @@ class CausasController extends CI_Controller {
     {
         $id_usuario = $this->session->userdata('id_usuario');
         $user_details = $this->UsersModel->get_user_by_id($id_usuario);
+        $eliminados = $this->CausasModel->getCausasEliminadas();
+
        
         $data = [
             'titulo' => 'Causas',
             'datos' => $this->CausasModel->getCausasActivas(),
+            'eliminados' => $eliminados,
             'id_usuario' => $id_usuario,
             'usuario' => $user_details['NOMBRES'] . ' ' . $user_details['APELLIDOS'],
             'foto' => !empty($user_details['FOTO']) ? $user_details['FOTO'] : 'uploads/fotos_usuario/default_profile.png'
@@ -149,24 +152,7 @@ class CausasController extends CI_Controller {
             echo json_encode($response);
         }
 
-        public function eliminados()
-{
-   
-
-    // Obtener los detalles del usuario desde el modelo
-    $id_usuario = $this->session->userdata('id_usuario');
-    $user_details = $this->UsersModel->get_user_by_id($id_usuario);
-    
-    $data = [
-        'titulo' => 'Causas eliminadas',
-        'datos' => $this->CausasModel->getCausasEliminadas(),
-        'id_usuario' => $id_usuario,
-        'usuario' => $user_details['NOMBRES'] . ' ' . $user_details['APELLIDOS'],
-        'foto' => !empty($user_details['FOTO']) ? $user_details['FOTO'] : 'uploads/fotos_usuario/default_profile.png'
-    ];
-    
-    $this->load->view('causas/eliminados', $data);
-}
+       
     public function eliminar($id)
     {
         $this->CausasModel->eliminarCausa($id);
