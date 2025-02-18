@@ -39,96 +39,114 @@ class CausasController extends CI_Controller {
         $this->load->view('causas/causas', $data);
     }
 
-    public function nuevo()
-    {
-
-        $id_usuario = $this->session->userdata('id_usuario');
-        $user_details = $this->UsersModel->get_user_by_id($id_usuario);
-
-        if ($this->input->post()) {
-            $causa = $this->input->post('causa');
-            
-            if (!$this->CausasModel->existeCausa($causa)) {
-                $this->CausasModel->agregarCausa($causa);
-                $this->session->set_flashdata('success', 'Causa agregada correctamente');
-                redirect('causas');
-            } else {
-                $this->session->set_flashdata('error', 'La causa ya existe');
-            }
-        }
-        
-        $data = [
-            'titulo' => 'Agregar Causa',
-            'id_usuario' => $id_usuario,
-            'usuario' => $user_details['NOMBRES'] . ' ' . $user_details['APELLIDOS'],
-            'foto' => !empty($user_details['FOTO']) ? $user_details['FOTO'] : 'uploads/fotos_usuario/default_profile.png'
-    ];
-        $this->load->view('causas/nuevo', $data);
-    }
+   
     public function insertar()
-{
-    
-
-    $causa = $this->input->post('causa');
-    
-    // Validar que el campo no esté vacío
-    if(empty($causa)) {
-        $this->session->set_flashdata('error', 'El campo causa es obligatorio');
-        redirect('CausasController/nuevo');
-        return;
-    }
-    
-    // Verificar si la causa ya existe
-    if(!$this->CausasModel->existeCausa($causa)) {
-        if($this->CausasModel->agregarCausa($causa)) {
-            $this->session->set_flashdata('success', 'Causa guardada correctamente');
+    {
+        // Validar que sea una petición AJAX
+        if (!$this->input->is_ajax_request()) {
+            show_404();
+        }
+       
+        $causa = $this->input->post('causa');
+       
+        // Validar que el campo no esté vacío
+        if(empty($causa)) {
+            $response = array(
+                'success' => false,
+                'message' => 'El campo causa es obligatorio'
+            );
+            echo json_encode($response);
+            return;
+        }
+       
+        // Verificar si la causa ya existe
+        if(!$this->CausasModel->existeCausa($causa)) {
+            if($this->CausasModel->agregarCausa($causa)) {
+                $response = array(
+                    'success' => true,
+                    'message' => 'Causa guardada correctamente'
+                );
+            } else {
+                $response = array(
+                    'success' => false,
+                    'message' => 'Error al guardar la causa'
+                );
+            }
         } else {
-            $this->session->set_flashdata('error', 'Error al guardar la causa');
+            $response = array(
+                'success' => false,
+                'message' => 'La causa ya existe en la base de datos'
+            );
         }
-    } else {
-        $this->session->set_flashdata('error', 'La causa ya existe en la base de datos');
-        redirect('CausasController/nuevo');
-        return;
+       
+        echo json_encode($response);
     }
-    
-    redirect('CausasController/index');
-}
 
-   // Función para mostrar el formulario de edición
-        public function editar($id)
-        {
-            $id_usuario = $this->session->userdata('id_usuario');
-            $user_details = $this->UsersModel->get_user_by_id($id_usuario);
-            
-
-            $data = [
-                'titulo' => 'Editar Causa',
-                'id_usuario' => $id_usuario,
-                'usuario' => $user_details['NOMBRES'] . ' ' . $user_details['APELLIDOS'],
-                'foto' => !empty($user_details['FOTO']) ? $user_details['FOTO'] : 'uploads/fotos_usuario/default_profile.png',
-                'datos' => $this->CausasModel->getCausaById($id)
-            ];
-            $this->load->view('causas/editar', $data);
+    public function obtener_causa($id) {
+        // Validar que sea una petición AJAX
+        if (!$this->input->is_ajax_request()) {
+            show_404();
         }
+    
+        // Obtener la causa
+        $causa = $this->CausasModel->getCausaById($id);
+        
+        if ($causa) {
+            $response = array(
+                'success' => true,
+                'data' => $causa
+            );
+        } else {
+            $response = array(
+                'success' => false,
+                'message' => 'No se encontró la causa'
+            );
+        }
+    
+        echo json_encode($response);
+    }
 
         // Función para procesar la actualización
         public function actualizar()
         {
+            // Validar que sea una petición AJAX
+            if (!$this->input->is_ajax_request()) {
+                show_404();
+            }
            
             $id = $this->input->post('id_causa');
             $causa = $this->input->post('causa');
-            
+           
+            // Validar que los campos no estén vacíos
+            if(empty($id) || empty($causa)) {
+                $response = array(
+                    'success' => false,
+                    'message' => 'El campo Causa no puede estar vacío'
+                );
+                echo json_encode($response);
+                return;
+            }
+           
             if (!$this->CausasModel->existeCausa($causa, $id)) {
                 if ($this->CausasModel->actualizarCausa($id, $causa)) {
-                    $this->session->set_flashdata('success', 'Causa actualizada correctamente');
+                    $response = array(
+                        'success' => true,
+                        'message' => 'Causa actualizada correctamente'
+                    );
                 } else {
-                    $this->session->set_flashdata('error', 'Error al actualizar la causa');
+                    $response = array(
+                        'success' => false,
+                        'message' => 'Error al actualizar la causa'
+                    );
                 }
             } else {
-                $this->session->set_flashdata('error', 'La causa ya existe');
+                $response = array(
+                    'success' => false,
+                    'message' => 'La causa ya existe'
+                );
             }
-            
-            redirect('CausasController/index');
+           
+            echo json_encode($response);
         }
 
         public function eliminados()

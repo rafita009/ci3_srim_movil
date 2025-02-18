@@ -17,10 +17,12 @@
     <link
         href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
         rel="stylesheet">
-      <!-- DataTables CSS -->
-      <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap4.min.css">
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap4.min.css">
     <!-- Custom styles for this template-->
     <link href="<?php echo base_url(); ?>public/assets/css/sb-admin-2.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.all.min.js"></script>
+
 
 </head>
 
@@ -45,12 +47,16 @@
 
                 <!-- Begin Page Content -->
                 <div class="container-fluid">
-                
+
                     <h1 class="h3 mb-2 text-gray-800"><?php echo $titulo; ?></h1>
                     <div>
                         <p>
-                            <a href="<?php echo site_url('CausasController/nuevo'); ?>" class="btn btn-info">Agregar</a>
-                            <a href="<?php echo site_url('CausasController/eliminados'); ?>" class="btn btn-danger">Eliminados</a>
+                            <button type="button" class="btn btn-info" data-toggle="modal"
+                                data-target="#modalTipoPrueba">
+                                <i class="fas fa-plus"></i> Agregar
+                            </button>
+                            <a href="<?php echo site_url('CausasController/eliminados'); ?>"
+                                class="btn btn-danger">Eliminados</a>
                         </p>
                     </div>
                     <?php if ($this->session->flashdata('success')): ?>
@@ -69,11 +75,11 @@
                     </div>
                     <?php endif; ?>
                     <div class="table-responsive">
-                    <table id="tablaCausas" class="table table-bordered table-hover datatable">
-                    <thead class="thead-dark">
+                        <table id="tablaCausas" class="table table-bordered table-hover datatable">
+                            <thead class="thead-dark">
                                 <tr>
                                     <th>Nro</th>
-                                    <th>Causa</th>
+                                    <th>Tipo de Prueba</th>
                                     <th>Acciones</th>
                                     <th>Acciones</th>
                                 </tr>
@@ -82,16 +88,16 @@
                                 <?php if(!empty($datos)): ?>
                                 <?php foreach($datos as $dato): ?>
                                 <tr>
-                                    <td><?php echo $dato['ID_CAUSA']; ?></td>
-                                    <td><?php echo $dato['CAUSA']; ?></td>
+                                    <td><?php echo $dato['ID_TIPO_PRUEBA']; ?></td>
+                                    <td><?php echo $dato['NOMBRE_PRUEBA']; ?></td>
                                     <td>
-                                        <a href="<?php echo site_url('CausasController/editar/'.$dato['ID_CAUSA']); ?>"
-                                            class="btn btn-success">
+                                        <button type="button" class="btn btn-success btn-editar"
+                                            data-id="<?php echo $dato['ID_TIPO_PRUEBA']; ?>">
                                             <i class="fas fa-pencil-alt"></i> Editar
-                                        </a>
+                                        </button>
                                     </td>
                                     <td>
-                                        <a href="<?php echo site_url('CausasController/eliminar/'.$dato['ID_CAUSA']); ?>"
+                                        <a href="<?php echo site_url('CausasController/eliminar/'.$dato['ID_TIPO_PRUEBA']); ?>"
                                             class="btn btn-danger">
                                             <i class="fas fa-trash"></i> Eliminar
                                         </a>
@@ -142,29 +148,203 @@
             </div>
         </div>
     </div>
+    <div class="modal fade" id="modalTipoPrueba" tabindex="-1" role="dialog" aria-labelledby="modalTipoPruebaLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTipoPruebaLabel">Agregar Nuevo Tipo de Prueba</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="formTipoPrueba" method="POST" autocomplete="off">
+                        <div class="form-group">
+                            <label for="tipo_prueba">Tipo de Prueba</label>
+                            <input class="form-control" id="tipo_prueba" name="tipo_prueba" type="text" required />
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-success" form="formTipoPrueba">
+                        <i class="fas fa-save"></i> Guardar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
+    <!-- Modal para Editar Tipo de Prueba -->
+    <div class="modal fade" id="modalEditarTipoPrueba" tabindex="-1" role="dialog"
+        aria-labelledby="modalEditarTipoPruebaLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalEditarTipoPruebaLabel">Editar Tipo de Prueba</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="formEditarTipoPrueba" method="POST" autocomplete="off">
+                        <input type="hidden" id="id_tipo_prueba" name="id_tipo_prueba">
+                        <div class="form-group">
+                            <label for="tipo_prueba_editar">Tipo de Prueba</label>
+                            <input class="form-control" id="tipo_prueba_editar" name="tipo_prueba" type="text" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-success" form="formEditarTipoPrueba">
+                        <i class="fas fa-save"></i> Guardar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
     <script src="<?php echo base_url();?>public/assets/vendor/jquery/jquery.min.js"></script>
 
     <script>
-$(document).ready(function() {
-    $('#tablaCausas').DataTable({
-        "language": {
-            "lengthMenu": "Mostrar _MENU_ registros por página",
-            "zeroRecords": "No se encontraron resultados",
-            "info": "Mostrando página _PAGE_ de _PAGES_",
-            "infoEmpty": "No hay registros disponibles",
-            "infoFiltered": "(filtrado de _MAX_ registros totales)",
-            "search": "Buscar:",
-            "paginate": {
-                "first": "Primero",
-                "last": "Último",
-                "next": "Siguiente",
-                "previous": "Anterior"
+    $(document).ready(function() {
+        $('#tablaCausas').DataTable({
+            "language": {
+                "lengthMenu": "Mostrar _MENU_ registros por página",
+                "zeroRecords": "No se encontraron resultados",
+                "info": "Mostrando página _PAGE_ de _PAGES_",
+                "infoEmpty": "No hay registros disponibles",
+                "infoFiltered": "(filtrado de _MAX_ registros totales)",
+                "search": "Buscar:",
+                "paginate": {
+                    "first": "Primero",
+                    "last": "Último",
+                    "next": "Siguiente",
+                    "previous": "Anterior"
+                }
             }
-        }
+        });
     });
-});
-</script>   
+    </script>
+    <!-- Script para manejar los modales -->
+    <script>
+    $(document).ready(function() {
+        // Manejar el envío del formulario de agregar
+        $('#formTipoPrueba').on('submit', function(e) {
+            e.preventDefault();
+
+            $.ajax({
+                url: '<?php echo site_url('Tipo_p_Controller/insertar'); ?>',
+                type: 'POST',
+                data: $(this).serialize(),
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: '¡Éxito!',
+                            text: response.message,
+                            showConfirmButton: false,
+                            timer: 1500
+                        }).then(() => {
+                            $('#modalTipoPrueba').modal('hide');
+                            $('#formTipoPrueba')[0].reset();
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: response.message
+                        });
+                    }
+                },
+                error: function(xhr, status, error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Error en el servidor: ' + error
+                    });
+                }
+            });
+        });
+
+        // Cambiar la forma de asignar el evento click para editar
+    $(document).on('click', '.btn-editar', function() {
+        var id = $(this).data('id');
+        
+        $.ajax({
+            url: '<?php echo site_url('Tipo_p_Controller/obtener_tipo_prueba/'); ?>' + id,
+            type: 'GET',
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    $('#id_tipo_prueba').val(response.data.ID_TIPO_PRUEBA);
+                    $('#tipo_prueba_editar').val(response.data.NOMBRE_PRUEBA);
+                    $('#modalEditarTipoPrueba').modal('show');
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'No se pudo cargar la información'
+                    });
+                }
+            },
+            error: function(xhr, status, error) {
+                console.log(error); // Para debugging
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Error al cargar los datos: ' + error
+                });
+            }
+        });
+    });
+        // Manejar el envío del formulario de edición
+        $('#formEditarTipoPrueba').on('submit', function(e) {
+            e.preventDefault();
+
+            $.ajax({
+                url: '<?php echo site_url('Tipo_p_Controller/actualizar'); ?>',
+                type: 'POST',
+                data: $(this).serialize(),
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: '¡Éxito!',
+                            text: response.message,
+                            showConfirmButton: false,
+                            timer: 1500
+                        }).then(() => {
+                            $('#modalEditarTipoPrueba').modal('hide');
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: response.message
+                        });
+                    }
+                },
+                error: function(xhr, status, error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Error en el servidor: ' + error
+                    });
+                }
+            });
+        });
+    });
+    </script>
     <!-- DataTables JS -->
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>
