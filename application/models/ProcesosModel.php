@@ -65,12 +65,22 @@ public function get_all_agentes() {
 }
 public function get_all_infractores()
 {
-    return $this->db->get('infractores')->result_array();
-}
+    $this->db->order_by('ID_INFRACTOR', 'DESC');  // Ordenar por ID de forma descendente
+    $query = $this->db->get('infractores');
+    return $query->result_array();}
 public function find($id_infractor)
 {
     return $this->db->where('ID_INFRACTOR', $id_infractor)
                     ->get('infractores  ')
                     ->row_array();
+}
+public function insertar_infractor($datos) {
+    $this->db->insert('infractores', $datos);
+    return $this->db->insert_id(); // Retorna el ID del infractor insertado
+}
+public function existe_cedula($cedula) {
+    $this->db->where('C_INFRACTOR', $cedula);
+    $query = $this->db->get('infractores');
+    return $query->num_rows() > 0;
 }
 }

@@ -12,8 +12,8 @@ class Form_validation_rules {
         
         return $rules;
     }
-    
-    private function get_base_rules() {
+    public function get_base_rules_infractor() 
+    {
         return [
             [
                 'field' => 'nombre_inf',
@@ -27,12 +27,7 @@ class Form_validation_rules {
                 'rules' => 'required',
                 'errors' => ['required' => 'El campo %s es obligatorio.']
             ],
-            [
-                'field' => 'telefono_inf',
-                'label' => 'Teléfono del infractor',
-                'rules' => 'required',
-                'errors' => ['required' => 'El campo %s es obligatorio.']
-            ],
+            
             [
                 'field' => 'cedula_inf',
                 'label' => 'Cédula de Infractor',
@@ -42,7 +37,11 @@ class Form_validation_rules {
                     'validar_cedula' => 'La cédula ingresada no es válida.'
                 ]
             ],
-           
+        ];
+    }
+    private function get_base_rules() {
+        return [
+            
             [
                 'field' => 'distrito',
                 'label' => 'Distrito',

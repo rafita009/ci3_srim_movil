@@ -28,6 +28,22 @@ class ProcesosController extends CI_Controller
         $this->estado = $this->session->userdata('ESTADO');
         $this->rol = $this->session->userdata('ROL');
         
+    }  
+    public function select_infractor()
+    {
+         // Obtener los detalles del usuario desde el modelo
+    $id_usuario = $this->session->userdata('id_usuario');
+    $user_details = $this->UsersModel->get_user_by_id($id_usuario);
+    $infractores = $this->ProcesosModel->get_all_infractores();
+
+     // Preparar los datos para la vista
+     $data = [
+        'usuario' => $user_details['NOMBRES'] . ' ' . $user_details['APELLIDOS'], // Nombre completo
+        'foto' => !empty($user_details['FOTO']) ? $user_details['FOTO'] : 'default_profile.png', // Foto del usuario o predeterminada
+        'infractores' => $infractores
+    ];
+     $this->load->view('register_proc_inf', $data);
+
     }
     public function index($id_infractor = null)
 {
@@ -46,6 +62,7 @@ class ProcesosController extends CI_Controller
     // Obtiene los cdit
     $cdit = $this->ProcesosModel->get_cdit();
     $agentes = $this->ProcesosModel->get_all_agentes();
+    
 
     // Obtener datos del infractor si se proporciona un ID
     $infractor = null;
@@ -90,24 +107,70 @@ public function search_acts()
     }
     
 
-    private function guardar_foto_infractor($id_infractor, $infractor, $archivos) 
-    {
+    public function registrar_infractor() {
+        // Validar que sea una petición AJAX
+        if (!$this->input->is_ajax_request()) {
+            show_404();
+        }
+
+        // Obtener las reglas base desde la librería
+        $this->form_validation->set_rules($this->form_validation_rules->get_base_rules_infractor());
+
+        // Agregar regla de validación de cédula
+        $cedula = $this->input->post('cedula_inf');
+        if (!$this->ValidatesModel->validarCedula($cedula)) {
+            $response = array(
+                'success' => false,
+                'message' => 'La cédula ingresada no es válida.'
+            );
+            echo json_encode($response);
+            return;
+        }
+
+        // Verificar si la cédula ya existe
+        if ($this->ProcesosModel->existe_cedula($cedula)) {
+            $response = array(
+                'success' => false,
+                'message' => 'La cédula ya está registrada en el sistema.'
+            );
+            echo json_encode($response);
+            return;
+        }
+
+        if ($this->form_validation->run() === FALSE) {
+            $response = array(
+                'success' => false,
+                'message' => validation_errors()
+            );
+            echo json_encode($response);
+            return;
+        }
+
         try {
-            // Directorio de destino para la foto
-            $directorio_destino = './uploads/fotos_infractores/';
-        
-            // Verificar si el directorio existe, si no, crearlo
-            if (!is_dir($directorio_destino)) {
-                mkdir($directorio_destino, 0777, true); // Crear directorio con permisos
-            }
-        
-            // Verificar si hay archivo para foto_infractor
-            if (isset($archivos['foto_infractor']) && $archivos['foto_infractor']['size'] > 0) {
-                // Renombrar el archivo para incluir el nombre del infractor y un identificador único
+            // Preparar datos del infractor
+            $datos = array(
+                'N_INFRACTOR' => $this->input->post('nombre_inf'),
+                'A_INFRACTOR' => $this->input->post('apellidos_inf'),
+                'C_INFRACTOR' => $cedula,
+                'T_INFRACTOR' => $this->input->post('telefono_inf')
+            );
+
+            
+                        // Procesar la foto si existe
+            if (!empty($_FILES['foto_inf']['name'])) {
+                // Directorio de destino para la foto
+                $directorio_destino = './uploads/fotos_infractores/';
+
+                // Verificar si el directorio existe, si no, crearlo
+                if (!is_dir($directorio_destino)) {
+                    mkdir($directorio_destino, 0777, true);
+                }
+                
+                // Corregir el error en pregreplace -> preg_replace y los nombres de las variables
                 $nombre_archivo = preg_replace(
-                    '/[^a-zA-Z0-9_-]/', 
-                    '_', 
-                    $infractor['N_INFRACTOR'] . '_' . $infractor['A_INFRACTOR'] . '_' . uniqid() // Agregar un identificador único
+                    '/[^a-zA-Z0-9_-]/',
+                    '_',
+                    $datos['N_INFRACTOR'] . '_' . $datos['A_INFRACTOR'] . '_' . uniqid()
                 );
                 
                 // Configuración para la subida
@@ -116,38 +179,43 @@ public function search_acts()
                     'allowed_types' => 'jpg|jpeg|png',
                     'max_size' => 2048,
                     'file_name' => $nombre_archivo,
-                    'overwrite' => FALSE // Evitar sobrescritura
+                    'overwrite' => FALSE
                 ];
-                
-                // Preparar el archivo para subida
-                $_FILES['foto_infractor'] = $archivos['foto_infractor'];
                 
                 $this->load->library('upload');
                 $this->upload->initialize($config);
                 
-                // Subir archivo
-                if ($this->upload->do_upload('foto_infractor')) {
+                if ($this->upload->do_upload('foto_inf')) {
                     $data = $this->upload->data();
-                    $ruta = $directorio_destino . $data['file_name'];
-                    
-                    // Insertar la ruta en la base de datos
-                    $this->db->insert('fotos_infractores', [
-                        'ID_INFRACTOR' => $id_infractor,
-                        'RUTA_INFRACTOR' => $ruta
-                    ]);
+                    $datos['F_INFRACTOR_RUTA'] = $data['file_name']; // Guardar solo el nombre del archivo
                 } else {
-                    // Si hay error al subir la foto, loguear el error pero no asignar ruta como error
                     log_message('error', 'Error al subir foto infractor: ' . $this->upload->display_errors());
                 }
             }
-            
-            // No retornamos nada
-            
+
+            if ($this->ProcesosModel->insertar_infractor($datos)) {
+                $response = array(
+                    'success' => true,
+                    'message' => 'Infractor registrado correctamente',
+                    'redirect' => true,
+                    'redirect_url' => site_url('ProcesosController/select_infractor') // O la URL que desees
+                );
+            } else {
+                $response = array(
+                    'success' => false,
+                    'message' => 'Error al registrar el infractor'
+                );
+            }
+
         } catch (Exception $e) {
-            // Capturar y loguear el error si algo falla en el proceso
-            log_message('error', 'Error en guardar_foto_infractor: ' . $e->getMessage());
-            // No retornamos nada
+            log_message('error', 'Error en registrar_infractor: ' . $e->getMessage());
+            $response = array(
+                'success' => false,
+                'message' => 'Error en el servidor al procesar la solicitud'
+            );
         }
+
+        echo json_encode($response);
     }
     private function guardar_fotos_pertenencias($id_infractor, $infractor, $archivos) 
     {
@@ -551,7 +619,6 @@ public function editar($id_infractor) {
      
         // Agrupar archivos
         $archivos = [
-            'foto_infractor' => $_FILES['foto_infractor'] ?? null,
             'foto_detencion' => $_FILES['foto_detencion'] ?? null,
             'foto_libertad' => $_FILES['foto_libertad'] ?? null,
             'foto_pertenencias' => $_FILES['foto_pertenencias'] ?? null
@@ -559,7 +626,7 @@ public function editar($id_infractor) {
         
         
         return [
-            'infractor' => $infractor,
+            
             
             'placas' => $placas,
             'causas_distrito_infractor_canton' => $causas_distrito_infractor_canton,

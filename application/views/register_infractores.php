@@ -88,26 +88,32 @@
 
                                         <!-- Foto del infractor -->
                                         <div class="mb-4">
-                                            <label class="form-label fw-bold">Foto del Infractor </label>
-                                            <div class="border rounded overflow-hidden mb-2"
-                                                style="height: 250px; width: 75%;">
+                                            <label class="form-label fw-bold">Foto del Infractor</label>
+                                            <div class="border rounded overflow-hidden mb-2" style="height: 250px; width: 75%;">
                                                 <div class="w-100 h-100 position-relative">
-                                                    <img id="photoPreview" class="d-none w-100 h-100 object-fit-cover">
-                                                    <div id="previewPlaceholder"
-                                                        class="position-absolute top-50 start-50 translate-middle text-muted">
-                                                        Vista previa de la foto
-                                                    </div>
+                                                    <?php if (!empty($infractor['F_INFRACTOR_RUTA'])): ?>
+                                                        <img src="<?= base_url('uploads/fotos_infractores/' . $infractor['F_INFRACTOR_RUTA']) ?>" 
+                                                            class="w-100 h-100 object-fit-cover" 
+                                                            alt="Foto del Infractor">
+                                                    <?php else: ?>
+                                                        <div class="position-absolute top-50 start-50 translate-middle text-muted">
+                                                            <i class="fas fa-user-circle fa-4x"></i>
+                                                            <p class="mt-2">No hay foto disponible</p>
+                                                        </div>
+                                                    <?php endif; ?>
                                                 </div>
                                             </div>
-                                            <div class="input-group" style="width: 75%;">
-                                                <input type="file" class="form-control form-control-sm" id="photoInput"
-                                                    name="foto_infractor" accept="image/*">
+                                            <!-- Información adicional del infractor -->
+                                            <div class="mt-2">
+                                                <p class="mb-1"><strong>Nombres:</strong> <?= $infractor['N_INFRACTOR'] ?></p>
+                                                <p class="mb-1"><strong>Apellidos:</strong> <?= $infractor['A_INFRACTOR'] ?></p>
+                                                <p class="mb-1"><strong>Cédula:</strong> <?= $infractor['C_INFRACTOR'] ?></p>
                                             </div>
                                         </div>
 
                                         <!-- Fotos de pertenencias -->
                                         <div>
-                                            <label class="form-label fw-bold">Fotos de las Pertenencias</label>
+                                            <label class="form-label fw-bold">Agregar fotos de Pertenencias</label>
                                             <div class="input-group mb-3" style="width: 75%;">
                                                 <input type="file" class="form-control form-control-sm"
                                                     id="belongingsInput" name="foto_pertenencias[]" accept="image/*"
@@ -119,90 +125,33 @@
                                         </div>
                                     </div>
                                     <div class="col-md-8">
-                                        <!-- Datos del infractor -->
-                                        <?php if(isset($infractor)): ?>
-    <input type="hidden" name="id_infractor" value="<?= $infractor['ID_INFRACTOR'] ?>">
-    <div class="row g-3">
-        <div class="col-md-6">
-            <label for="nombre_inf" class="form-label fw-bold">Nombres</label>
-            <input type="text" class="form-control" id="nombre_inf" 
-                   value="<?= $infractor['N_INFRACTOR'] ?>" readonly>
-        </div>
-        <div class="col-md-6">
-            <label for="apellidos_inf" class="form-label fw-bold">Apellidos</label>
-            <input type="text" class="form-control" id="apellidos_inf" 
-                   value="<?= $infractor['A_INFRACTOR'] ?>" readonly>
-        </div>
-    </div>
-    <div class="row g-3 mt-3">
-        <div class="col-md-6">
-            <label for="cedula_inf" class="form-label fw-bold">Cédula</label>
-            <input type="text" class="form-control" id="cedula_inf" 
-                   value="<?= $infractor['C_INFRACTOR'] ?>" readonly>
-        </div>
-    </div>
-<?php endif; ?>
+                                        
 
-                                        <div class="row g-3 mt-3">
-                                            <div class="col-md-6">
-                                                <label for="cedula_inf" class="form-label fw-bold">Cédula <span
-                                                        class="text-danger">*</span></label>
-                                                <input type="text" class="form-control" id="cedula_inf"
-                                                    name="cedula_inf" maxlength="10" required>
-                                                <small id="cedula_infError" class="error-message text-danger"></small>
-
+                                <div class="col-12">
+                                    <div class="position-relative">
+                                        <br>
+                                        <h4 class="text-center font-weight-bold mb-4">A.C.T que Procede</h4>
+                                        <!-- Input de búsqueda con autocomplete -->
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text">
+                                                    <i class="fas fa-search"></i>
+                                                </span>
                                             </div>
-                                            <div class="col-md-6">
-                                                <label for="telefono_inf" class="form-label fw-bold">Teléfono</label>
-                                                <input type="text" class="form-control" id="telefono_inf"
-                                                    name="telefono_inf" maxlength="13" required>
-                                                <small id="telefono_infError" class="error-message text-danger"></small>
+                                            <input type="text" id="searchAct" class="form-control"
+                                                placeholder="Buscar ACT..."
+                                                autocomplete="off">
+                                            <div class="input-group-append" id="clearButton" style="display: none;">
+                                                <button class="btn btn-outline-secondary" type="button">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
                                             </div>
                                         </div>
-
-                                        <div class="col-12">
-                                            <div class="position-relative">
-                                                <br>
-                                                <h4 class="text-center font-weight-bold mb-4">A.C.T que Procede</h4>
-
-                                                <!-- Input de búsqueda -->
-                                                <div class="input-group">
-                                                    <div class="input-group-prepend">
-                                                        <span class="input-group-text">
-                                                            <i class="fas fa-search"></i>
-                                                        </span>
-                                                    </div>
-                                                    <input type="text" id="searchAct" class="form-control"
-                                                        placeholder="Buscar por nombre, apellido o número de ACT..."
-                                                        autocomplete="off">
-                                                </div>
-
-                                                <!-- Resultados de búsqueda -->
-                                                <div id="actResults"
-                                                    class="position-absolute w-100 mt-1 border rounded bg-white"
-                                                    style="display: none; max-height: 300px; overflow-y: auto; z-index: 1050;">
-                                                </div>
-
-                                                <!-- Campo oculto para el ID -->
-                                                <input type="hidden" id="selected_act_id" name="act_id" required>
-                                                <small id="act_idError" class="error-message text-danger"></small>
-
-                                                <!-- Información del ACT seleccionado -->
-                                                <div id="selectedActInfo" class="mt-2" style="display: none;">
-                                                    <div
-                                                        class="alert alert-info d-flex justify-content-between align-items-center">
-                                                        <div>
-                                                            <strong id="selectedActNumber"></strong>
-                                                            <br>
-                                                            <span id="selectedActName"></span>
-                                                        </div>
-                                                        <button type="button" class="close" id="clearSelection">
-                                                            <span aria-hidden="true">&times;</span>
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
+                                        <!-- Campo oculto para el ID -->
+                                        <input type="hidden" id="selected_act_id" name="act_id" required>
+                                        <small id="act_idError" class="error-message text-danger"></small>
+                                      </div>
+                                    </div>
 
 
                                         <div class="row g-3 mt-3">
@@ -899,117 +848,110 @@
     });
     </script>
 
-    <script>
-    $(document).ready(function() {
-        const searchInput = $('#searchAct');
-        const resultsDiv = $('#actResults');
-        const selectedInfo = $('#selectedActInfo');
-        let searchTimeout;
+   <script>
+   $(document).ready(function() {
+    const searchInput = $('#searchAct');
+    const clearButton = $('#clearButton');
+    let selectedAct = null;
+    let searchTimeout;
 
-        searchInput.on('focus', function() {
-            if (searchInput.val().length > 0) {
-                resultsDiv.show();
-            }
-        });
-
-        searchInput.on('input', function() {
-            clearTimeout(searchTimeout);
-            const searchTerm = $(this).val();
-
-            if (searchTerm.length > 0) {
-                searchTimeout = setTimeout(function() {
-                    searchActs(searchTerm);
-                }, 300);
-            } else {
-                resultsDiv.hide();
-            }
-        });
-
-        $(document).on('click', function(e) {
-            if (!$(e.target).closest('.position-relative').length) {
-                resultsDiv.hide();
-            }
-        });
-
-        // Agregar manejador para el botón de limpiar
-        $('#clearSelection').on('click', function() {
-            // Limpiar el campo oculto
-            $('#selected_act_id').val('');
-            // Ocultar la información seleccionada
-            selectedInfo.hide();
-            // Limpiar el campo de búsqueda
-            searchInput.val('');
-        });
-
-        function searchActs(term) {
-            $.ajax({
-                url: '<?php echo site_url(); ?>/ProcesosController/search_acts',
-                method: 'POST',
-                dataType: 'json',
-                data: {
-                    search: term,
-                    <?= $this->security->get_csrf_token_name() ?>: '<?= $this->security->get_csrf_hash() ?>'
-                },
-                success: function(acts) {
-                    displayResults(acts);
-                },
-                error: function(xhr, status, error) {
-                    console.error('Error en la búsqueda:', error);
-                }
-            });
+    searchInput.on('input', function() {
+        clearTimeout(searchTimeout);
+        const searchTerm = $(this).val();
+        
+        if (searchTerm.length > 0) {
+            clearButton.show();
+            searchTimeout = setTimeout(function() {
+                searchActs(searchTerm);
+            }, 300);
+        } else {
+            clearButton.hide();
+            $('#actDropdown').remove();
+            clearSelection();
         }
+    });
 
-        function displayResults(acts) {
-            resultsDiv.empty();
+    clearButton.on('click', function() {
+        clearSelection();
+        $('#actDropdown').remove();
+    });
 
-            if (acts.length > 0) {
-                acts.forEach(function(act) {
-                    const resultItem = $(`
-                    <div class="p-3 border-bottom" style="cursor: pointer;">
+    // Cerrar el dropdown cuando se hace clic fuera
+    $(document).on('click', function(e) {
+        if (!$(e.target).closest('.position-relative').length) {
+            $('#actDropdown').remove();
+        }
+    });
+
+    function searchActs(term) {
+        $.ajax({
+            url: '<?php echo site_url(); ?>/ProcesosController/search_acts',
+            method: 'POST',
+            dataType: 'json',
+            data: {
+                search: term,
+                <?= $this->security->get_csrf_token_name() ?>: '<?= $this->security->get_csrf_hash() ?>'
+            },
+            success: function(acts) {
+                showDropdown(acts);
+            },
+            error: function(xhr, status, error) {
+                console.error('Error en la búsqueda:', error);
+            }
+        });
+    }
+
+    function showDropdown(acts) {
+        // Remover dropdown existente
+        $('#actDropdown').remove();
+
+        // Crear nuevo dropdown
+        const dropdown = $(`<div id="actDropdown" class="dropdown-menu show w-100 shadow" style="max-height: 300px; overflow-y: auto;"></div>`);
+        
+        if (acts.length > 0) {
+            acts.forEach(act => {
+                const item = $(`
+                    <a href="#" class="dropdown-item py-2">
                         <div class="font-weight-bold">${act.NRO_ACT}</div>
-                        <div class="small text-muted">
-                            ${act.APELLIDOS_ACT}, ${act.NOMBRES_ACT}
-                        </div>
-                    </div>
+                        <small class="text-muted">${act.APELLIDOS_ACT}, ${act.NOMBRES_ACT}</small>
+                    </a>
                 `);
 
-                    resultItem.hover(
-                        function() {
-                            $(this).addClass('bg-light');
-                        },
-                        function() {
-                            $(this).removeClass('bg-light');
-                        }
-                    );
-
-                    resultItem.on('click', function() {
-                        selectAct(act);
-                    });
-
-                    resultsDiv.append(resultItem);
+                item.on('click', function(e) {
+                    e.preventDefault();
+                    selectAct(act);
+                    dropdown.remove();
                 });
-            } else {
-                resultsDiv.append(`
-                <div class="p-3 text-center text-muted">
+
+                dropdown.append(item);
+            });
+        } else {
+            dropdown.append(`
+                <div class="dropdown-item text-muted text-center py-2">
                     No se encontraron resultados
                 </div>
             `);
-            }
-
-            resultsDiv.show();
         }
 
-        function selectAct(act) {
-            $('#selected_act_id').val(act.ID_AGENTE);
-            $('#selectedActNumber').text(act.NRO_ACT);
-            $('#selectedActName').text(`${act.APELLIDOS_ACT}, ${act.NOMBRES_ACT}`);
+        // Insertar el dropdown después del input-group
+        searchInput.closest('.input-group').after(dropdown);
+    }
 
-            searchInput.val('');
-            resultsDiv.hide();
-            selectedInfo.show();
-        }
-    });
-    </script>
+    function selectAct(act) {
+        selectedAct = act;
+        $('#selected_act_id').val(act.ID_AGENTE);
+        searchInput.val(`${act.NRO_ACT} - ${act.APELLIDOS_ACT}, ${act.NOMBRES_ACT}`);
+        clearButton.show();
+    }
+
+    function clearSelection() {
+        selectedAct = null;
+        $('#selected_act_id').val('');
+        searchInput.val('');
+        clearButton.hide();
+    }
+});
+   </script>
 
 
     <script src="<?php echo base_url();?>public/assets/js/bootstrap.bundle.min.js"></script>
