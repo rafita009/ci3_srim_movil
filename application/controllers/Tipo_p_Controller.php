@@ -27,10 +27,13 @@ class Tipo_p_Controller extends CI_Controller {
     {
         $id_usuario = $this->session->userdata('id_usuario');
         $user_details = $this->UsersModel->get_user_by_id($id_usuario);
+        $eliminados = $this->tipo_p_Model->getTiposPruebaEliminadas();
+
        
         $data = [
             'titulo' => 'Tipos de Pruebas',
             'datos' => $this->tipo_p_Model->getTiposPruebaActivas(),
+            'eliminados' => $eliminados,
             'id_usuario' => $id_usuario,
             'usuario' => $user_details['NOMBRES'] . ' ' . $user_details['APELLIDOS'],
             'foto' => !empty($user_details['FOTO']) ? $user_details['FOTO'] : 'uploads/fotos_usuario/default_profile.png'
@@ -150,35 +153,18 @@ class Tipo_p_Controller extends CI_Controller {
             echo json_encode($response);
     }
         
-    public function eliminados()
-    {
    
-
-        // Obtener los detalles del usuario desde el modelo
-        $id_usuario = $this->session->userdata('id_usuario');
-        $user_details = $this->UsersModel->get_user_by_id($id_usuario);
-        
-        $data = [
-            'titulo' => 'Causas eliminadas',
-            'datos' => $this->CausasModel->getCausasEliminadas(),
-            'id_usuario' => $id_usuario,
-            'usuario' => $user_details['NOMBRES'] . ' ' . $user_details['APELLIDOS'],
-            'foto' => !empty($user_details['FOTO']) ? $user_details['FOTO'] : 'uploads/fotos_usuario/default_profile.png'
-        ];
-        
-        $this->load->view('causas/eliminados', $data);
-    }
     public function eliminar($id)
     {
-        $this->CausasModel->eliminarCausa($id);
-        $this->session->set_flashdata('success', 'Causa eliminada correctamente');
-        redirect('CausasController/index');
+        $this->tipo_p_Model->eliminartipo_prueba($id);
+        $this->session->set_flashdata('success', 'Tipo de Prueba eliminada correctamente');
+        redirect('Tipo_p_Controller/index');
     }
 
     public function reactivar($id)
     {
-        $this->CausasModel->reactivarCausa($id);
-        $this->session->set_flashdata('success', 'Causa reactivada correctamente');
-        redirect('CausasController/index');
+        $this->tipo_p_Model->reactivartipo_prueba($id);
+        $this->session->set_flashdata('success', 'Tipo de Prueba reactivada correctamente');
+        redirect('Tipo_p_Controller/index');
     }
 }

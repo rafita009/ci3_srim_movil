@@ -16,7 +16,12 @@ class Tipo_p_Model extends CI_Model {
         $query = $this->db->get($this->table);
         return $query->result_array();
     }
-
+    public function getTiposPruebaEliminadas() {
+        $this->db->where('ACTIVO', 0);
+        $this->db->order_by('NOMBRE_PRUEBA', 'ASC');
+        $query = $this->db->get($this->table);
+        return $query->result_array();
+    }
     public function getTipoPruebaById($id) {
         $this->db->where('ID_TIPO_PRUEBA', $id);
         $query = $this->db->get('tipo_pruebas'); // Asegúrate que este sea el nombre correcto de tu tabla
@@ -43,5 +48,13 @@ class Tipo_p_Model extends CI_Model {
     public function actualizarTipoPrueba($id, $nombre_prueba) {
         $this->db->where('ID_TIPO_PRUEBA', $id);
         return $this->db->update('tipo_pruebas', ['NOMBRE_PRUEBA' => $nombre_prueba]);
+    }
+    public function eliminartipo_prueba($id_tipo_prueba) {
+        $this->db->where('ID_TIPO_PRUEBA', $id_tipo_prueba);
+        return $this->db->update($this->table, ['ACTIVO' => 0]);
+    }
+    public function reactivartipo_prueba($id_tipo_prueba) {
+        $this->db->where('ID_TIPO_PRUEBA', $id_tipo_prueba);
+        return $this->db->update($this->table, ['ACTIVO' => 1]);
     }
 }
