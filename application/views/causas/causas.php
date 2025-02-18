@@ -21,6 +21,10 @@
       <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap4.min.css">
     <!-- Custom styles for this template-->
     <link href="<?php echo base_url(); ?>public/assets/css/sb-admin-2.min.css" rel="stylesheet">
+    <!-- CSS de SweetAlert2 -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.min.css">
+<!-- JavaScript de SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.all.min.js"></script>
 
 </head>
 
@@ -49,8 +53,10 @@
                     <h1 class="h3 mb-2 text-gray-800"><?php echo $titulo; ?></h1>
                     <div>
                         <p>
-                            <a href="<?php echo site_url('CausasController/nuevo'); ?>" class="btn btn-info">Agregar</a>
-                            <a href="<?php echo site_url('CausasController/eliminados'); ?>" class="btn btn-danger">Eliminados</a>
+                        <button type="button" class="btn btn-info" data-toggle="modal" data-target="#modalCausa">
+                            <i class="fas fa-plus"></i> Agregar
+                        </button> 
+                        <a href="<?php echo site_url('CausasController/eliminados'); ?>" class="btn btn-danger">Eliminados</a>
                         </p>
                     </div>
                     <?php if ($this->session->flashdata('success')): ?>
@@ -85,10 +91,10 @@
                                     <td><?php echo $dato['ID_CAUSA']; ?></td>
                                     <td><?php echo $dato['CAUSA']; ?></td>
                                     <td>
-                                        <a href="<?php echo site_url('CausasController/editar/'.$dato['ID_CAUSA']); ?>"
-                                            class="btn btn-success">
-                                            <i class="fas fa-pencil-alt"></i> Editar
-                                        </a>
+                                    <button type="button" class="btn btn-success btn-editar" data-id="<?php echo $dato['ID_CAUSA']; ?>">
+                                        <i class="fas fa-pencil-alt"></i> Editar
+                                    </button>
+
                                     </td>
                                     <td>
                                         <a href="<?php echo site_url('CausasController/eliminar/'.$dato['ID_CAUSA']); ?>"
@@ -142,7 +148,67 @@
             </div>
         </div>
     </div>
+     
+            <!-- Modal -->
+        <div class="modal fade" id="modalCausa" tabindex="-1" role="dialog" aria-labelledby="modalCausaLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalCausaLabel">Agregar Nueva Causa</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="formCausa" method="POST" autocomplete="off">
+                            <div class="form-group">
+                                <label for="causa">Causa</label>
+                                <input class="form-control" id="causa" name="causa" type="text" required />
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                            <i class="fas fa-times"></i> Cancelar
+                        </button>
+                        <button type="submit" class="btn btn-success" form="formCausa">
+                            <i class="fas fa-save"></i> Guardar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
+        <!-- Modal de Edición -->
+<div class="modal fade" id="modalEditarCausa" tabindex="-1" role="dialog" aria-labelledby="modalEditarCausaLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalEditarCausaLabel">Editar Causa</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="formEditarCausa" method="POST" autocomplete="off">
+                    <input type="hidden" id="id_causa" name="id_causa">
+                    <div class="form-group">
+                        <label for="causa_editar">Causa</label>
+                        <input class="form-control" id="causa_editar" name="causa" type="text" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+                <button type="submit" class="btn btn-success" form="formEditarCausa">
+                    <i class="fas fa-save"></i> Guardar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
     <script src="<?php echo base_url();?>public/assets/vendor/jquery/jquery.min.js"></script>
 
     <script>
@@ -165,6 +231,133 @@ $(document).ready(function() {
     });
 });
 </script>   
+<script>
+$(document).ready(function() {
+    $('#formCausa').on('submit', function(e) {
+        e.preventDefault();
+        
+        $.ajax({
+            url: '<?php echo site_url('CausasController/insertar'); ?>',
+            type: 'POST',
+            data: $(this).serialize(),
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    // Mostrar mensaje de éxito
+                    Swal.fire({
+                        icon: 'success',
+                        title: '¡Éxito!',
+                        text: 'Causa registrada correctamente',
+                        showConfirmButton: false,
+                        timer: 1500
+                    }).then(() => {
+                        // Cerrar el modal
+                        $('#modalCausa').modal('hide');
+                        // Limpiar el formulario
+                        $('#formCausa')[0].reset();
+                        // Recargar la tabla o sección donde se muestran las causas
+                        location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: response.message || 'Error al registrar la causa'
+                    });
+                }
+            },
+            error: function(xhr, status, error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Error en el servidor: ' + error
+                });
+            }
+        });
+    });
+
+    // Limpiar el formulario cuando se cierra el modal
+    $('#modalCausa').on('hidden.bs.modal', function () {
+        $('#formCausa')[0].reset();
+    });
+});
+</script>
+<!-- Script para manejar la edición -->
+<script>
+$(document).ready(function() {
+    // Cuando se hace clic en el botón de editar
+    $('.btn-editar').on('click', function() {
+        var id = $(this).data('id');
+        
+        // Cargar los datos de la causa
+        $.ajax({
+            url: '<?php echo site_url('CausasController/obtener_causa/'); ?>' + id,
+            type: 'GET',
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    $('#id_causa').val(response.data.ID_CAUSA);
+                    $('#causa_editar').val(response.data.CAUSA);
+                    $('#modalEditarCausa').modal('show');
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'No se pudo cargar la información'
+                    });
+                }
+            },
+            error: function(xhr, status, error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Error al cargar los datos: ' + error
+                });
+            }
+        });
+    });
+
+    // Manejar el envío del formulario de edición
+    $('#formEditarCausa').on('submit', function(e) {
+        e.preventDefault();
+        
+        $.ajax({
+            url: '<?php echo site_url('CausasController/actualizar'); ?>',
+            type: 'POST',
+            data: $(this).serialize(),
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: '¡Éxito!',
+                        text: response.message,
+                        showConfirmButton: false,
+                        timer: 1500
+                    }).then(() => {
+                        $('#modalEditarCausa').modal('hide');
+                        location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: response.message
+                    });
+                }
+            },
+            error: function(xhr, status, error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Error en el servidor: ' + error
+                });
+            }
+        });
+    });
+});
+</script>
+    
     <!-- DataTables JS -->
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>
