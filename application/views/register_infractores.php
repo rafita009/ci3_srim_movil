@@ -30,8 +30,8 @@
 
 
 
-    
-    
+
+
 </head>
 
 <body id="page-top">
@@ -40,7 +40,6 @@
     <div id="wrapper">
 
         <!-- Sidebar -->
-        <?php $this->load->view('admin/_partials/sidebar') ?>
         <!-- End of Sidebar -->
 
         <!-- Content Wrapper -->
@@ -50,7 +49,6 @@
             <div id="content">
 
                 <!-- Topbar -->
-                <?php $this->load->view('admin/_partials/navbar') ?>
                 <!-- End of Topbar -->
 
                 <!-- Begin Page Content -->
@@ -89,25 +87,31 @@
                                         <!-- Foto del infractor -->
                                         <div class="mb-4">
                                             <label class="form-label fw-bold">Foto del Infractor</label>
-                                            <div class="border rounded overflow-hidden mb-2" style="height: 250px; width: 75%;">
+                                            <div class="border rounded overflow-hidden mb-2"
+                                                style="height: 250px; width: 75%;">
                                                 <div class="w-100 h-100 position-relative">
                                                     <?php if (!empty($infractor['F_INFRACTOR_RUTA'])): ?>
-                                                        <img src="<?= base_url('uploads/fotos_infractores/' . $infractor['F_INFRACTOR_RUTA']) ?>" 
-                                                            class="w-100 h-100 object-fit-cover" 
-                                                            alt="Foto del Infractor">
+                                                    <img src="<?= base_url('uploads/fotos_infractores/' . $infractor['F_INFRACTOR_RUTA']) ?>"
+                                                        class="w-100 h-100 object-fit-cover" alt="Foto del Infractor">
                                                     <?php else: ?>
-                                                        <div class="position-absolute top-50 start-50 translate-middle text-muted">
-                                                            <i class="fas fa-user-circle fa-4x"></i>
-                                                            <p class="mt-2">No hay foto disponible</p>
-                                                        </div>
+                                                    <div
+                                                        class="position-absolute top-50 start-50 translate-middle text-muted">
+                                                        <i class="fas fa-user-circle fa-4x"></i>
+                                                        <p class="mt-2">No hay foto disponible</p>
+                                                    </div>
                                                     <?php endif; ?>
                                                 </div>
                                             </div>
                                             <!-- Información adicional del infractor -->
                                             <div class="mt-2">
-                                                <p class="mb-1"><strong>Nombres:</strong> <?= $infractor['N_INFRACTOR'] ?></p>
-                                                <p class="mb-1"><strong>Apellidos:</strong> <?= $infractor['A_INFRACTOR'] ?></p>
-                                                <p class="mb-1"><strong>Cédula:</strong> <?= $infractor['C_INFRACTOR'] ?></p>
+                                                <p class="mb-1"><strong>Nombres:</strong>
+                                                    <?= $infractor['N_INFRACTOR'] ?></p>
+                                                <p class="mb-1"><strong>Apellidos:</strong>
+                                                    <?= $infractor['A_INFRACTOR'] ?></p>
+                                                <p class="mb-1"><strong>Cédula:</strong>
+                                                    <?= $infractor['C_INFRACTOR'] ?></p>
+                                                <input type="hidden" name="id_infractor" value="<?= $infractor['ID_INFRACTOR'] ?>">    
+                                                
                                             </div>
                                         </div>
 
@@ -125,33 +129,33 @@
                                         </div>
                                     </div>
                                     <div class="col-md-8">
-                                        
 
-                                <div class="col-12">
-                                    <div class="position-relative">
-                                        <br>
-                                        <h4 class="text-center font-weight-bold mb-4">A.C.T que Procede</h4>
-                                        <!-- Input de búsqueda con autocomplete -->
-                                        <div class="input-group">
-                                            <div class="input-group-prepend">
-                                                <span class="input-group-text">
-                                                    <i class="fas fa-search"></i>
-                                                </span>
-                                            </div>
-                                            <input type="text" id="searchAct" class="form-control"
-                                                placeholder="Buscar ACT..."
-                                                autocomplete="off">
-                                            <div class="input-group-append" id="clearButton" style="display: none;">
-                                                <button class="btn btn-outline-secondary" type="button">
-                                                    <i class="fas fa-times"></i>
-                                                </button>
+
+                                        <div class="col-12">
+                                            <div class="position-relative">
+                                                <br>
+                                                <h4 class="text-center font-weight-bold mb-4">A.C.T que Procede</h4>
+                                                <!-- Input de búsqueda con autocomplete -->
+                                                <div class="input-group">
+                                                    <div class="input-group-prepend">
+                                                        <span class="input-group-text">
+                                                            <i class="fas fa-search"></i>
+                                                        </span>
+                                                    </div>
+                                                    <input type="text" id="searchAct" class="form-control"
+                                                        placeholder="Buscar ACT..." autocomplete="off">
+                                                    <div class="input-group-append" id="clearButton"
+                                                        style="display: none;">
+                                                        <button class="btn btn-outline-secondary" type="button">
+                                                            <i class="fas fa-times"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                <!-- Campo oculto para el ID -->
+                                                <input type="hidden" id="selected_act_id" name="act_id" required>
+                                                <small id="act_idError" class="error-message text-danger"></small>
                                             </div>
                                         </div>
-                                        <!-- Campo oculto para el ID -->
-                                        <input type="hidden" id="selected_act_id" name="act_id" required>
-                                        <small id="act_idError" class="error-message text-danger"></small>
-                                      </div>
-                                    </div>
 
 
                                         <div class="row g-3 mt-3">
@@ -276,12 +280,12 @@
                                                 <small id="fecha_salida_valoracionError"
                                                     class="error-message text-danger"></small>
                                             </div>
-                                            
+
                                             <div class="col-md-4">
                                                 <label for="act_custodio" class="form-label fw-bold">Agente
                                                     Custodio<span class="text-danger">*</span></label>
-                                                    <br>
-                                                    <br>
+                                                <br>
+                                                <br>
                                                 <select id="act_custodio" name="act_custodio" class="form-select"
                                                     required>
                                                     <option value="">Seleccione...</option>
@@ -431,12 +435,20 @@
                                                 </div>
 
                                                 <div class="col-md-4">
-                                                    <label for="act_cdit" class="form-label fw-bold">A.C.T recibe
-                                                        CDIT <span class="text-danger">*</span></label>
-                                                    <input type="text" id="act_cdit" name="act_cdit"
-                                                        class="form-control">
+                                                    <label for="act_cdit" class="form-label fw-bold">A.C.T recibe CDIT 
+                                                        <span class="text-danger">*</span>
+                                                    </label>
+                                                    <br>
+                                                    <br>
+                                                    <select id="act_cdit" name="act_cdit" class="form-select" required>
+                                                        <option value="">Seleccione...</option>
+                                                        <?php foreach ($agentes as $agente): ?>
+                                                        <option value="<?= $agente['ID_AGENTE']; ?>">
+                                                            <?= $agente['NRO_ACT'] . ' - ' . $agente['NOMBRES_ACT'] . ' ' . $agente['APELLIDOS_ACT']; ?>
+                                                        </option>
+                                                        <?php endforeach; ?>
+                                                    </select>
                                                     <small id="act_cditError" class="error-message text-danger"></small>
-
                                                 </div>
 
                                                 <!-- Campo de foto dinámico -->
@@ -509,7 +521,6 @@
             <!-- End of Main Content -->
 
             <!-- Footer -->
-            <?php $this->load->view('admin/_partials/footer') ?>
             <!-- End of Footer -->
 
         </div>
@@ -545,264 +556,283 @@
 
     <script src="<?php echo base_url();?>public/assets/vendor/jquery/jquery.min.js"></script>
 
-    <!--script para permitir solo #en cedula-->
-    <script>
-    document.getElementById('cedula_inf').addEventListener('keydown', function(event) {
-        // Permitir teclas como Backspace, Delete, Tab, Escape, Enter, etc.
-        if (
-            event.key === "Backspace" ||
-            event.key === "Delete" ||
-            event.key === "Tab" ||
-            event.key === "ArrowLeft" ||
-            event.key === "ArrowRight" ||
-            event.key === "Enter"
-        ) {
-            return; // Permitir estas teclas
-        }
-
-        // Bloquear caracteres no numéricos (excepto números del 0 al 9)
-        if (!/^\d$/.test(event.key)) {
-            event.preventDefault();
-        }
-    });
-    </script>
-    <!-- Script para mostrar/ocultar campos -->
-    <script>
-    document.addEventListener("DOMContentLoaded", function() {
+   
+<!-- Script para mostrar/ocultar campos -->
+<script>
+    $(document).on('shown.bs.modal', '#modalVistaInfractor', function() {
+        // Script para mostrar/ocultar campos
         const libertadRadio = document.getElementById("libertad");
         const detencionRadio = document.getElementById("detencion");
         const detencionFields = document.getElementById("detencionFields");
         const fotoFieldLibertad = document.getElementById("fotoFieldLibertad");
         const centroDetencionField = document.getElementById("centro_detencion");
 
-        // Listener para cambiar los campos dinámicos según la selección
-        libertadRadio.addEventListener("change", function() {
-            if (this.checked) {
-                // Mostrar los campos de libertad y ocultar los de detención
+        // Verificar que los elementos existan
+        if (libertadRadio && detencionRadio && detencionFields && fotoFieldLibertad && centroDetencionField) {
+            // Remover eventos anteriores para evitar duplicados
+            libertadRadio.removeEventListener("change", libertadChangeHandler);
+            detencionRadio.removeEventListener("change", detencionChangeHandler);
+
+            // Definir los manejadores de eventos
+            function libertadChangeHandler() {
+                if (this.checked) {
+                    fotoFieldLibertad.classList.remove("d-none");
+                    detencionFields.style.display = "none";
+                }
+            }
+
+            function detencionChangeHandler() {
+                if (this.checked) {
+                    fotoFieldLibertad.classList.add("d-none");
+                    detencionFields.style.display = "block";
+                    centroDetencionField.style.display = "block";
+                }
+            }
+
+            // Agregar los nuevos event listeners
+            libertadRadio.addEventListener("change", libertadChangeHandler);
+            detencionRadio.addEventListener("change", detencionChangeHandler);
+
+            // Establecer estado inicial según el radio button seleccionado
+            if (libertadRadio.checked) {
                 fotoFieldLibertad.classList.remove("d-none");
                 detencionFields.style.display = "none";
-            }
-        });
-
-        detencionRadio.addEventListener("change", function() {
-            if (this.checked) {
-                // Mostrar los campos de detención y ocultar los de libertad
+            } else if (detencionRadio.checked) {
                 fotoFieldLibertad.classList.add("d-none");
                 detencionFields.style.display = "block";
-                centroDetencionField.style.display = "block"; // Mostrar el campo 'centro_detencion'
+                centroDetencionField.style.display = "block";
             }
-        });
-    });
-    </script>
-
-
-    <!--script para visualizar fotos-->
-    <script>
-    // Previsualización de la foto del infractor
-    const photoInput = document.getElementById('photoInput');
-    const photoPreview = document.getElementById('photoPreview');
-    const previewPlaceholder = document.getElementById('previewPlaceholder');
-    const photoContainer = document.querySelector('.w-100.h-100.position-relative');
-
-    // Agregar botón de cierre al contenedor de la foto del infractor
-    const closeButton = document.createElement('button');
-    closeButton.className = 'btn-close position-absolute top-0 end-0 m-2 bg-white rounded-circle';
-    closeButton.style.padding = '0.25rem';
-    closeButton.style.zIndex = '10';
-    closeButton.setAttribute('aria-label', 'Close');
-    closeButton.style.display = 'none';
-    photoContainer.appendChild(closeButton);
-
-    // Función para resetear la vista previa
-    function resetPhotoPreview() {
-        photoPreview.classList.add('d-none');
-        previewPlaceholder.classList.remove('d-none');
-        photoInput.value = '';
-        closeButton.style.display = 'none';
-    }
-
-    // Evento click para el botón de cierre
-    closeButton.addEventListener('click', resetPhotoPreview);
-
-    // Modificar el evento change del input de foto
-    photoInput.addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                photoPreview.src = e.target.result;
-                photoPreview.classList.remove('d-none');
-                previewPlaceholder.classList.add('d-none');
-                closeButton.style.display = 'block';
-            }
-            reader.readAsDataURL(file);
         }
     });
 
-    // Previsualización de las fotos de pertenencias
-    const belongingsInput = document.getElementById('belongingsInput');
-    const belongingsPreview = document.getElementById('belongingsPreview');
+    // Cuando el modal se cierra, restablecer los campos
+    $(document).on('hidden.bs.modal', '#modalVistaInfractor', function() {
+        const libertadRadio = document.getElementById("libertad");
+        const detencionRadio = document.getElementById("detencion");
+        
+        // Desmarcar los radio buttons
+        if (libertadRadio) libertadRadio.checked = false;
+        if (detencionRadio) detencionRadio.checked = false;
+    });
+</script>
+<!--script para visualizar fotos-->
+<script>
+    $(document).on('shown.bs.modal', '#modalVistaInfractor', function() {
+        // Previsualización de las fotos de pertenencias
+        const belongingsInput = document.getElementById('belongingsInput');
+        const belongingsPreview = document.getElementById('belongingsPreview');
 
-    // Objeto para mantener un registro de los archivos
-    let currentFiles = new DataTransfer();
+        if (!belongingsInput || !belongingsPreview) {
+            console.log('Elementos de pertenencias no disponibles');
+            return;
+        }
 
-    belongingsInput.addEventListener('change', function(e) {
-        belongingsPreview.innerHTML = '';
-        const files = Array.from(e.target.files);
+        // Objeto para mantener un registro de los archivos
+        let currentFiles = new DataTransfer();
 
-        // Reiniciar el DataTransfer
-        currentFiles = new DataTransfer();
+        belongingsInput.addEventListener('change', function(e) {
+            belongingsPreview.innerHTML = '';
+            const files = Array.from(e.target.files);
 
-        files.forEach((file, index) => {
-            // Agregar el archivo al DataTransfer
-            currentFiles.items.add(file);
+            // Reiniciar el DataTransfer
+            currentFiles = new DataTransfer();
 
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const previewCol = document.createElement('div');
-                previewCol.className = 'col-4';
-                previewCol.dataset.fileIndex = index;
+            files.forEach((file, index) => {
+                // Agregar el archivo al DataTransfer
+                currentFiles.items.add(file);
 
-                previewCol.innerHTML = `
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const previewCol = document.createElement('div');
+                    previewCol.className = 'col-4';
+                    previewCol.dataset.fileIndex = index;
+
+                    previewCol.innerHTML = `
                 <div class="position-relative border rounded overflow-hidden" style="padding-bottom: 100%;">
                     <img src="${e.target.result}" class="position-absolute top-0 start-0 w-100 h-100 object-fit-cover">
                     <button type="button" class="btn-close position-absolute top-0 end-0 m-1 bg-white rounded-circle" 
                             style="padding: 0.25rem;" aria-label="Close"></button>
                 </div>`;
 
-                previewCol.querySelector('.btn-close').onclick = function() {
-                    // Obtener el índice del archivo a eliminar
-                    const fileIndex = parseInt(previewCol.dataset.fileIndex);
+                    previewCol.querySelector('.btn-close').onclick = function() {
+                        const fileIndex = parseInt(previewCol.dataset.fileIndex);
+                        const newFiles = new DataTransfer();
 
-                    // Crear un nuevo DataTransfer
-                    const newFiles = new DataTransfer();
+                        Array.from(currentFiles.files).forEach((file, idx) => {
+                            if (idx !== fileIndex) {
+                                newFiles.items.add(file);
+                            }
+                        });
 
-                    // Copiar todos los archivos excepto el que se va a eliminar
-                    Array.from(currentFiles.files).forEach((file, idx) => {
-                        if (idx !== fileIndex) {
-                            newFiles.items.add(file);
+                        currentFiles = newFiles;
+                        belongingsInput.files = currentFiles.files;
+                        previewCol.remove();
+
+                        Array.from(belongingsPreview.children).forEach((col, idx) => {
+                            col.dataset.fileIndex = idx;
+                        });
+
+                        if (belongingsPreview.children.length === 0) {
+                            belongingsInput.value = '';
                         }
-                    });
+                    };
 
-                    // Actualizar la lista de archivos actual
-                    currentFiles = newFiles;
-
-                    // Actualizar el input con los archivos restantes
-                    belongingsInput.files = currentFiles.files;
-
-                    // Eliminar la previsualización
-                    previewCol.remove();
-
-                    // Reasignar índices a las previsualizaciones restantes
-                    Array.from(belongingsPreview.children).forEach((col, idx) => {
-                        col.dataset.fileIndex = idx;
-                    });
-
-                    // Si no quedan archivos, limpiar el input
-                    if (belongingsPreview.children.length === 0) {
-                        belongingsInput.value = '';
-                    }
-                };
-
-                belongingsPreview.appendChild(previewCol);
-            }
-            reader.readAsDataURL(file);
+                    belongingsPreview.appendChild(previewCol);
+                }
+                reader.readAsDataURL(file);
+            });
         });
     });
-    </script>
-    <!--script para limpiar valores de campos-->
-    <script>
-    $("form").on("submit", function(e) {
-        e.preventDefault();
+</script>
+<!--script para limpiar valores de campos-->
+<script>
+   $(document).on('shown.bs.modal', '#modalVistaInfractor', function() {
+    const $modalForm = $("#modalVistaInfractor form");
 
+    // Función para limpiar campos de detención
+    function limpiarCamposDetencion() {
+        $("#tiempo_detenido_anos", $modalForm).val("");
+        $("#tiempo_detenido_meses", $modalForm).val("");
+        $("#tiempo_detenido_dias", $modalForm).val("");
+        $("#tiempo_detenido_horas", $modalForm).val("");
+        $("#centro_detencion", $modalForm).val("");
+        $("#fecha_hora_recibe", $modalForm).val("");
+        $("#act_cdit", $modalForm).val("").prop('selectedIndex', 0); 
+        $("#foto_detencion", $modalForm).val("");
+        $("#foto_detencionError", $modalForm).text("").hide();
+    }
+
+    // Función para limpiar campos de libertad
+    function limpiarCamposLibertad() {
+        $("#foto_libertad", $modalForm).val("");
+        $("#foto_libertadError", $modalForm).text("").hide();
+    }
+
+    // Evento para radio buttons
+    $("#libertad", $modalForm).on('change', function() {
+        if($(this).is(":checked")) {
+            limpiarCamposDetencion();
+        }
+    });
+
+    $("#detencion", $modalForm).on('change', function() {
+        if($(this).is(":checked")) {
+            limpiarCamposLibertad();
+        }
+    });
+
+    $modalForm.on("submit", function(e) {
+        e.preventDefault();
         // Limpiar mensajes de error previos
         $(".error-message").text("").hide();
-
+        
         // Verificar opción seleccionada
-        const isLibertad = $("#libertad").is(":checked");
-        const isDetencion = $("#detencion").is(":checked");
-
+        const isLibertad = $("#libertad", this).is(":checked");
+        const isDetencion = $("#detencion", this).is(":checked");
+        
         // Crear FormData
         const formData = new FormData(this);
 
         // Agregar el tipo de proceso explícitamente
         if (isLibertad) {
             formData.set('tipo', '1');
-
-            // Limpiar campos de detención
-            $("#tiempo_detenido_anos").val("");
-            $("#tiempo_detenido_meses").val("");
-            $("#tiempo_detenido_dias").val("");
-            $("#tiempo_detenido_horas").val("");
-            $("#centro_detencion").val("");
-            $("#fecha_hora_recibe").val("");
-            $("#act_cdit").val("");
-
-            // Limpiar archivos de detención
-            $("#foto_detencion").val("");
-
-            // Agregar todos los archivos de libertad al FormData
-            const libertadFiles = $("#foto_libertad")[0].files;
+            limpiarCamposDetencion(); // Asegurar que los campos de detención estén limpios
+            
+            const libertadFiles = $("#foto_libertad", this)[0].files;
             if (libertadFiles.length > 0) {
                 Array.from(libertadFiles).forEach((file, index) => {
                     formData.append(`foto_libertad[${index}]`, file);
                 });
             } else {
-                $("#foto_libertadError").text("Debe seleccionar al menos un archivo.").show();
+                $("#foto_libertadError", this).text("Debe seleccionar al menos un archivo.").show();
                 return;
             }
         }
 
         if (isDetencion) {
             formData.set('tipo', '2');
-
-            // Limpiar archivos de libertad
-            $("#foto_libertad").val("");
-
-            // Agregar todos los archivos de detención al FormData
-            const detencionFiles = $("#foto_detencion")[0].files;
+            limpiarCamposLibertad(); // Asegurar que los campos de libertad estén limpios
+            
+            const detencionFiles = $("#foto_detencion", this)[0].files;
             if (detencionFiles.length > 0) {
                 Array.from(detencionFiles).forEach((file, index) => {
                     formData.append(`foto_detencion[${index}]`, file);
                 });
             } else {
-                $("#foto_detencionError").text("Debe seleccionar al menos un archivo.").show();
+                $("#foto_detencionError", this).text("Debe seleccionar al menos un archivo.").show();
                 return;
             }
         }
 
+        // Mostrar loader
+        Swal.fire({
+            title: 'Guardando...',
+            text: 'Por favor espere',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
         // Enviar datos al servidor
         $.ajax({
-            url: "<?= base_url('index.php/ProcesosController/guardar'); ?>",
+            url: baseUrl + "index.php/ProcesosController/guardar",
             type: "POST",
             data: formData,
             dataType: "json",
             processData: false,
             contentType: false,
             success: function(response) {
+                Swal.close();
+                
                 if (response.status === "error") {
                     if (response.errors) {
                         const errors = response.errors;
                         for (const field in errors) {
-                            $(`#${field}Error`).text(errors[field]).show();
+                            $(`#${field}Error`, $modalForm).text(errors[field]).show();
                         }
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Por favor, verifica los datos ingresados.'
+                        });
                     } else {
-                        alert("Ocurrió un error en el formulario. Por favor, verifica los datos.");
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Ocurrió un error en el formulario. Por favor, verifica los datos.'
+                        });
                     }
                 } else {
-                    alert("Registro guardado exitosamente.");
-                    location.reload();
+                    Swal.fire({
+                        icon: 'success',
+                        title: '¡Éxito!',
+                        text: 'Registro guardado exitosamente.',
+                        showConfirmButton: false,
+                        timer: 1500
+                    }).then(() => {
+                        // Cerrar el modal
+                        $('#modalVistaInfractor').modal('hide');
+                        // Recargar la página
+                        location.reload();
+                    });
                 }
             },
             error: function(xhr, status, error) {
+                Swal.close();
                 console.error(xhr.responseText);
-                alert("Ocurrió un error al procesar la solicitud.");
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Ocurrió un error al procesar la solicitud.'
+                });
             }
         });
     });
-    </script>
-    <!-- Script para presionar boton de guardar -->
-    <script>
+    });
+</script>
+<!-- Script para presionar boton de guardar -->
+<script>
     // Esperar a que el documento esté listo
     document.addEventListener('DOMContentLoaded', function() {
         // Obtener los radio buttons
@@ -819,139 +849,169 @@
         libertadRadio.addEventListener('change', presionarBoton);
         detencionRadio.addEventListener('change', presionarBoton);
     });
-    </script>
-
-    <script>
-    document.getElementById('distrito').addEventListener('change', function() {
-        const distritoId = this.value;
-        const cantonSelect = document.getElementById('canton');
-
-        if (distritoId) {
-            cantonSelect.disabled = false;
-
-            fetch(`<?= site_url('ProcesosController/get_cantones'); ?>?distrito_id=${distritoId}`)
-                .then(response => response.json())
-                .then(data => {
-                    cantonSelect.innerHTML = '<option value="">Seleccione...</option>';
-                    data.forEach(canton => {
-                        cantonSelect.innerHTML +=
-                            `<option value="${canton.ID_CANTON}">${canton.NOMBRE_CANTON}</option>`;
-                    });
-                })
-                .catch(error => {
-                    console.error('Error al cargar los cantones:', error);
+</script>
+<!-- Script para distritos y cantones -->
+<script>
+    $(document).on('shown.bs.modal', '#modalVistaInfractor', function() {
+    const distrito = document.getElementById('distrito');
+    
+    if (distrito) {
+        distrito.addEventListener('change', function() {
+            const distritoId = this.value;
+            const cantonSelect = document.getElementById('canton');
+            
+            if (distritoId) {
+                cantonSelect.disabled = false;
+                
+                // Mostrar loader
+                Swal.fire({
+                    title: 'Cargando...',
+                    text: 'Obteniendo cantones',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
                 });
-        } else {
-            cantonSelect.disabled = true;
-            cantonSelect.innerHTML = '<option value="">Seleccione un distrito primero...</option>';
-        }
-    });
-    </script>
 
-   <script>
-   $(document).ready(function() {
-    const searchInput = $('#searchAct');
-    const clearButton = $('#clearButton');
-    let selectedAct = null;
-    let searchTimeout;
-
-    searchInput.on('input', function() {
-        clearTimeout(searchTimeout);
-        const searchTerm = $(this).val();
-        
-        if (searchTerm.length > 0) {
-            clearButton.show();
-            searchTimeout = setTimeout(function() {
-                searchActs(searchTerm);
-            }, 300);
-        } else {
-            clearButton.hide();
-            $('#actDropdown').remove();
-            clearSelection();
-        }
-    });
-
-    clearButton.on('click', function() {
-        clearSelection();
-        $('#actDropdown').remove();
-    });
-
-    // Cerrar el dropdown cuando se hace clic fuera
-    $(document).on('click', function(e) {
-        if (!$(e.target).closest('.position-relative').length) {
-            $('#actDropdown').remove();
-        }
-    });
-
-    function searchActs(term) {
-        $.ajax({
-            url: '<?php echo site_url(); ?>/ProcesosController/search_acts',
-            method: 'POST',
-            dataType: 'json',
-            data: {
-                search: term,
-                <?= $this->security->get_csrf_token_name() ?>: '<?= $this->security->get_csrf_hash() ?>'
-            },
-            success: function(acts) {
-                showDropdown(acts);
-            },
-            error: function(xhr, status, error) {
-                console.error('Error en la búsqueda:', error);
+                fetch(baseUrl + `index.php/ProcesosController/get_cantones?distrito_id=${distritoId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        cantonSelect.innerHTML = '<option value="">Seleccione...</option>';
+                        data.forEach(canton => {
+                            cantonSelect.innerHTML +=
+                                `<option value="${canton.ID_CANTON}">${canton.NOMBRE_CANTON}</option>`;
+                        });
+                        Swal.close();
+                    })
+                    .catch(error => {
+                        console.error('Error al cargar los cantones:', error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'No se pudieron cargar los cantones'
+                        });
+                    });
+            } else {
+                cantonSelect.disabled = true;
+                cantonSelect.innerHTML = '<option value="">Seleccione un distrito primero...</option>';
             }
         });
-    }
 
-    function showDropdown(acts) {
-        // Remover dropdown existente
-        $('#actDropdown').remove();
-
-        // Crear nuevo dropdown
-        const dropdown = $(`<div id="actDropdown" class="dropdown-menu show w-100 shadow" style="max-height: 300px; overflow-y: auto;"></div>`);
-        
-        if (acts.length > 0) {
-            acts.forEach(act => {
-                const item = $(`
-                    <a href="#" class="dropdown-item py-2">
-                        <div class="font-weight-bold">${act.NRO_ACT}</div>
-                        <small class="text-muted">${act.APELLIDOS_ACT}, ${act.NOMBRES_ACT}</small>
-                    </a>
-                `);
-
-                item.on('click', function(e) {
-                    e.preventDefault();
-                    selectAct(act);
-                    dropdown.remove();
-                });
-
-                dropdown.append(item);
-            });
-        } else {
-            dropdown.append(`
-                <div class="dropdown-item text-muted text-center py-2">
-                    No se encontraron resultados
-                </div>
-            `);
+        // Disparar el evento change si ya hay un valor seleccionado
+        if (distrito.value) {
+            const event = new Event('change');
+            distrito.dispatchEvent(event);
         }
-
-        // Insertar el dropdown después del input-group
-        searchInput.closest('.input-group').after(dropdown);
     }
+        });
+</script>
+<!-- Script para seleccionar agente que procede -->
+<script>
+     $(document).ready(function() {
+            const searchInput = $('#searchAct');
+            const clearButton = $('#clearButton');
+            let selectedAct = null;
+            let searchTimeout;
 
-    function selectAct(act) {
-        selectedAct = act;
-        $('#selected_act_id').val(act.ID_AGENTE);
-        searchInput.val(`${act.NRO_ACT} - ${act.APELLIDOS_ACT}, ${act.NOMBRES_ACT}`);
-        clearButton.show();
-    }
+            searchInput.on('input', function() {
+                clearTimeout(searchTimeout);
+                const searchTerm = $(this).val();
 
-    function clearSelection() {
-        selectedAct = null;
-        $('#selected_act_id').val('');
-        searchInput.val('');
-        clearButton.hide();
-    }
-});
-   </script>
+                if (searchTerm.length > 0) {
+                    clearButton.show();
+                    searchTimeout = setTimeout(function() {
+                        searchActs(searchTerm);
+                    }, 300);
+                } else {
+                    clearButton.hide();
+                    $('#actDropdown').remove();
+                    clearSelection();
+                }
+            });
+
+            clearButton.on('click', function() {
+                clearSelection();
+                $('#actDropdown').remove();
+            });
+
+            // Cerrar el dropdown cuando se hace clic fuera
+            $(document).on('click', function(e) {
+                if (!$(e.target).closest('.position-relative').length) {
+                    $('#actDropdown').remove();
+                }
+            });
+
+            function searchActs(term) {
+                $.ajax({
+                    url: '<?php echo site_url(); ?>/ProcesosController/search_acts',
+                    method: 'POST',
+                    dataType: 'json',
+                    data: {
+                        search: term,
+                        <?= $this->security->get_csrf_token_name() ?>: '<?= $this->security->get_csrf_hash() ?>'
+                    },
+                    success: function(acts) {
+                        showDropdown(acts);
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error en la búsqueda:', error);
+                    }
+                });
+            }
+
+            function showDropdown(acts) {
+                // Remover dropdown existente
+                $('#actDropdown').remove();
+
+                // Crear nuevo dropdown
+                const dropdown = $(
+                    `<div id="actDropdown" class="dropdown-menu show w-100 shadow" style="max-height: 300px; overflow-y: auto;"></div>`
+                    );
+
+                if (acts.length > 0) {
+                    acts.forEach(act => {
+                        const item = $(`
+                        <a href="#" class="dropdown-item py-2">
+                            <div class="font-weight-bold">${act.NRO_ACT}</div>
+                            <small class="text-muted">${act.APELLIDOS_ACT}, ${act.NOMBRES_ACT}</small>
+                        </a>
+                    `);
+
+                        item.on('click', function(e) {
+                            e.preventDefault();
+                            selectAct(act);
+                            dropdown.remove();
+                        });
+
+                        dropdown.append(item);
+                    });
+                } else {
+                    dropdown.append(`
+                    <div class="dropdown-item text-muted text-center py-2">
+                        No se encontraron resultados
+                    </div>
+                `);
+                }
+
+                // Insertar el dropdown después del input-group
+                searchInput.closest('.input-group').after(dropdown);
+            }
+
+            function selectAct(act) {
+                selectedAct = act;
+                $('#selected_act_id').val(act.ID_AGENTE);
+                searchInput.val(`${act.NRO_ACT} - ${act.APELLIDOS_ACT}, ${act.NOMBRES_ACT}`);
+                clearButton.show();
+            }
+
+            function clearSelection() {
+                selectedAct = null;
+                $('#selected_act_id').val('');
+                searchInput.val('');
+                clearButton.hide();
+            }
+     });
+</script>
 
 
     <script src="<?php echo base_url();?>public/assets/js/bootstrap.bundle.min.js"></script>

@@ -84,10 +84,11 @@
                                     <td><?= $infractor['A_INFRACTOR'] ?></td>
                                     <td><?= $infractor['C_INFRACTOR'] ?></td>
                                     <td>
-                                        <a href="<?= site_url('ProcesosController/index/' . $infractor['ID_INFRACTOR']) ?>"
-                                            class="btn btn-primary btn-sm">
-                                            <i class="fas fa-plus"></i> Agregar Proceso
-                                        </a>
+                                    <button type="button" 
+                                        class="btn btn-primary btn-sm cargar-modal-infractor" 
+                                        data-id="<?= $infractor['ID_INFRACTOR'] ?>">
+                                    <i class="fas fa-plus"></i> Agregar Proceso
+                                </button>
                                     </td>
                                 </tr>
                                 <?php endforeach; ?>
@@ -234,6 +235,71 @@
 </script>
 <script>
     $(document).ready(function() {
+    // Eliminar el modal existente cuando se cierre
+    $(document).on('hidden.bs.modal', '#modalVistaInfractor', function () {
+        $(this).remove(); // Elimina el modal del DOM cuando se cierra
+    });
+
+    // Manejador para los botones que abren el modal
+    $(document).on('click', '.cargar-modal-infractor', function() {
+        var id_infractor = $(this).data('id');
+        
+        // Mostrar loader
+        Swal.fire({
+            title: 'Cargando...',
+            text: 'Por favor espere',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
+        // Remover modal existente si hay uno
+        if ($('#modalVistaInfractor').length > 0) {
+            $('#modalVistaInfractor').remove();
+        }
+
+        // Cargar contenido del modal
+        $.get(baseUrl + 'index.php/ProcesosController/cargar_vista_modal/' + id_infractor, function(modalContent) {
+            // Crear el modal
+            $('body').append(`
+                <div class="modal fade" id="modalVistaInfractor" tabindex="-1" role="dialog">
+                    <div class="modal-dialog modal-xl" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Detalles del Infractor</h5>
+                                <button type="button" class="close" data-dismiss="modal">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `);
+
+            // Cerrar el loader
+            Swal.close();
+
+            // Actualizar el contenido del modal y mostrarlo
+            $('#modalVistaInfractor .modal-body').html(modalContent);
+            $('#modalVistaInfractor').modal('show');
+        }).fail(function(error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Error al cargar los datos del infractor'
+            });
+        });
+    });
+});
+</script>
+<script>
+    $(document).ready(function() {
     // Por defecto, mostrar la lista y ocultar el formulario
     $('#contenedorLista').show();
     $('#contenedorFormulario').hide();
@@ -312,13 +378,10 @@
 
     $('#formRegistroInfractor').on('submit', function(e) {
     e.preventDefault();
-
     if (!this.checkValidity()) {
         return false;
     }
-
     var formData = new FormData(this);
-
     Swal.fire({
         title: 'Registrando...',
         text: 'Por favor espere',
@@ -327,7 +390,6 @@
             Swal.showLoading();
         }
     });
-
     $.ajax({
         url: baseUrl + 'index.php/ProcesosController/registrar_infractor',
         type: 'POST',
@@ -344,9 +406,35 @@
                     showConfirmButton: false,
                     timer: 1500
                 }).then(() => {
-                    if (response.redirect) {
-                        window.location.href = response.redirect_url;
-                    }
+                    // Cargar y mostrar el modal después del mensaje de éxito
+                    $.get(response.modal_url, function(modalContent) {
+                        // Crear o actualizar el modal
+                        if ($('#modalVistaInfractor').length === 0) {
+                            $('body').append(`
+                                <div class="modal fade" id="modalVistaInfractor" tabindex="-1" role="dialog">
+                                    <div class="modal-dialog modal-xl" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Detalles del Infractor</h5>
+                                                <button type="button" class="close" data-dismiss="modal">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `);
+                        }
+
+                        // Actualizar el contenido del modal y mostrarlo
+                        $('#modalVistaInfractor .modal-body').html(modalContent);
+                        $('#modalVistaInfractor').modal('show');
+                    });
                 });
             } else {
                 Swal.fire({
@@ -364,8 +452,7 @@
             });
         }
     });
-});
-
+}); 
     // Ajustar la tabla cuando la ventana cambie de tamaño
     $(window).on('resize', function() {
         table.columns.adjust();

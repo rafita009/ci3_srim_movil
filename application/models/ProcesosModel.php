@@ -76,11 +76,30 @@ public function find($id_infractor)
 }
 public function insertar_infractor($datos) {
     $this->db->insert('infractores', $datos);
-    return $this->db->insert_id(); // Retorna el ID del infractor insertado
+    if ($this->db->affected_rows() > 0) {
+        return $this->db->insert_id(); // Retorna el ID del infractor insertado
+    }
+    return false;
 }
 public function existe_cedula($cedula) {
     $this->db->where('C_INFRACTOR', $cedula);
     $query = $this->db->get('infractores');
     return $query->num_rows() > 0;
+}
+public function obtener_infractor($id_infractor) {
+    // Validar que el ID sea numérico
+    if (!is_numeric($id_infractor)) {
+        return false;
+    }
+
+    $this->db->where('ID_INFRACTOR', $id_infractor);
+    // Si tienes un campo de estado, puedes agregar:
+    // $this->db->where('ESTADO', 1);
+    $query = $this->db->get('infractores');
+
+    if ($query->num_rows() > 0) {
+        return $query->row_array(); // Devuelve un array asociativo
+    }
+    return false;
 }
 }

@@ -104,6 +104,8 @@
                 <h6 class="collapse-header">Insertar:</h6>
                 <a class="collapse-item" href="<?= site_url('CausasController/index') ?>">Causas</a>
                 <a class="collapse-item" href="<?= site_url('Tipo_p_Controller/index') ?>">Tipos de Pruebas</a>
+                <a class="collapse-item" href="<?= site_url('CditController/index') ?>">Centros de Detenciones</a>
+
 
                 
             </div>

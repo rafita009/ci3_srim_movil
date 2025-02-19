@@ -1,12 +1,12 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class CausasController extends CI_Controller {
+class CditController extends CI_Controller {
     public function __construct() {
         parent::__construct();
         $this->load->library('form_validation'); // Carga la librería de validación de formularios
         $this->load->helper('url');
-        $this->load->model('CausasModel');
+        $this->load->model('CditModel');
         $this->load->model('UsersModel');
         $this->load->model('RolesModel');
         
@@ -27,139 +27,161 @@ class CausasController extends CI_Controller {
     {
         $id_usuario = $this->session->userdata('id_usuario');
         $user_details = $this->UsersModel->get_user_by_id($id_usuario);
+        $eliminados = $this->CditModel->getCditEliminados();
+
        
         $data = [
-            'titulo' => 'Causas',
-            'datos' => $this->CausasModel->getCausasActivas(),
+            'titulo' => 'Centros de detencion',
+            'datos' => $this->CditModel->getCdiTActivos(),
+            'eliminados' => $eliminados,
             'id_usuario' => $id_usuario,
             'usuario' => $user_details['NOMBRES'] . ' ' . $user_details['APELLIDOS'],
             'foto' => !empty($user_details['FOTO']) ? $user_details['FOTO'] : 'uploads/fotos_usuario/default_profile.png'
         ];
         
-        $this->load->view('causas/causas', $data);
+        $this->load->view('cdit/cdit', $data);
     }
 
-    public function nuevo()
+   
+    public function insertar()
     {
-
-        $id_usuario = $this->session->userdata('id_usuario');
-        $user_details = $this->UsersModel->get_user_by_id($id_usuario);
-
-        if ($this->input->post()) {
-            $causa = $this->input->post('causa');
-            
-            if (!$this->CausasModel->existeCausa($causa)) {
-                $this->CausasModel->agregarCausa($causa);
-                $this->session->set_flashdata('success', 'Causa agregada correctamente');
-                redirect('causas');
-            } else {
-                $this->session->set_flashdata('error', 'La causa ya existe');
-            }
+        // Validar que sea una petición AJAX
+        if (!$this->input->is_ajax_request()) {
+            show_404();
+        }
+       
+        $cdit = $this->input->post('cdit');
+        $cdit_direccion = $this->input->post('direccion');
+       
+         // Validar que los campos no estén vacíos
+    if(empty($cdit) || empty($cdit_direccion)) {
+        $message = '';
+        if(empty($cdit)) {
+            $message .= 'El campo Centro de Detención es obligatorio. ';
+        }
+        if(empty($cdit_direccion)) {
+            $message .= 'El campo Dirección es obligatorio.';
         }
         
-        $data = [
-            'titulo' => 'Agregar Causa',
-            'id_usuario' => $id_usuario,
-            'usuario' => $user_details['NOMBRES'] . ' ' . $user_details['APELLIDOS'],
-            'foto' => !empty($user_details['FOTO']) ? $user_details['FOTO'] : 'uploads/fotos_usuario/default_profile.png'
-    ];
-        $this->load->view('causas/nuevo', $data);
-    }
-    public function insertar()
-{
-    
-
-    $causa = $this->input->post('causa');
-    
-    // Validar que el campo no esté vacío
-    if(empty($causa)) {
-        $this->session->set_flashdata('error', 'El campo causa es obligatorio');
-        redirect('CausasController/nuevo');
+        $response = array(
+            'success' => false,
+            'message' => trim($message)
+        );
+        echo json_encode($response);
         return;
-    }
-    
-    // Verificar si la causa ya existe
-    if(!$this->CausasModel->existeCausa($causa)) {
-        if($this->CausasModel->agregarCausa($causa)) {
-            $this->session->set_flashdata('success', 'Causa guardada correctamente');
+        }
+       
+        // Verificar si el cdit ya existe
+        if(!$this->CditModel->existeCdit($cdit)) {
+            if($this->CditModel->agregarCdit($cdit, $cdit_direccion)) {
+                $response = array(
+                    'success' => true,
+                    'message' => 'Centro de detencion guardado correctamente'
+                );
+            } else {
+                $response = array(
+                    'success' => false,
+                    'message' => 'Error al guardar el centro de detencion'
+                );
+            }
         } else {
-            $this->session->set_flashdata('error', 'Error al guardar la causa');
+            $response = array(
+                'success' => false,
+                'message' => 'El Centro de detencion ya existe en la base de datos'
+            );
         }
-    } else {
-        $this->session->set_flashdata('error', 'La causa ya existe en la base de datos');
-        redirect('CausasController/nuevo');
-        return;
+       
+        echo json_encode($response);
     }
-    
-    redirect('CausasController/index');
-}
 
-   // Función para mostrar el formulario de edición
-        public function editar($id)
-        {
-            $id_usuario = $this->session->userdata('id_usuario');
-            $user_details = $this->UsersModel->get_user_by_id($id_usuario);
-            
-
-            $data = [
-                'titulo' => 'Editar Causa',
-                'id_usuario' => $id_usuario,
-                'usuario' => $user_details['NOMBRES'] . ' ' . $user_details['APELLIDOS'],
-                'foto' => !empty($user_details['FOTO']) ? $user_details['FOTO'] : 'uploads/fotos_usuario/default_profile.png',
-                'datos' => $this->CausasModel->getCausaById($id)
-            ];
-            $this->load->view('causas/editar', $data);
+    public function obtener_cdit($id) {
+        // Validar que sea una petición AJAX
+        if (!$this->input->is_ajax_request()) {
+            show_404();
         }
+    
+        // Obtener el cdit
+        $cdit = $this->CditModel->getCditById($id);
+        
+        if ($cdit) {
+            $response = array(
+                'success' => true,
+                'data' => $cdit
+            );
+        } else {
+            $response = array(
+                'success' => false,
+                'message' => 'No se encontró el Centro de detencion'
+            );
+        }
+    
+        echo json_encode($response);
+    }
 
         // Función para procesar la actualización
         public function actualizar()
         {
+            // Validar que sea una petición AJAX
+            if (!$this->input->is_ajax_request()) {
+                show_404();
+            }
            
-            $id = $this->input->post('id_causa');
-            $causa = $this->input->post('causa');
-            
-            if (!$this->CausasModel->existeCausa($causa, $id)) {
-                if ($this->CausasModel->actualizarCausa($id, $causa)) {
-                    $this->session->set_flashdata('success', 'Causa actualizada correctamente');
+            $id = $this->input->post('id_cdit');
+            $cdit= $this->input->post('cdit');
+            $cdit_direccion= $this->input->post('direccion');
+           
+            // Validar que los campos no estén vacíos
+            if(empty($id) || empty($cdit) || empty($cdit_direccion)) {
+                $message = '';
+                if(empty($cdit)) {
+                    $message .= 'El campo CDIT no puede estar vacío. ';
+                }
+                if(empty($cdit_direccion)) {
+                    $message .= 'El campo Dirección no puede estar vacío.';
+                }
+                
+                $response = array(
+                    'success' => false,
+                    'message' => trim($message) // trim para eliminar espacios extra
+                );
+                echo json_encode($response);
+                return;
+            }
+           
+            if (!$this->CditModel->existeCdit($cdit, $id)) {
+                if ($this->CditModel->actualizarCdit($id, $cdit, $cdit_direccion)) {
+                    $response = array(
+                        'success' => true,
+                        'message' => 'Centro de detención actualizado correctamente'
+                    );
                 } else {
-                    $this->session->set_flashdata('error', 'Error al actualizar la causa');
+                    $response = array(
+                        'success' => false,
+                        'message' => 'Error al actualizar el centro de detención'
+                    );
                 }
             } else {
-                $this->session->set_flashdata('error', 'La causa ya existe');
+                $response = array(
+                    'success' => false,
+                    'message' => 'El centro de detención ya existe'
+                );
             }
-            
-            redirect('CausasController/index');
+           
+            echo json_encode($response);
         }
 
-        public function eliminados()
-{
-   
-
-    // Obtener los detalles del usuario desde el modelo
-    $id_usuario = $this->session->userdata('id_usuario');
-    $user_details = $this->UsersModel->get_user_by_id($id_usuario);
-    
-    $data = [
-        'titulo' => 'Causas eliminadas',
-        'datos' => $this->CausasModel->getCausasEliminadas(),
-        'id_usuario' => $id_usuario,
-        'usuario' => $user_details['NOMBRES'] . ' ' . $user_details['APELLIDOS'],
-        'foto' => !empty($user_details['FOTO']) ? $user_details['FOTO'] : 'uploads/fotos_usuario/default_profile.png'
-    ];
-    
-    $this->load->view('causas/eliminados', $data);
-}
+       
     public function eliminar($id)
     {
-        $this->CausasModel->eliminarCausa($id);
-        $this->session->set_flashdata('success', 'Causa eliminada correctamente');
-        redirect('CausasController/index');
+        $this->CditModel->eliminarCdit($id);
+        $this->session->set_flashdata('success', 'Centro de detencion eliminado correctamente');
+        redirect('CditController/index');
     }
 
     public function reactivar($id)
     {
-        $this->CausasModel->reactivarCausa($id);
-        $this->session->set_flashdata('success', 'Causa reactivada correctamente');
-        redirect('CausasController/index');
+        $this->CditModel->reactivarCdit($id);
+        $this->session->set_flashdata('success', 'Centro de detencion reactivado correctamente');
+        redirect('CditController/index');
     }
 }

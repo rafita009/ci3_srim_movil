@@ -193,12 +193,12 @@ public function search_acts()
                 }
             }
 
-            if ($this->ProcesosModel->insertar_infractor($datos)) {
+            if ($id_infractor = $this->ProcesosModel->insertar_infractor($datos)) {
                 $response = array(
                     'success' => true,
                     'message' => 'Infractor registrado correctamente',
-                    'redirect' => true,
-                    'redirect_url' => site_url('ProcesosController/select_infractor') // O la URL que desees
+                    'id_infractor' => $id_infractor, // Enviamos el ID del infractor
+                    'modal_url' => site_url('ProcesosController/cargar_vista_modal/' . $id_infractor) // URL para cargar el contenido del modal
                 );
             } else {
                 $response = array(
@@ -216,6 +216,24 @@ public function search_acts()
         }
 
         echo json_encode($response);
+    }
+    public function cargar_vista_modal($id_infractor) {
+        if (!$this->input->is_ajax_request()) {
+            show_404();
+        }
+        
+          // Crear el array $data con todos los datos necesarios
+        $data = array(
+            'infractor' => $this->ProcesosModel->obtener_infractor($id_infractor),
+            'distritos' => $this->ProcesosModel->get_distritos(),
+            'causas' => $this->ProcesosModel->get_causas(),
+            'tipo_placas' => $this->ProcesosModel->get_tipo_placas(),
+            'tipo_pruebas' => $this->ProcesosModel->get_tipos_pruebas(),
+            'cdit' => $this->ProcesosModel->get_cdit(),
+            'agentes' => $this->ProcesosModel->get_all_agentes()
+        );
+        // Carga la vista que quieres mostrar en el modal
+        $this->load->view('register_infractores', $data);
     }
     private function guardar_fotos_pertenencias($id_infractor, $infractor, $archivos) 
     {
@@ -518,7 +536,7 @@ public function search_acts()
         }
     
         // Redirigir después del proceso (para solicitudes normales)
-        redirect('ProcesosController/index');
+        redirect('ProcesosController/select_infractor');
     }
     
     // Método para cargar los datos en la vista de edición
@@ -562,10 +580,7 @@ public function editar($id_infractor) {
     private function agrupar_datos_por_tablas() 
     {
         
-        // Ahora solo necesitamos el ID del ACT seleccionado
-        $id_agente = [
-            'ID_AGENTE' => $this->input->post('act_id') // Este es el campo hidden que recibe el ID
-        ]; 
+        
         $placas = [
             'ID_TIPO_PLACA' => $this->input->post('tipo_placa'),
             'PLACA' => $this->input->post('num_placa')
@@ -584,12 +599,12 @@ public function editar($id_infractor) {
         $fecha_hora_entrada_vm = [
             'ID_INFRACTOR' => null, // Se incluye el ID del infractor
             'FECHA_HORA_INGRESO_VM' => $this->input->post('fecha_entrada_valoracion'),
-            'AGENTE_CUSTODIO_VM' => $this->input->post('act_custodio')  // Esto recibirá el ID_AGENTE que seleccionaste
+            'ID_AGENTE' => $this->input->post('act_custodio')  // Esto recibirá el ID_AGENTE que seleccionaste
         ];
         $fecha_hora_salida_vm = [
             'ID_INFRACTOR' => null, // Se incluye el ID del infractor
             'FECHA_HORA_SALIDA_VM' => $this->input->post('fecha_salida_valoracion'),
-            'ID_AGENTE' => $this->input->post('act_custodio')
+            'ID_AGENTE' => $this->input->post('act_custodio') // Esto recibirá el ID_AGENTE que seleccionaste
 
         ];
         $comentarios = [
@@ -626,8 +641,6 @@ public function editar($id_infractor) {
         
         
         return [
-            
-            
             'placas' => $placas,
             'causas_distrito_infractor_canton' => $causas_distrito_infractor_canton,
             'pruebas' => $pruebas,
@@ -644,17 +657,15 @@ public function editar($id_infractor) {
         private function insertar_datos_secuencialmente($datos) 
         {
             
-            $id_infractor = $this->db->insert_id();
+            $id_infractor = $this->input->post('id_infractor');
+            $infractor = $this->ProcesosModel->obtener_infractor($id_infractor);
 
-            // 2. Procesar fotos de infractor
-            $ruta_foto_infractor = $this->guardar_foto_infractor($id_infractor, $datos['infractor'], $datos['archivos'] ); // Aquí pasamos los archivos que ya vienen en $datos
-           
              // 3. Procesar fotos de pertenencias
-            $rutas_fotos_pertenencias = $this->guardar_fotos_pertenencias($id_infractor, $datos['infractor'], $datos['archivos']); // Procesar fotos de pertenencias
+            $rutas_fotos_pertenencias = $this->guardar_fotos_pertenencias($id_infractor, $infractor, $datos['archivos']); // Procesar fotos de pertenencias
             
             
             // 4. Insertar agente de procedimiento
-            $id_agente = $this->input->post('act_id');
+            $id_agente_procede = $this->input->post('act_id');
            
             // 5. Insertar placa
             if (!$this->db->insert('placas', $datos['placas'])) {
@@ -668,7 +679,7 @@ public function editar($id_infractor) {
                 'ID_USUARIO' => $this->session->userdata('id_usuario'),
                 'ID_INFRACTOR' => $id_infractor,
                 'ID_PLACA' => $id_placa,
-                'ID_AGENTE' => $id_agente,
+                'ID_AGENTE' => $id_agente_procede,
                 'NOMBRE_PROCESO' => 'Registro de Infractor',
                 'FECHA_REGISTRO' => date('Y-m-d H:i:s')
             ];
@@ -677,12 +688,12 @@ public function editar($id_infractor) {
                 throw new Exception('Error al insertar proceso');
              }
             $id_proceso = $this->db->insert_id();
-    
+            
              // 7. Procesar fotos de libertad (ahora incluyendo id_proceso)
-            $ruta_foto_libertad = $this->guardar_foto_libertad($id_infractor, $id_proceso, $datos['infractor'], $datos['archivos']);
+            $ruta_foto_libertad = $this->guardar_foto_libertad($id_infractor, $id_proceso, $infractor, $datos['archivos']);
     
             // 8. Procesar fotos de detención (ahora incluyendo id_proceso)
-            $ruta_foto_detencion = $this->guardar_foto_detencion($id_infractor, $id_proceso, $datos['infractor'], $datos['archivos']);
+            $ruta_foto_detencion = $this->guardar_foto_detencion($id_infractor, $id_proceso, $infractor, $datos['archivos']);
              
             // 9. Insertar datos en fechas_procedimiento (dependen del ID del proceso)
             $datos['fecha_procedimiento']['ID_PROCESO'] = $id_proceso;
