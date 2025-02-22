@@ -54,6 +54,11 @@
 
 
                         <div class="row">
+                        <div class="process-details">
+                                <h3>Proceso #<?= $proceso['ID_PROCESO'] ?></h3>
+                                <p><strong>Nombre del Proceso:</strong> <?= $proceso['NOMBRE_PROCESO'] ?></p>
+                                <!-- ... otros detalles del proceso -->
+                            </div>
                             <!-- Columna Izquierda: Foto del Infractor y Fotos de Pertenencias -->
                             <div class="col-md-4">
                                 <!-- Foto del Infractor -->
@@ -189,7 +194,7 @@
 
 
                                 <div class="row">
-                                    <div class="card shadow-lg border-0 rounded-lg mb-4 p-4">
+                                <div class="card shadow-lg border-0 rounded-lg mb-4 p-4">
                                         <h5 class="border-bottom pb-3 text-primary">Datos de Valoración Médica</h5>
                                         <div class="row">
                                             <div class="col-md-4">
@@ -205,8 +210,12 @@
                                                 </p>
                                             </div>
                                             <div class="col-md-4">
-                                                <p><strong>Agente Custodio:</strong>
-                                                    <?= $fecha_hora_entrada_vm['AGENTE_CUSTODIO_VM'] ?? 'No disponible'; ?>
+                                                <p><strong>Agente Custodio:</strong> 
+                                                    <br>
+                                                    <?= !empty($fecha_hora_entrada_vm['NOMBRES_ACT']) 
+                                                        ? $fecha_hora_entrada_vm['NOMBRES_ACT'] . ' ' . $fecha_hora_entrada_vm['APELLIDOS_ACT'] 
+                                                        : 'No asignado'; 
+                                                    ?>
                                                 </p>
                                             </div>
                                         </div>
@@ -280,7 +289,7 @@
                                                     <?= $datos_cdit['MESES'] ?? 'No disponible'; ?></p>
                                             </div>
                                             <div class="col-md-3">
-                                                <p><strong>Días:</strong> <?= $detencion['DIAS'] ?? 'No disponible'; ?>
+                                                <p><strong>Días:</strong> <?= $datos_cdit['DIAS'] ?? 'No disponible'; ?>
                                                 </p>
                                             </div>
                                             <div class="col-md-3">
@@ -304,8 +313,12 @@
                                                 </p>
                                             </div>
                                             <div class="col-md-4">
-                                                <p><strong>A.C.T recibe CDIT:</strong>
-                                                    <?= $datos_cdit['ACT_RECIBE_CDIT'] ?? 'No disponible'; ?></p>
+                                            <p><strong>Agente que recibió en CDIT:</strong> 
+                                                <?= !empty($datos_cdit['NOMBRES_ACT']) 
+                                                    ? $datos_cdit['NOMBRES_ACT'] . ' ' . $datos_cdit['APELLIDOS_ACT'] 
+                                                    : 'No asignado'; 
+                                                ?>  
+                                            </p>
                                             </div>
                                         </div>
 

@@ -30,21 +30,26 @@ class ProcesosController extends CI_Controller
         
     }  
     public function select_infractor()
-    {
+{
          // Obtener los detalles del usuario desde el modelo
     $id_usuario = $this->session->userdata('id_usuario');
     $user_details = $this->UsersModel->get_user_by_id($id_usuario);
     $infractores = $this->ProcesosModel->get_all_infractores();
-
+    // Obtener procesos para cada infractor
+    $asociados = [];
+    foreach ($infractores as $infractor) {
+        $asociados[$infractor['ID_INFRACTOR']] = $this->ProcesosModel->obtenerProcesos($infractor['ID_INFRACTOR']);
+    }
      // Preparar los datos para la vista
      $data = [
         'usuario' => $user_details['NOMBRES'] . ' ' . $user_details['APELLIDOS'], // Nombre completo
         'foto' => !empty($user_details['FOTO']) ? $user_details['FOTO'] : 'default_profile.png', // Foto del usuario o predeterminada
-        'infractores' => $infractores
+        'infractores' => $infractores,
+        'asociados' => $asociados
     ];
      $this->load->view('register_proc_inf', $data);
 
-    }
+}
     public function index($id_infractor = null)
 {
     // Obtener los detalles del usuario desde el modelo
@@ -156,41 +161,43 @@ public function search_acts()
             );
 
             
-                        // Procesar la foto si existe
-            if (!empty($_FILES['foto_inf']['name'])) {
-                // Directorio de destino para la foto
-                $directorio_destino = './uploads/fotos_infractores/';
+             // Procesar la foto si existe
+                if (!empty($_FILES['foto_inf']['name'])) {
+                    // Directorio de destino para la foto
+                    $directorio_destino = './uploads/fotos_infractores/';
 
-                // Verificar si el directorio existe, si no, crearlo
-                if (!is_dir($directorio_destino)) {
-                    mkdir($directorio_destino, 0777, true);
-                }
-                
-                // Corregir el error en pregreplace -> preg_replace y los nombres de las variables
-                $nombre_archivo = preg_replace(
-                    '/[^a-zA-Z0-9_-]/',
-                    '_',
-                    $datos['N_INFRACTOR'] . '_' . $datos['A_INFRACTOR'] . '_' . uniqid()
-                );
-                
-                // Configuración para la subida
-                $config = [
-                    'upload_path' => $directorio_destino,
-                    'allowed_types' => 'jpg|jpeg|png',
-                    'max_size' => 2048,
-                    'file_name' => $nombre_archivo,
-                    'overwrite' => FALSE
-                ];
-                
-                $this->load->library('upload');
-                $this->upload->initialize($config);
-                
-                if ($this->upload->do_upload('foto_inf')) {
-                    $data = $this->upload->data();
-                    $datos['F_INFRACTOR_RUTA'] = $data['file_name']; // Guardar solo el nombre del archivo
-                } else {
-                    log_message('error', 'Error al subir foto infractor: ' . $this->upload->display_errors());
-                }
+                    // Verificar si el directorio existe, si no, crearlo
+                    if (!is_dir($directorio_destino)) {
+                        mkdir($directorio_destino, 0777, true);
+                    }
+
+                    // Corregir el error en pregreplace -> preg_replace y los nombres de las variables
+                    $nombre_archivo = preg_replace(
+                        '/[^a-zA-Z0-9_-]/',
+                        '_',
+                        $datos['N_INFRACTOR'] . '_' . $datos['A_INFRACTOR'] . '_' . uniqid()
+                    );
+
+                    // Configuración para la subida
+                    $config = [
+                        'upload_path' => $directorio_destino,
+                        'allowed_types' => 'jpg|jpeg|png',
+                        'max_size' => 2048,
+                        'file_name' => $nombre_archivo,
+                        'overwrite' => FALSE
+                    ];
+
+                    $this->load->library('upload');
+                    $this->upload->initialize($config);
+
+                    if ($this->upload->do_upload('foto_inf')) {
+                        $data = $this->upload->data();
+                        
+                        // Guardar la ruta completa del archivo en la base de datos
+                        $datos['F_INFRACTOR_RUTA'] = $directorio_destino . $data['file_name']; // Ruta completa
+                    } else {
+                        log_message('error', 'Error al subir foto infractor: ' . $this->upload->display_errors());
+                    }
             }
 
             if ($id_infractor = $this->ProcesosModel->insertar_infractor($datos)) {
@@ -217,7 +224,9 @@ public function search_acts()
 
         echo json_encode($response);
     }
-    public function cargar_vista_modal($id_infractor) {
+    
+    public function cargar_vista_modal($id_infractor) 
+    {
         if (!$this->input->is_ajax_request()) {
             show_404();
         }
@@ -235,69 +244,69 @@ public function search_acts()
         // Carga la vista que quieres mostrar en el modal
         $this->load->view('register_infractores', $data);
     }
-    private function guardar_fotos_pertenencias($id_infractor, $infractor, $archivos) 
-    {
-        // Directorio de destino para las fotos
-        $directorio_destino = './uploads/fotos_pertenencias/';
+    private function guardar_fotos_pertenencias($id_infractor, $id_proceso, $infractor, $archivos) 
+{
+    // Directorio de destino para las fotos
+    $directorio_destino = './uploads/fotos_pertenencias/';
+    
+    // Verificar si el directorio existe, si no, crearlo
+    if (!is_dir($directorio_destino)) {
+        mkdir($directorio_destino, 0777, true);
+    }
+    
+    // Verificar si hay fotos de pertenencias
+    if (isset($archivos['foto_pertenencias']) && !empty($archivos['foto_pertenencias']['name'][0])) {
+        $fotos = $archivos['foto_pertenencias'];
+        $total_fotos = count($fotos['name']);
         
-        // Verificar si el directorio existe, si no, crearlo
-        if (!is_dir($directorio_destino)) {
-            mkdir($directorio_destino, 0777, true); // Crear directorio con permisos
-        }
-        
-        // Verificar si hay fotos de pertenencias
-        if (isset($archivos['foto_pertenencias']) && !empty($archivos['foto_pertenencias']['name'][0])) {
-            $fotos = $archivos['foto_pertenencias'];
-            $total_fotos = count($fotos['name']);
+        // Recorrer las fotos para guardarlas individualmente
+        for ($i = 0; $i < $total_fotos; $i++) {
+            // Preparar cada archivo individual
+            $_FILES['foto_pertenencia'] = [
+                'name' => $fotos['name'][$i],
+                'type' => $fotos['type'][$i],
+                'tmp_name' => $fotos['tmp_name'][$i],
+                'error' => $fotos['error'][$i],
+                'size' => $fotos['size'][$i]
+            ];
+
+            // Crear el nombre del archivo basado en el nombre y apellido del infractor, el índice y un identificador único
+            $nombre_archivo = preg_replace(
+                '/[^a-zA-Z0-9_-]/', 
+                '_', 
+                $infractor['N_INFRACTOR'] . '_' . $infractor['A_INFRACTOR'] . '_' . ($i + 1) . '_' . uniqid()
+            );
             
-            // Recorrer las fotos para guardarlas individualmente
-            for ($i = 0; $i < $total_fotos; $i++) {
-                // Preparar cada archivo individual
-                $_FILES['foto_pertenencia'] = [
-                    'name' => $fotos['name'][$i],
-                    'type' => $fotos['type'][$i],
-                    'tmp_name' => $fotos['tmp_name'][$i],
-                    'error' => $fotos['error'][$i],
-                    'size' => $fotos['size'][$i]
-                ];
-    
-                // Crear el nombre del archivo basado en el nombre y apellido del infractor, el índice y un identificador único
-                $nombre_archivo = preg_replace(
-                    '/[^a-zA-Z0-9_-]/', 
-                    '_', 
-                    $infractor['N_INFRACTOR'] . '_' . $infractor['A_INFRACTOR'] . '_' . ($i + 1) . '_' . uniqid()
-                );
+            // Configuración para la subida
+            $config = [
+                'upload_path' => $directorio_destino,
+                'allowed_types' => 'jpg|jpeg|png',
+                'max_size' => 2048,
+                'file_name' => $nombre_archivo,
+                'overwrite' => FALSE
+            ];
+
+            // Inicializar la librería de subida
+            $this->load->library('upload');
+            $this->upload->initialize($config);
+
+            // Subir archivo
+            if ($this->upload->do_upload('foto_pertenencia')) {
+                $data = $this->upload->data();
+                $ruta = $directorio_destino . $data['file_name'];
                 
-                // Configuración para la subida
-                $config = [
-                    'upload_path' => $directorio_destino,
-                    'allowed_types' => 'jpg|jpeg|png',
-                    'max_size' => 2048,
-                    'file_name' => $nombre_archivo,
-                    'overwrite' => FALSE // Evita la sobrescritura de archivos
-                ];
-    
-                // Inicializar la librería de subida
-                $this->load->library('upload');
-                $this->upload->initialize($config);
-    
-                // Subir archivo
-                if ($this->upload->do_upload('foto_pertenencia')) {
-                    $data = $this->upload->data();
-                    $ruta = $directorio_destino . $data['file_name'];
-                    
-                    // Insertar en la tabla fotos_pertenencias
-                    $this->db->insert('fotos_pertenencias', [
-                        'ID_INFRACTOR' => $id_infractor,
-                        'RUTA_PERTENENCIAS' => $ruta
-                    ]);
-                } else {
-                    log_message('error', 'Error al subir foto de pertenencia: ' . $this->upload->display_errors());
-                }
+                // Insertar en la tabla fotos_pertenencias con ID_PROCESO
+                $this->db->insert('fotos_pertenencias', [
+                    'ID_INFRACTOR' => $id_infractor,
+                    'ID_PROCESO' => $id_proceso,    // Agregamos el ID_PROCESO
+                    'RUTA_PERTENENCIAS' => $ruta
+                ]);
+            } else {
+                log_message('error', 'Error al subir foto de pertenencia: ' . $this->upload->display_errors());
             }
         }
-        // No se retorna nada
     }
+}
     
     private function guardar_foto_libertad($id_infractor, $id_proceso, $infractor, $archivos)
     {
@@ -540,7 +549,8 @@ public function search_acts()
     }
     
     // Método para cargar los datos en la vista de edición
-public function editar($id_infractor) {
+public function editar($id_infractor) 
+{
 
     
     // Obtener los detalles del usuario desde el modelo
@@ -660,8 +670,6 @@ public function editar($id_infractor) {
             $id_infractor = $this->input->post('id_infractor');
             $infractor = $this->ProcesosModel->obtener_infractor($id_infractor);
 
-             // 3. Procesar fotos de pertenencias
-            $rutas_fotos_pertenencias = $this->guardar_fotos_pertenencias($id_infractor, $infractor, $datos['archivos']); // Procesar fotos de pertenencias
             
             
             // 4. Insertar agente de procedimiento
@@ -689,6 +697,13 @@ public function editar($id_infractor) {
              }
             $id_proceso = $this->db->insert_id();
             
+
+            $rutas_fotos_pertenencias = $this->guardar_fotos_pertenencias(
+                $id_infractor, 
+                $id_proceso,  // Agregamos el id_proceso aquí
+                $infractor, 
+                $datos['archivos']
+            );
              // 7. Procesar fotos de libertad (ahora incluyendo id_proceso)
             $ruta_foto_libertad = $this->guardar_foto_libertad($id_infractor, $id_proceso, $infractor, $datos['archivos']);
     

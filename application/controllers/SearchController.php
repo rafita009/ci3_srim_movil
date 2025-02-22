@@ -40,7 +40,7 @@ class SearchController extends CI_Controller
         ];
     
        // Si hay parámetros de búsqueda
-    if($this->input->get('buscar_por')) {
+     if($this->input->get('buscar_por')) {
         // Validar y obtener parámetros
         $buscar_por = $this->input->get('buscar_por');
         $valor = $this->input->get('seleccion_db') ?: $this->input->get('valor_busqueda');
@@ -70,30 +70,52 @@ class SearchController extends CI_Controller
     }
     }
     
-    // Método para mostrar los detalles de un proceso
-    public function detalle($id_infractor) {
-        // Obtener los datos del infractor y sus procesos asociados
-        $data['infractor'] = $this->SearchModel->obtener_infractor($id_infractor);
-        $data['act_procede'] = $this->SearchModel->obtener_act_procede($id_infractor);
-        $data['placas'] = $this->SearchModel->obtener_placas($id_infractor);
-        $data['tipo_placa'] = $this->SearchModel->obtener_tipo_placa($id_infractor);
-        $data['ruta_foto'] = $this->SearchModel->obtener_foto_infractor($id_infractor);
-        $data['causas_distrito_infractor_canton'] = $this->SearchModel->obtener_causa_distrito($id_infractor);
-        $data['pruebas'] = $this->SearchModel->obtener_pruebas($id_infractor);
-        $data['fecha_procedimiento'] = $this->SearchModel->obtener_fechas_procedimiento($id_infractor);
-        $data['fecha_hora_entrada_vm'] = $this->SearchModel->obtener_fecha_hora_entrada($id_infractor);
-        $data['fotos_pertenencias'] = $this->SearchModel->obtener_fotos_pertenencias($id_infractor);
-        $data['fecha_hora_salida_vm'] = $this->SearchModel->obtener_fecha_hora_salida($id_infractor);
-        $data['comentarios'] = $this->SearchModel->obtener_comentarios($id_infractor);
-        $data['archivos_libertad'] = $this->SearchModel->obtener_archivos_libertad($id_infractor);
-        $data['datos_cdit'] = $this->SearchModel->obtener_datos_cdit($id_infractor);
-        $data['archivos_detencion'] = $this->SearchModel->obtener_archivos_detencion($id_infractor);
-
-        // Guardar los datos en la sesión para pasarlos al otro controlador (opcional)
-        $this->session->set_userdata('detalle_infractor', $data);
+    public function detalle($id_proceso) {
+        $id_usuario = $this->session->userdata('id_usuario');
+        $user_details = $this->UsersModel->get_user_by_id($id_usuario);
     
-        // Redirigir a otro controlador y método    
-        redirect('ReadController/index');
+        // Obtener el proceso
+        $proceso = $this->SearchModel->obtener_proceso($id_proceso);
+        
+        if (!$proceso) {
+            show_error('Proceso no encontrado');
+            return;
+        }
+    
+        // Preparar array de datos usando id_proceso en lugar de id_infractor
+        $data = [
+            'usuario' => $user_details['NOMBRES'] . ' ' . $user_details['APELLIDOS'],
+            'foto' => !empty($user_details['FOTO']) ? $user_details['FOTO'] : 'default_profile.png',
+            
+            // Datos del proceso
+            'proceso' => $proceso,
+            
+            // Datos del infractor (este sí usa ID_INFRACTOR del proceso)
+            'infractor' => $this->SearchModel->obtener_infractor($proceso['ID_INFRACTOR']),
+            
+            // El resto de consultas deberían usar id_proceso
+            'act_procede' => $this->SearchModel->obtener_act_procede($id_proceso),
+            'placas' => $this->SearchModel->obtener_placas($id_proceso),
+            'tipo_placa' => $this->SearchModel->obtener_tipo_placa($id_proceso),
+            'ruta_foto' => $this->SearchModel->obtener_foto_infractor($id_proceso),
+            'causas_distrito_infractor_canton' => $this->SearchModel->obtener_causa_distrito($id_proceso),
+            'pruebas' => $this->SearchModel->obtener_pruebas($id_proceso),
+            'fecha_procedimiento' => $this->SearchModel->obtener_fechas_procedimiento($id_proceso),
+            'fecha_hora_entrada_vm' => $this->SearchModel->obtener_fecha_hora_entrada($id_proceso),
+            'fotos_pertenencias' => $this->SearchModel->obtener_fotos_pertenencias($id_proceso),
+            'fecha_hora_salida_vm' => $this->SearchModel->obtener_fecha_hora_salida($id_proceso),
+            'comentarios' => $this->SearchModel->obtener_comentarios($id_proceso),
+            'archivos_libertad' => $this->SearchModel->obtener_archivos_libertad($id_proceso),
+            'datos_cdit' => $this->SearchModel->obtener_datos_cdit($id_proceso),
+            'archivos_detencion' => $this->SearchModel->obtener_archivos_detencion($id_proceso)
+        ];
+    
+        if (!$data['infractor']) {
+            show_error('Infractor no encontrado');
+            return;
+        }
+    
+        $this->load->view('readdatos', $data);
     }
     public function procesos_tabla() {
          // Obtener el ID del usuario desde la sesión

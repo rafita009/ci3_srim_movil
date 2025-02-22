@@ -62,18 +62,20 @@
                     <i class="fas fa-user-plus"></i> Registrar Nuevo Infractor
                 </button>
             </div>
-
+                
             <!-- Card para contener la lista y el formulario -->
             <div class="card shadow-sm">
                 <div class="card-body">
                     <!-- Contenedor de la lista -->
                     <div id="contenedorLista">
                         <table class="table table-striped table-bordered" id="tablaInfractores">
+                            
                             <thead class="bg-light">
                                 <tr>
                                     <th>Nombres</th>
                                     <th>Apellidos</th>
                                     <th>Cédula</th>
+                                    <th>Procesos Asociados</th>
                                     <th>Acciones</th>
                                 </tr>
                             </thead>
@@ -84,11 +86,27 @@
                                     <td><?= $infractor['A_INFRACTOR'] ?></td>
                                     <td><?= $infractor['C_INFRACTOR'] ?></td>
                                     <td>
+                                    <?php if (!empty($asociados[$infractor['ID_INFRACTOR']])) : ?>
+                                        <?php foreach($asociados[$infractor['ID_INFRACTOR']] as $proceso) : ?>
+                                            <div class="mb-2 d-flex align-items-center">
+                                                <span class="me-2">Proceso #<?= $proceso['ID_PROCESO'] ?> - <?= htmlspecialchars($proceso['NOMBRE_PROCESO']) ?></span>
+                                                <a href="<?= site_url('SearchController/detalle/' . $proceso['ID_PROCESO']) ?>"
+                                                class="btn btn-info btn-sm"
+                                                onclick="console.log('ID_PROCESO:', <?= $proceso['ID_PROCESO'] ?>)"> <!-- Agregar este debug -->
+                                                    <i class="bx bx-show"></i> Ver Proceso
+                                                </a>
+                                            </div>
+                                        <?php endforeach; ?>
+                                    <?php else : ?>
+                                        <div class="text-muted">No hay procesos asociados</div>
+                                    <?php endif; ?>
+                                </td>                               
+                                <td>
                                     <button type="button" 
                                         class="btn btn-primary btn-sm cargar-modal-infractor" 
                                         data-id="<?= $infractor['ID_INFRACTOR'] ?>">
                                     <i class="fas fa-plus"></i> Agregar Proceso
-                                </button>
+                                 </button>
                                     </td>
                                 </tr>
                                 <?php endforeach; ?>
@@ -267,7 +285,7 @@
                     <div class="modal-dialog modal-xl" role="document">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h5 class="modal-title">Detalles del Infractor</h5>
+                                <h5 class="modal-title">Registrar</h5>
                                 <button type="button" class="close" data-dismiss="modal">
                                     <span aria-hidden="true">&times;</span>
                                 </button>

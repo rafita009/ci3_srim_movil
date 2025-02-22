@@ -65,9 +65,16 @@ public function get_all_agentes() {
 }
 public function get_all_infractores()
 {
-    $this->db->order_by('ID_INFRACTOR', 'DESC');  // Ordenar por ID de forma descendente
-    $query = $this->db->get('infractores');
-    return $query->result_array();}
+    $this->db->select('i.*, COUNT(p.ID_PROCESO) as total_procesos')
+             ->from('infractores i')
+             ->join('procesos p', 'i.ID_INFRACTOR = p.ID_INFRACTOR', 'inner')
+             ->group_by('i.ID_INFRACTOR')
+             ->order_by('i.ID_INFRACTOR', 'DESC');
+    
+    $query = $this->db->get();
+    return $query->result_array();
+}
+
 public function find($id_infractor)
 {
     return $this->db->where('ID_INFRACTOR', $id_infractor)
@@ -101,5 +108,16 @@ public function obtener_infractor($id_infractor) {
         return $query->row_array(); // Devuelve un array asociativo
     }
     return false;
+}
+
+public function obtenerProcesos($id_infractor) {
+    $this->db->select('p.ID_PROCESO, p.NOMBRE_PROCESO, p.FECHA_REGISTRO')
+             ->from('procesos p')
+             ->where('p.ID_INFRACTOR', $id_infractor)
+             ->group_by('p.ID_PROCESO, p.NOMBRE_PROCESO')  // Agregar agrupación por nombre también
+             ->order_by('p.ID_PROCESO', 'ASC');  // Ordenar por ID_PROCESO
+
+    $query = $this->db->get();
+    return $query->result_array();
 }
 }

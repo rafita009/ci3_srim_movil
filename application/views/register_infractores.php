@@ -73,7 +73,7 @@
 
                     <form action="<?= site_url('ProcesosController/guardar'); ?>" method="POST"
                         enctype="multipart/form-data">
-                        <h4>Registrar Proceso</h4>
+                        
 
                         <div class="card shadow-sm p-4 mb-4">
 
@@ -172,6 +172,7 @@
 
                                                 <label for="tipo_placa" class="form-label fw-bold">Tipo de
                                                     Placa<span class="text-danger">*</span></label>
+                                                    <br>
                                                 <select id="tipo_placa" name="tipo_placa" class="form-select" required>
                                                     <option value="">Seleccione...</option>
                                                     <?php foreach ($tipo_placas as $tipoplaca): ?>
