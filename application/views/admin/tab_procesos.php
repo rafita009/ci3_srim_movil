@@ -17,9 +17,14 @@
     <link
         href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
         rel="stylesheet">
-
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap4.min.css">
     <!-- Custom styles for this template-->
     <link href="<?php echo base_url(); ?>public/assets/css/sb-admin-2.min.css" rel="stylesheet">
+    <!-- CSS de SweetAlert2 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.min.css">
+    <!-- JavaScript de SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.all.min.js"></script>
 
 </head>
 
@@ -44,54 +49,85 @@
 
                 <!-- Begin Page Content -->
                 <div class="container-fluid">
-                    <h4>Procesos de Infractores</h4>
-                    <div>Hola</div>
+
                     <div class="row">
                         <div class="col-12">
                             <div class="card">
                                 <div class="card-header">
-                                    <h3 class="card-title">Procesos de Infractores</h3>
+                                    <h3 class="card-title">Procesos Registrados</h3>
                                 </div>
                                 <div class="card-body">
-                                    <?php if (!empty($resultados)): ?>
+                                    <?php 
+    $hasProcesses = false;
+    foreach ($asociados as $procesos) {
+        if (!empty($procesos)) {
+            $hasProcesses = true;
+            break;
+        }
+    }
+    ?>
+
+                                    <?php if ($hasProcesses): ?>
                                     <div class="table-responsive">
-                                        <table id="tablaProcesos" class="table table-bordered table-hover datatable">
-                                            <thead class="bg-primary text-white">
+                                        <table class="table table-striped table-bordered" id="tablaProcesos">
+                                            <thead class="bg-light">
                                                 <tr>
-                                                    <th>Nro</th>
                                                     <th>Nombres</th>
                                                     <th>Apellidos</th>
                                                     <th>Cédula</th>
                                                     <th>Placa</th>
                                                     <th>Causa</th>
-                                                    <th>Acción</th> <!-- Nueva columna -->
-                                                    <th>Acción</th> <!-- Nueva columna -->
+                                                    <th>Procesos Asociados</th>
 
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <?php foreach ($resultados as $proceso): ?>
+                                                <?php foreach ($infractores as $infractor): ?>
+                                                <?php if (!empty($asociados[$infractor['ID_INFRACTOR']])): ?>
                                                 <tr>
-                                                    <td><?php echo $proceso['ID_PROCESO']; ?></td>
-                                                    <td><?php echo $proceso['N_INFRACTOR']; ?></td>
-                                                    <td><?php echo $proceso['A_INFRACTOR']; ?></td>
-                                                    <td><?php echo $proceso['C_INFRACTOR']; ?></td>
-                                                    <td><?php echo $proceso['PLACA']; ?></td>
-                                                    <td><?php echo $proceso['CAUSA']; ?></td>
+                                                    <td><?= htmlspecialchars($infractor['N_INFRACTOR']) ?></td>
+                                                    <td><?= htmlspecialchars($infractor['A_INFRACTOR']) ?></td>
+                                                    <td><?= htmlspecialchars($infractor['C_INFRACTOR']) ?></td>
                                                     
-                                                    <td class="text-center">
-                                                        <a href="<?php echo site_url('SearchController/detalle/' . $proceso['ID_INFRACTOR']); ?>"
-                                                            class="btn btn-info btn-sm">
-                                                            <i class="bx bx-show"></i> Ver Detalle
-                                                        </a>
+                                                    <td>
+                                                        <div class="process-list">
+                                                            <?php foreach($asociados[$infractor['ID_INFRACTOR']] as $index => $proceso): ?>
+                                                            <div class="process-item p-2"
+                                                                style="border-bottom: 1px solid #eee; min-height: 48px; display: flex; align-items: center;">
+                                                                <?= htmlspecialchars($proceso['PLACA'] ?? 'No asignada') ?>
+                                                            </div>
+                                                            <?php endforeach; ?>
+                                                        </div>
                                                     </td>
-                                                    <td class="text-center">
-                                                        <a href="<?php echo site_url('ProcesosController/editar/' . $proceso['ID_INFRACTOR']); ?>"
-                                                            class="btn btn-warning btn-sm">
-                                                            <i class="bx bx-edit"></i> Editar
-                                                        </a>
+                                                    <td>
+                                                        <div class="process-list">
+                                                            <?php foreach($asociados[$infractor['ID_INFRACTOR']] as $index => $proceso): ?>
+                                                            <div class="process-item p-2"
+                                                                style="border-bottom: 1px solid #eee; min-height: 48px; display: flex; align-items: center;">
+                                                                <?= htmlspecialchars($proceso['CAUSA'] ?? 'No asignada') ?>
+                                                            </div>
+                                                            <?php endforeach; ?>
+                                                        </div>
                                                     </td>
+                                                    <td>
+                                                        <div class="process-list">
+                                                            <?php foreach($asociados[$infractor['ID_INFRACTOR']] as $index => $proceso): ?>
+                                                            <div class="process-item d-flex align-items-center p-2"
+                                                                style="border-bottom: 1px solid #eee; min-height: 48px;">
+                                                                <span class="me-2">Proceso
+                                                                    #<?= htmlspecialchars($proceso['ID_PROCESO']) ?> -
+                                                                    <?= htmlspecialchars($proceso['NOMBRE_PROCESO']) ?>
+                                                                </span>
+                                                                <a href="<?= site_url('SearchController/detalle/' . $proceso['ID_PROCESO']) ?>"
+                                                                    class="btn btn-info btn-sm ms-auto">
+                                                                    <i class="bx bx-show"></i> Ver Proceso
+                                                                </a>
+                                                            </div>
+                                                            <?php endforeach; ?>
+                                                        </div>
+                                                    </td>            
                                                 </tr>
+                                                <?php endif; ?>
                                                 <?php endforeach; ?>
                                             </tbody>
                                         </table>
@@ -147,28 +183,28 @@
     <script src="<?php echo base_url();?>public/assets/vendor/jquery/jquery.min.js"></script>
 
     <script>
-$(document).ready(function() {
-    $('#tablaProcesos').DataTable({
-        "language": {
-            "lengthMenu": "Mostrar _MENU_ registros por página",
-            "zeroRecords": "No se encontraron resultados",
-            "info": "Mostrando página _PAGE_ de _PAGES_",
-            "infoEmpty": "No hay registros disponibles",
-            "infoFiltered": "(filtrado de _MAX_ registros totales)",
-            "search": "Buscar:",
-            "paginate": {
-                "first": "Primero",
-                "last": "Último",
-                "next": "Siguiente",
-                "previous": "Anterior"
+    $(document).ready(function() {
+        $('#tablaProcesos').DataTable({
+            "language": {
+                "lengthMenu": "Mostrar _MENU_ registros por página",
+                "zeroRecords": "No se encontraron resultados",
+                "info": "Mostrando página _PAGE_ de _PAGES_",
+                "infoEmpty": "No hay registros disponibles",
+                "infoFiltered": "(filtrado de _MAX_ registros totales)",
+                "search": "Buscar:",
+                "paginate": {
+                    "first": "Primero",
+                    "last": "Último",
+                    "next": "Siguiente",
+                    "previous": "Anterior"
+                }
             }
-        }
+        });
     });
-});
-</script>            
-       <!-- DataTables JS -->
-<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>                        
+    </script>
+    <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>
     <!-- Bootstrap core JavaScript-->
     <script src="<?php echo base_url();?>public/assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 

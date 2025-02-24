@@ -38,20 +38,18 @@ class SearchModel extends CI_Model
   
       return $this->db->get()->result_array();
   }
-// Método para obtener detalles del infractor
 public function procesos_tabla() {
     $this->db->select('i.*, p.PLACA, c.CAUSA, pr.ID_PROCESO, pr.ID_INFRACTOR');
     $this->db->from('infractores i');
 
-    // Se une la tabla procesos para conectar infractores con placas
-    $this->db->join('procesos pr', 'i.ID_INFRACTOR = pr.ID_INFRACTOR', 'left');
+    // Cambiamos de LEFT JOIN a INNER JOIN para la tabla procesos
+    $this->db->join('procesos pr', 'i.ID_INFRACTOR = pr.ID_INFRACTOR', 'inner');
     $this->db->join('placas p', 'pr.ID_PLACA = p.ID_PLACA', 'left');
 
-    // Se une la tabla intermedia para obtener la causa
+    // Mantenemos LEFT JOIN para las tablas de causas
     $this->db->join('causa_distrito_infractor_canton cdic', 'i.ID_INFRACTOR = cdic.ID_INFRACTOR', 'left');
     $this->db->join('causas c', 'cdic.ID_CAUSA = c.ID_CAUSA', 'left');
   
-    // No se aplican filtros, se obtienen todos los procesos disponibles
     return $this->db->get()->result_array();
 }
 
@@ -60,12 +58,13 @@ public function obtener_infractor($id_infractor)
     return $this->db->get_where('infractores', ['ID_INFRACTOR' => $id_infractor])->row_array();
 }
 // Obtener foto del infractor (mantiene ID_INFRACTOR ya que es dato personal)
-public function obtener_foto_infractor($id_proceso) {
-    $this->db->select('fi.RUTA_INFRACTOR')
-             ->from('fotos_infractores fi')
-             ->join('procesos p', 'p.ID_INFRACTOR = fi.ID_INFRACTOR')
-             ->where('p.ID_PROCESO', $id_proceso);
-    return $this->db->get()->row_array()['RUTA_INFRACTOR'] ?? null;
+public function obtener_foto_infractor($id_infractor) {
+    $this->db->select('F_INFRACTOR_RUTA')
+             ->from('infractores')
+             ->where('ID_INFRACTOR', $id_infractor);
+             
+    $result = $this->db->get()->row_array();
+    return $result['RUTA_INFRACTOR'] ?? null;
 }
 
 public function obtener_fotos_pertenencias($id_proceso) {

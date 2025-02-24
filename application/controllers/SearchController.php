@@ -117,22 +117,31 @@ class SearchController extends CI_Controller
     
         $this->load->view('readdatos', $data);
     }
-    public function procesos_tabla() {
+    public function procesos_tabla() 
+    {
+
          // Obtener el ID del usuario desde la sesión
     $id_usuario = $this->session->userdata('id_usuario');
 
     // Obtener detalles del usuario desde el modelo
     $user_details = $this->UsersModel->get_user_by_id($id_usuario);
+    $infractores = $this->ProcesosModel->get_all_infractores();
 
     // Obtener los resultados de la tabla de procesos desde el modelo
-    $resultados = $this->SearchModel->procesos_tabla();
+   // $resultados = $this->SearchModel->procesos_tabla();
+     // Obtener procesos para cada infractor (incluyendo los que no tienen)
+     $asociados = [];
+     foreach ($infractores as $infractor) {
+         $asociados[$infractor['ID_INFRACTOR']] = $this->ProcesosModel->obtenerProcesoscompletos($infractor['ID_INFRACTOR']) ?? []; // Si no tiene procesos, asignar un array vacío
+     }
 
     // Preparar los datos para la vista
     $data = [
         'usuario' => isset($user_details['NOMBRES']) ? $user_details['NOMBRES'] . ' ' . $user_details['APELLIDOS'] : 'Usuario desconocido', // Nombre completo
         'foto' => !empty($user_details['FOTO']) ? $user_details['FOTO'] : 'default_profile.png', // Foto del usuario o predeterminada
-        'resultados' => $resultados // Resultados de la tabla de procesos
-    ];
+        'infractores' => $infractores, // Lista de infractores
+        'asociados' => $asociados // Procesos asociados a cada infractor
+        ];
 
     // Cargar la vista con los datos
     $this->load->view('admin/tab_procesos', $data); // Vista con la tabla de procesos

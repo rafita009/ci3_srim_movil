@@ -146,7 +146,8 @@
                                         <table id="tablaSearch" class="table table-bordered table-hover datatable">
                                             <thead class="bg-primary text-white">
                                                 <tr>
-                                                    <th>Nro</th>
+                                                    <th>#</th>
+                                                    <th>Nro Proceso</th>
                                                     <th>Nombres</th>
                                                     <th>Apellidos</th>
                                                     <th>Cédula</th>
@@ -211,30 +212,7 @@
 
 
     <script src="<?php echo base_url(); ?>public/assets/vendor/jquery/jquery.min.js"></script>
-    <script>
-        $('#formBusqueda').on('submit', function(e) {
-            e.preventDefault();
-            $('#loading').show();
-
-            $.ajax({
-                url: $(this).attr('action'),
-                type: 'GET',
-                data: $(this).serialize(),
-                success: function(response) {
-                    $('#tablaSearch tbody').html(response);
-                    inicializarDataTable(); // Reinicializar DataTables
-                },
-                error: function() {
-                    alert('Error al realizar la búsqueda');
-                    $('#tablaSearch tbody').html('<tr><td colspan="7" class="text-center">Error al realizar la búsqueda</td></tr>');
-                    inicializarDataTable(); // Reinicializar incluso en caso de error
-                },
-                complete: function() {
-                    $('#loading').hide();
-                }
-            });
-        });
-    </script>
+    
 
 
     <script>
@@ -336,40 +314,72 @@
     </script>
     <script>
         // Variable global para la tabla
-        let tabla;
+let tabla;
 
-        // Inicialización cuando el documento está listo
-        $(document).ready(function() {
-            inicializarDataTable();
-        });
+// Inicialización cuando el documento está listo
+$(document).ready(function() {
+    inicializarDataTable();
 
-        // Función para inicializar DataTables
-        function inicializarDataTable() {
-            if ($.fn.DataTable.isDataTable('#tablaSearch')) {
-                $('#tablaSearch').DataTable().destroy();
+    // Manejador del formulario de búsqueda
+    $('#formBusqueda').on('submit', function(e) {
+        e.preventDefault();
+        $('#loading').show();
+
+        $.ajax({
+            url: $(this).attr('action'),
+            type: 'GET',
+            data: $(this).serialize(),
+            success: function(response) {
+                $('#tablaSearch tbody').html(response);
+                if (tabla) {
+                    tabla.destroy();
+                }
+                inicializarDataTable();
+            },
+            error: function() {
+                alert('Error al realizar la búsqueda');
+                $('#tablaSearch tbody').html('<tr><td colspan="7" class="text-center">Error al realizar la búsqueda</td></tr>');
+            },
+            complete: function() {
+                $('#loading').hide();
             }
-            $.fn.dataTable.ext.errMode = 'none'; // Oculta el mensaje de advertencia
+        });
+    });
+});
 
-
-            tabla = $('#tablaSearch').DataTable({
-                "language": {
-                    "lengthMenu": "Mostrar _MENU_ registros por página",
-                    "zeroRecords": "No se encontraron resultados",
-                    "info": "Mostrando página _PAGE_ de _PAGES_",
-                    "infoEmpty": "No hay registros disponibles",
-                    "infoFiltered": "(filtrado de _MAX_ registros totales)",
-                    "search": "Buscar:",
-                    "paginate": {
-                        "first": "Primero",
-                        "last": "Último",
-                        "next": "Siguiente",
-                        "previous": "Anterior"
-                    }
-                },
-                "ordering": true,
-                "responsive": true
-            });
+// Función para inicializar DataTables
+function inicializarDataTable() {
+    try {
+        if ($.fn.DataTable.isDataTable('#tablaSearch')) {
+            $('#tablaSearch').DataTable().destroy();
         }
+        
+        $.fn.dataTable.ext.errMode = 'none'; // Oculta el mensaje de advertencia
+
+        tabla = $('#tablaSearch').DataTable({
+            "language": {
+                "lengthMenu": "Mostrar _MENU_ registros por página",
+                "zeroRecords": "No se encontraron resultados",
+                "info": "Mostrando página _PAGE_ de _PAGES_",
+                "infoEmpty": "No hay registros disponibles",
+                "infoFiltered": "(filtrado de _MAX_ registros totales)",
+                "search": "Buscar:",
+                "paginate": {
+                    "first": "Primero",
+                    "last": "Último",
+                    "next": "Siguiente",
+                    "previous": "Anterior"
+                }
+            },
+            "ordering": true,
+            "responsive": true,
+            "retrieve": true,
+            "processing": true
+        });
+    } catch (error) {
+        console.warn('Error inicializando DataTable:', error);
+    }
+}
     </script>
 
 

@@ -67,13 +67,14 @@ public function get_all_infractores()
 {
     $this->db->select('i.*, COUNT(p.ID_PROCESO) as total_procesos')
              ->from('infractores i')
-             ->join('procesos p', 'i.ID_INFRACTOR = p.ID_INFRACTOR', 'inner')
+             ->join('procesos p', 'i.ID_INFRACTOR = p.ID_INFRACTOR', 'left') // Cambio INNER JOIN → LEFT JOIN
              ->group_by('i.ID_INFRACTOR')
              ->order_by('i.ID_INFRACTOR', 'DESC');
     
     $query = $this->db->get();
     return $query->result_array();
 }
+
 
 public function find($id_infractor)
 {
@@ -93,24 +94,16 @@ public function existe_cedula($cedula) {
     $query = $this->db->get('infractores');
     return $query->num_rows() > 0;
 }
-public function obtener_infractor($id_infractor) {
-    // Validar que el ID sea numérico
-    if (!is_numeric($id_infractor)) {
-        return false;
-    }
-
+public function obtener_infractor($id_infractor)
+{
+    $this->db->select('*');  // Asegúrate de incluir todos los campos, incluyendo la foto
+    $this->db->from('infractores');
     $this->db->where('ID_INFRACTOR', $id_infractor);
-    // Si tienes un campo de estado, puedes agregar:
-    // $this->db->where('ESTADO', 1);
-    $query = $this->db->get('infractores');
-
-    if ($query->num_rows() > 0) {
-        return $query->row_array(); // Devuelve un array asociativo
-    }
-    return false;
+    $query = $this->db->get();
+    return $query->row_array(); // Devuelve un array asociativo
 }
 
-public function obtenerProcesos($id_infractor) {
+public function obtenerProcesos_infractores($id_infractor) {
     $this->db->select('p.ID_PROCESO, p.NOMBRE_PROCESO, p.FECHA_REGISTRO')
              ->from('procesos p')
              ->where('p.ID_INFRACTOR', $id_infractor)
@@ -119,5 +112,20 @@ public function obtenerProcesos($id_infractor) {
 
     $query = $this->db->get();
     return $query->result_array();
+}
+public function obtenerProcesoscompletos($id_infractor) {
+    $this->db->distinct()
+             ->select('p.ID_PROCESO, p.NOMBRE_PROCESO, p.FECHA_REGISTRO, pl.PLACA, c.CAUSA')
+             ->from('procesos p')
+             ->join('placas pl', 'p.ID_PLACA = pl.ID_PLACA', 'left')
+             ->join('causa_distrito_infractor_canton cdic', 'p.ID_INFRACTOR = cdic.ID_INFRACTOR', 'left')
+             ->join('causas c', 'cdic.ID_CAUSA = c.ID_CAUSA', 'left')
+             ->where('p.ID_INFRACTOR', $id_infractor)
+             ->where('p.ID_PROCESO IS NOT NULL')
+             ->group_by('p.ID_PROCESO')  // Simplificamos el GROUP BY
+             ->order_by('p.ID_PROCESO', 'ASC');
+
+    $result = $this->db->get()->result_array();
+    return !empty($result) ? $result : null;
 }
 }

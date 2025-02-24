@@ -73,7 +73,7 @@
 
                     <form action="<?= site_url('ProcesosController/guardar'); ?>" method="POST"
                         enctype="multipart/form-data">
-                        
+
 
                         <div class="card shadow-sm p-4 mb-4">
 
@@ -91,17 +91,17 @@
                                                 style="height: 250px; width: 75%;">
                                                 <div class="w-100 h-100 position-relative">
                                                     <?php if (!empty($infractor['F_INFRACTOR_RUTA'])): ?>
-                                                    <img src="<?= base_url('uploads/fotos_infractores/' . $infractor['F_INFRACTOR_RUTA']) ?>"
-                                                        class="w-100 h-100 object-fit-cover" alt="Foto del Infractor">
+                                                    <img src="<?= base_url(str_replace('./', '', $infractor['F_INFRACTOR_RUTA'])) ?>"
+                                                        class="w-100 h-100 object-fit-cover" alt="Foto del infractor">
                                                     <?php else: ?>
                                                     <div
-                                                        class="position-absolute top-50 start-50 translate-middle text-muted">
-                                                        <i class="fas fa-user-circle fa-4x"></i>
-                                                        <p class="mt-2">No hay foto disponible</p>
+                                                        class="w-100 h-100 d-flex justify-content-center align-items-center bg-light">
+                                                        <p class="text-muted mb-0">No hay foto disponible</p>
                                                     </div>
                                                     <?php endif; ?>
                                                 </div>
                                             </div>
+
                                             <!-- Información adicional del infractor -->
                                             <div class="mt-2">
                                                 <p class="mb-1"><strong>Nombres:</strong>
@@ -110,8 +110,9 @@
                                                     <?= $infractor['A_INFRACTOR'] ?></p>
                                                 <p class="mb-1"><strong>Cédula:</strong>
                                                     <?= $infractor['C_INFRACTOR'] ?></p>
-                                                <input type="hidden" name="id_infractor" value="<?= $infractor['ID_INFRACTOR'] ?>">    
-                                                
+                                                <input type="hidden" name="id_infractor"
+                                                    value="<?= $infractor['ID_INFRACTOR'] ?>">
+
                                             </div>
                                         </div>
 
@@ -172,7 +173,7 @@
 
                                                 <label for="tipo_placa" class="form-label fw-bold">Tipo de
                                                     Placa<span class="text-danger">*</span></label>
-                                                    <br>
+                                                <br>
                                                 <select id="tipo_placa" name="tipo_placa" class="form-select" required>
                                                     <option value="">Seleccione...</option>
                                                     <?php foreach ($tipo_placas as $tipoplaca): ?>
@@ -436,7 +437,7 @@
                                                 </div>
 
                                                 <div class="col-md-4">
-                                                    <label for="act_cdit" class="form-label fw-bold">A.C.T recibe CDIT 
+                                                    <label for="act_cdit" class="form-label fw-bold">A.C.T recibe CDIT
                                                         <span class="text-danger">*</span>
                                                     </label>
                                                     <br>
@@ -557,9 +558,9 @@
 
     <script src="<?php echo base_url();?>public/assets/vendor/jquery/jquery.min.js"></script>
 
-   
-<!-- Script para mostrar/ocultar campos -->
-<script>
+
+    <!-- Script para mostrar/ocultar campos -->
+    <script>
     $(document).on('shown.bs.modal', '#modalVistaInfractor', function() {
         // Script para mostrar/ocultar campos
         const libertadRadio = document.getElementById("libertad");
@@ -610,14 +611,14 @@
     $(document).on('hidden.bs.modal', '#modalVistaInfractor', function() {
         const libertadRadio = document.getElementById("libertad");
         const detencionRadio = document.getElementById("detencion");
-        
+
         // Desmarcar los radio buttons
         if (libertadRadio) libertadRadio.checked = false;
         if (detencionRadio) detencionRadio.checked = false;
     });
-</script>
-<!--script para visualizar fotos-->
-<script>
+    </script>
+    <!--script para visualizar fotos-->
+    <script>
     $(document).on('shown.bs.modal', '#modalVistaInfractor', function() {
         // Previsualización de las fotos de pertenencias
         const belongingsInput = document.getElementById('belongingsInput');
@@ -684,156 +685,157 @@
             });
         });
     });
-</script>
-<!--script para limpiar valores de campos-->
-<script>
-   $(document).on('shown.bs.modal', '#modalVistaInfractor', function() {
-    const $modalForm = $("#modalVistaInfractor form");
+    </script>
+    <!--script para limpiar valores de campos-->
+    <script>
+    $(document).on('shown.bs.modal', '#modalVistaInfractor', function() {
+        const $modalForm = $("#modalVistaInfractor form");
 
-    // Función para limpiar campos de detención
-    function limpiarCamposDetencion() {
-        $("#tiempo_detenido_anos", $modalForm).val("");
-        $("#tiempo_detenido_meses", $modalForm).val("");
-        $("#tiempo_detenido_dias", $modalForm).val("");
-        $("#tiempo_detenido_horas", $modalForm).val("");
-        $("#centro_detencion", $modalForm).val("");
-        $("#fecha_hora_recibe", $modalForm).val("");
-        $("#act_cdit", $modalForm).val("").prop('selectedIndex', 0); 
-        $("#foto_detencion", $modalForm).val("");
-        $("#foto_detencionError", $modalForm).text("").hide();
-    }
-
-    // Función para limpiar campos de libertad
-    function limpiarCamposLibertad() {
-        $("#foto_libertad", $modalForm).val("");
-        $("#foto_libertadError", $modalForm).text("").hide();
-    }
-
-    // Evento para radio buttons
-    $("#libertad", $modalForm).on('change', function() {
-        if($(this).is(":checked")) {
-            limpiarCamposDetencion();
-        }
-    });
-
-    $("#detencion", $modalForm).on('change', function() {
-        if($(this).is(":checked")) {
-            limpiarCamposLibertad();
-        }
-    });
-
-    $modalForm.on("submit", function(e) {
-        e.preventDefault();
-        // Limpiar mensajes de error previos
-        $(".error-message").text("").hide();
-        
-        // Verificar opción seleccionada
-        const isLibertad = $("#libertad", this).is(":checked");
-        const isDetencion = $("#detencion", this).is(":checked");
-        
-        // Crear FormData
-        const formData = new FormData(this);
-
-        // Agregar el tipo de proceso explícitamente
-        if (isLibertad) {
-            formData.set('tipo', '1');
-            limpiarCamposDetencion(); // Asegurar que los campos de detención estén limpios
-            
-            const libertadFiles = $("#foto_libertad", this)[0].files;
-            if (libertadFiles.length > 0) {
-                Array.from(libertadFiles).forEach((file, index) => {
-                    formData.append(`foto_libertad[${index}]`, file);
-                });
-            } else {
-                $("#foto_libertadError", this).text("Debe seleccionar al menos un archivo.").show();
-                return;
-            }
+        // Función para limpiar campos de detención
+        function limpiarCamposDetencion() {
+            $("#tiempo_detenido_anos", $modalForm).val("");
+            $("#tiempo_detenido_meses", $modalForm).val("");
+            $("#tiempo_detenido_dias", $modalForm).val("");
+            $("#tiempo_detenido_horas", $modalForm).val("");
+            $("#centro_detencion", $modalForm).val("");
+            $("#fecha_hora_recibe", $modalForm).val("");
+            $("#act_cdit", $modalForm).val("").prop('selectedIndex', 0);
+            $("#foto_detencion", $modalForm).val("");
+            $("#foto_detencionError", $modalForm).text("").hide();
         }
 
-        if (isDetencion) {
-            formData.set('tipo', '2');
-            limpiarCamposLibertad(); // Asegurar que los campos de libertad estén limpios
-            
-            const detencionFiles = $("#foto_detencion", this)[0].files;
-            if (detencionFiles.length > 0) {
-                Array.from(detencionFiles).forEach((file, index) => {
-                    formData.append(`foto_detencion[${index}]`, file);
-                });
-            } else {
-                $("#foto_detencionError", this).text("Debe seleccionar al menos un archivo.").show();
-                return;
-            }
+        // Función para limpiar campos de libertad
+        function limpiarCamposLibertad() {
+            $("#foto_libertad", $modalForm).val("");
+            $("#foto_libertadError", $modalForm).text("").hide();
         }
 
-        // Mostrar loader
-        Swal.fire({
-            title: 'Guardando...',
-            text: 'Por favor espere',
-            allowOutsideClick: false,
-            didOpen: () => {
-                Swal.showLoading();
+        // Evento para radio buttons
+        $("#libertad", $modalForm).on('change', function() {
+            if ($(this).is(":checked")) {
+                limpiarCamposDetencion();
             }
         });
 
-        // Enviar datos al servidor
-        $.ajax({
-            url: baseUrl + "index.php/ProcesosController/guardar",
-            type: "POST",
-            data: formData,
-            dataType: "json",
-            processData: false,
-            contentType: false,
-            success: function(response) {
-                Swal.close();
-                
-                if (response.status === "error") {
-                    if (response.errors) {
-                        const errors = response.errors;
-                        for (const field in errors) {
-                            $(`#${field}Error`, $modalForm).text(errors[field]).show();
+        $("#detencion", $modalForm).on('change', function() {
+            if ($(this).is(":checked")) {
+                limpiarCamposLibertad();
+            }
+        });
+
+        $modalForm.on("submit", function(e) {
+            e.preventDefault();
+            // Limpiar mensajes de error previos
+            $(".error-message").text("").hide();
+
+            // Verificar opción seleccionada
+            const isLibertad = $("#libertad", this).is(":checked");
+            const isDetencion = $("#detencion", this).is(":checked");
+
+            // Crear FormData
+            const formData = new FormData(this);
+
+            // Agregar el tipo de proceso explícitamente
+            if (isLibertad) {
+                formData.set('tipo', '1');
+                limpiarCamposDetencion(); // Asegurar que los campos de detención estén limpios
+
+                const libertadFiles = $("#foto_libertad", this)[0].files;
+                if (libertadFiles.length > 0) {
+                    Array.from(libertadFiles).forEach((file, index) => {
+                        formData.append(`foto_libertad[${index}]`, file);
+                    });
+                } else {
+                    $("#foto_libertadError", this).text("Debe seleccionar al menos un archivo.").show();
+                    return;
+                }
+            }
+
+            if (isDetencion) {
+                formData.set('tipo', '2');
+                limpiarCamposLibertad(); // Asegurar que los campos de libertad estén limpios
+
+                const detencionFiles = $("#foto_detencion", this)[0].files;
+                if (detencionFiles.length > 0) {
+                    Array.from(detencionFiles).forEach((file, index) => {
+                        formData.append(`foto_detencion[${index}]`, file);
+                    });
+                } else {
+                    $("#foto_detencionError", this).text("Debe seleccionar al menos un archivo.")
+                .show();
+                    return;
+                }
+            }
+
+            // Mostrar loader
+            Swal.fire({
+                title: 'Guardando...',
+                text: 'Por favor espere',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            // Enviar datos al servidor
+            $.ajax({
+                url: baseUrl + "index.php/ProcesosController/guardar",
+                type: "POST",
+                data: formData,
+                dataType: "json",
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    Swal.close();
+
+                    if (response.status === "error") {
+                        if (response.errors) {
+                            const errors = response.errors;
+                            for (const field in errors) {
+                                $(`#${field}Error`, $modalForm).text(errors[field]).show();
+                            }
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Por favor, verifica los datos ingresados.'
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Ocurrió un error en el formulario. Por favor, verifica los datos.'
+                            });
                         }
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: 'Por favor, verifica los datos ingresados.'
-                        });
                     } else {
                         Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: 'Ocurrió un error en el formulario. Por favor, verifica los datos.'
+                            icon: 'success',
+                            title: '¡Éxito!',
+                            text: 'Registro guardado exitosamente.',
+                            showConfirmButton: false,
+                            timer: 1500
+                        }).then(() => {
+                            // Cerrar el modal
+                            $('#modalVistaInfractor').modal('hide');
+                            // Recargar la página
+                            location.reload();
                         });
                     }
-                } else {
+                },
+                error: function(xhr, status, error) {
+                    Swal.close();
+                    console.error(xhr.responseText);
                     Swal.fire({
-                        icon: 'success',
-                        title: '¡Éxito!',
-                        text: 'Registro guardado exitosamente.',
-                        showConfirmButton: false,
-                        timer: 1500
-                    }).then(() => {
-                        // Cerrar el modal
-                        $('#modalVistaInfractor').modal('hide');
-                        // Recargar la página
-                        location.reload();
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Ocurrió un error al procesar la solicitud.'
                     });
                 }
-            },
-            error: function(xhr, status, error) {
-                Swal.close();
-                console.error(xhr.responseText);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'Ocurrió un error al procesar la solicitud.'
-                });
-            }
+            });
         });
     });
-    });
-</script>
-<!-- Script para presionar boton de guardar -->
-<script>
+    </script>
+    <!-- Script para presionar boton de guardar -->
+    <script>
     // Esperar a que el documento esté listo
     document.addEventListener('DOMContentLoaded', function() {
         // Obtener los radio buttons
@@ -850,169 +852,171 @@
         libertadRadio.addEventListener('change', presionarBoton);
         detencionRadio.addEventListener('change', presionarBoton);
     });
-</script>
-<!-- Script para distritos y cantones -->
-<script>
+    </script>
+    <!-- Script para distritos y cantones -->
+    <script>
     $(document).on('shown.bs.modal', '#modalVistaInfractor', function() {
-    const distrito = document.getElementById('distrito');
-    
-    if (distrito) {
-        distrito.addEventListener('change', function() {
-            const distritoId = this.value;
-            const cantonSelect = document.getElementById('canton');
-            
-            if (distritoId) {
-                cantonSelect.disabled = false;
-                
-                // Mostrar loader
-                Swal.fire({
-                    title: 'Cargando...',
-                    text: 'Obteniendo cantones',
-                    allowOutsideClick: false,
-                    didOpen: () => {
-                        Swal.showLoading();
-                    }
-                });
+        const distrito = document.getElementById('distrito');
 
-                fetch(baseUrl + `index.php/ProcesosController/get_cantones?distrito_id=${distritoId}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        cantonSelect.innerHTML = '<option value="">Seleccione...</option>';
-                        data.forEach(canton => {
-                            cantonSelect.innerHTML +=
-                                `<option value="${canton.ID_CANTON}">${canton.NOMBRE_CANTON}</option>`;
-                        });
-                        Swal.close();
-                    })
-                    .catch(error => {
-                        console.error('Error al cargar los cantones:', error);
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: 'No se pudieron cargar los cantones'
-                        });
+        if (distrito) {
+            distrito.addEventListener('change', function() {
+                const distritoId = this.value;
+                const cantonSelect = document.getElementById('canton');
+
+                if (distritoId) {
+                    cantonSelect.disabled = false;
+
+                    // Mostrar loader
+                    Swal.fire({
+                        title: 'Cargando...',
+                        text: 'Obteniendo cantones',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
                     });
-            } else {
-                cantonSelect.disabled = true;
-                cantonSelect.innerHTML = '<option value="">Seleccione un distrito primero...</option>';
-            }
-        });
 
-        // Disparar el evento change si ya hay un valor seleccionado
-        if (distrito.value) {
-            const event = new Event('change');
-            distrito.dispatchEvent(event);
-        }
-    }
-        });
-</script>
-<!-- Script para seleccionar agente que procede -->
-<script>
-     $(document).ready(function() {
-            const searchInput = $('#searchAct');
-            const clearButton = $('#clearButton');
-            let selectedAct = null;
-            let searchTimeout;
-
-            searchInput.on('input', function() {
-                clearTimeout(searchTimeout);
-                const searchTerm = $(this).val();
-
-                if (searchTerm.length > 0) {
-                    clearButton.show();
-                    searchTimeout = setTimeout(function() {
-                        searchActs(searchTerm);
-                    }, 300);
+                    fetch(baseUrl +
+                            `index.php/ProcesosController/get_cantones?distrito_id=${distritoId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            cantonSelect.innerHTML = '<option value="">Seleccione...</option>';
+                            data.forEach(canton => {
+                                cantonSelect.innerHTML +=
+                                    `<option value="${canton.ID_CANTON}">${canton.NOMBRE_CANTON}</option>`;
+                            });
+                            Swal.close();
+                        })
+                        .catch(error => {
+                            console.error('Error al cargar los cantones:', error);
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'No se pudieron cargar los cantones'
+                            });
+                        });
                 } else {
-                    clearButton.hide();
-                    $('#actDropdown').remove();
-                    clearSelection();
+                    cantonSelect.disabled = true;
+                    cantonSelect.innerHTML =
+                        '<option value="">Seleccione un distrito primero...</option>';
                 }
             });
 
-            clearButton.on('click', function() {
-                clearSelection();
-                $('#actDropdown').remove();
-            });
-
-            // Cerrar el dropdown cuando se hace clic fuera
-            $(document).on('click', function(e) {
-                if (!$(e.target).closest('.position-relative').length) {
-                    $('#actDropdown').remove();
-                }
-            });
-
-            function searchActs(term) {
-                $.ajax({
-                    url: '<?php echo site_url(); ?>/ProcesosController/search_acts',
-                    method: 'POST',
-                    dataType: 'json',
-                    data: {
-                        search: term,
-                        <?= $this->security->get_csrf_token_name() ?>: '<?= $this->security->get_csrf_hash() ?>'
-                    },
-                    success: function(acts) {
-                        showDropdown(acts);
-                    },
-                    error: function(xhr, status, error) {
-                        console.error('Error en la búsqueda:', error);
-                    }
-                });
+            // Disparar el evento change si ya hay un valor seleccionado
+            if (distrito.value) {
+                const event = new Event('change');
+                distrito.dispatchEvent(event);
             }
+        }
+    });
+    </script>
+    <!-- Script para seleccionar agente que procede -->
+    <script>
+    $(document).ready(function() {
+        const searchInput = $('#searchAct');
+        const clearButton = $('#clearButton');
+        let selectedAct = null;
+        let searchTimeout;
 
-            function showDropdown(acts) {
-                // Remover dropdown existente
+        searchInput.on('input', function() {
+            clearTimeout(searchTimeout);
+            const searchTerm = $(this).val();
+
+            if (searchTerm.length > 0) {
+                clearButton.show();
+                searchTimeout = setTimeout(function() {
+                    searchActs(searchTerm);
+                }, 300);
+            } else {
+                clearButton.hide();
                 $('#actDropdown').remove();
+                clearSelection();
+            }
+        });
 
-                // Crear nuevo dropdown
-                const dropdown = $(
-                    `<div id="actDropdown" class="dropdown-menu show w-100 shadow" style="max-height: 300px; overflow-y: auto;"></div>`
-                    );
+        clearButton.on('click', function() {
+            clearSelection();
+            $('#actDropdown').remove();
+        });
 
-                if (acts.length > 0) {
-                    acts.forEach(act => {
-                        const item = $(`
+        // Cerrar el dropdown cuando se hace clic fuera
+        $(document).on('click', function(e) {
+            if (!$(e.target).closest('.position-relative').length) {
+                $('#actDropdown').remove();
+            }
+        });
+
+        function searchActs(term) {
+            $.ajax({
+                url: '<?php echo site_url(); ?>/ProcesosController/search_acts',
+                method: 'POST',
+                dataType: 'json',
+                data: {
+                    search: term,
+                    <?= $this->security->get_csrf_token_name() ?>: '<?= $this->security->get_csrf_hash() ?>'
+                },
+                success: function(acts) {
+                    showDropdown(acts);
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error en la búsqueda:', error);
+                }
+            });
+        }
+
+        function showDropdown(acts) {
+            // Remover dropdown existente
+            $('#actDropdown').remove();
+
+            // Crear nuevo dropdown
+            const dropdown = $(
+                `<div id="actDropdown" class="dropdown-menu show w-100 shadow" style="max-height: 300px; overflow-y: auto;"></div>`
+            );
+
+            if (acts.length > 0) {
+                acts.forEach(act => {
+                    const item = $(`
                         <a href="#" class="dropdown-item py-2">
                             <div class="font-weight-bold">${act.NRO_ACT}</div>
                             <small class="text-muted">${act.APELLIDOS_ACT}, ${act.NOMBRES_ACT}</small>
                         </a>
                     `);
 
-                        item.on('click', function(e) {
-                            e.preventDefault();
-                            selectAct(act);
-                            dropdown.remove();
-                        });
-
-                        dropdown.append(item);
+                    item.on('click', function(e) {
+                        e.preventDefault();
+                        selectAct(act);
+                        dropdown.remove();
                     });
-                } else {
-                    dropdown.append(`
+
+                    dropdown.append(item);
+                });
+            } else {
+                dropdown.append(`
                     <div class="dropdown-item text-muted text-center py-2">
                         No se encontraron resultados
                     </div>
                 `);
-                }
-
-                // Insertar el dropdown después del input-group
-                searchInput.closest('.input-group').after(dropdown);
             }
 
-            function selectAct(act) {
-                selectedAct = act;
-                $('#selected_act_id').val(act.ID_AGENTE);
-                searchInput.val(`${act.NRO_ACT} - ${act.APELLIDOS_ACT}, ${act.NOMBRES_ACT}`);
-                clearButton.show();
-            }
+            // Insertar el dropdown después del input-group
+            searchInput.closest('.input-group').after(dropdown);
+        }
 
-            function clearSelection() {
-                selectedAct = null;
-                $('#selected_act_id').val('');
-                searchInput.val('');
-                clearButton.hide();
-            }
-     });
-</script>
+        function selectAct(act) {
+            selectedAct = act;
+            $('#selected_act_id').val(act.ID_AGENTE);
+            searchInput.val(`${act.NRO_ACT} - ${act.APELLIDOS_ACT}, ${act.NOMBRES_ACT}`);
+            clearButton.show();
+        }
+
+        function clearSelection() {
+            selectedAct = null;
+            $('#selected_act_id').val('');
+            searchInput.val('');
+            clearButton.hide();
+        }
+    });
+    </script>
 
 
     <script src="<?php echo base_url();?>public/assets/js/bootstrap.bundle.min.js"></script>

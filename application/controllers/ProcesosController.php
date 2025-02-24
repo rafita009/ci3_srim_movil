@@ -31,65 +31,27 @@ class ProcesosController extends CI_Controller
     }  
     public function select_infractor()
 {
-         // Obtener los detalles del usuario desde el modelo
     $id_usuario = $this->session->userdata('id_usuario');
     $user_details = $this->UsersModel->get_user_by_id($id_usuario);
     $infractores = $this->ProcesosModel->get_all_infractores();
-    // Obtener procesos para cada infractor
+
+    // Obtener procesos para cada infractor (incluyendo los que no tienen)
     $asociados = [];
     foreach ($infractores as $infractor) {
-        $asociados[$infractor['ID_INFRACTOR']] = $this->ProcesosModel->obtenerProcesos($infractor['ID_INFRACTOR']);
+        $asociados[$infractor['ID_INFRACTOR']] = $this->ProcesosModel->obtenerProcesos_infractores($infractor['ID_INFRACTOR']) ?? []; // Si no tiene procesos, asignar un array vacío
     }
-     // Preparar los datos para la vista
-     $data = [
-        'usuario' => $user_details['NOMBRES'] . ' ' . $user_details['APELLIDOS'], // Nombre completo
-        'foto' => !empty($user_details['FOTO']) ? $user_details['FOTO'] : 'default_profile.png', // Foto del usuario o predeterminada
+
+    $data = [
+        'usuario' => $user_details['NOMBRES'] . ' ' . $user_details['APELLIDOS'],
+        'foto' => !empty($user_details['FOTO']) ? $user_details['FOTO'] : 'default_profile.png',
         'infractores' => $infractores,
         'asociados' => $asociados
     ];
-     $this->load->view('register_proc_inf', $data);
 
+    $this->load->view('register_proc_inf', $data);
 }
-    public function index($id_infractor = null)
-{
-    // Obtener los detalles del usuario desde el modelo
-    $id_usuario = $this->session->userdata('id_usuario');
-    $user_details = $this->UsersModel->get_user_by_id($id_usuario);
-    
-    // Obtiene los distritos para el formulario
-    $distritos = $this->ProcesosModel->get_distritos();
-    // Obtiene las causas
-    $causas = $this->ProcesosModel->get_causas();
-    // Obtiene los tipos de placas
-    $tipo_placas = $this->ProcesosModel->get_tipo_placas();
-    // Obtiene los tipos de pruebas
-    $tipo_pruebas = $this->ProcesosModel->get_tipos_pruebas();
-    // Obtiene los cdit
-    $cdit = $this->ProcesosModel->get_cdit();
-    $agentes = $this->ProcesosModel->get_all_agentes();
-    
 
-    // Obtener datos del infractor si se proporciona un ID
-    $infractor = null;
-    if ($id_infractor) {
-        $infractor = $this->ProcesosModel->find($id_infractor);
-    }
     
-    // Preparar los datos para la vista
-    $data = [
-        'usuario' => $user_details['NOMBRES'] . ' ' . $user_details['APELLIDOS'], // Nombre completo
-        'foto' => !empty($user_details['FOTO']) ? $user_details['FOTO'] : 'default_profile.png', // Foto del usuario o predeterminada
-        'distritos' => $distritos,
-        'causas' => $causas,
-        'tipo_placas' => $tipo_placas,
-        'tipo_pruebas' => $tipo_pruebas,
-        'cdit' => $cdit,
-        'agentes' => $agentes,
-        'infractor' => $infractor // Añadir los datos del infractor al array de datos
-    ];
-
-    $this->load->view('register_infractores', $data);
-}
         
 public function search_acts()
 {
