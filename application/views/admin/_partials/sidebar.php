@@ -48,6 +48,10 @@
                 href="<?= site_url('RolesController/index') ?>">
                 <i class="fas fa-user-shield"></i> Roles
             </a>
+            <a class="collapse-item <?= ($this->uri->segment(1) == 'AgentesController' && $this->uri->segment(2) == 'index') ? 'active' : '' ?>"
+                href="<?= site_url('AgentesController/index') ?>">
+                <i class="fas fa-user-shield"></i> Agentes
+            </a>
         </div>
     </div>
 </li>
