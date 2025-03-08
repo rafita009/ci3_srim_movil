@@ -35,6 +35,7 @@ class DashboardController extends CI_Controller {
     // Obtener los detalles del usuario desde el modelo
     $id_usuario = $this->session->userdata('id_usuario');
     $user_details = $this->UsersModel->get_user_by_id($id_usuario);
+    
 
     // Preparar los datos para la vista
     $data = [

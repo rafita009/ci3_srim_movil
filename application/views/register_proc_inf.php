@@ -64,57 +64,60 @@
                             </div>
 
                             <!-- Card para contener la lista y el formulario -->
-                                <div class="card shadow-sm">
-                                    <div class="card-body">
-                                        <!-- Contenedor de la lista -->
-                                        <div id="contenedorLista">
+                            <div class="card shadow-sm">
+                                <div class="card-body">
+                                    <!-- Contenedor de la lista -->
+                                    <div id="contenedorLista">
+                                        <div class= "table-responsive"> 
                                         <table class="table table-striped table-bordered" id="tablaInfractores">
-    <thead class="bg-light">
-        <tr>
-            <th>#</th>
-            <th>Nombres</th>
-            <th>Apellidos</th>
-            <th>Cédula</th>
-            <th>Procesos Asociados</th>
-            <th>Acciones</th>
-        </tr>
-    </thead>
-    <tbody>
-        <?php $contador = 1; // Inicializamos el contador ?>
-        <?php foreach ($infractores as $key => $infractor): ?>
-        <tr>
-            <td><?= $key + 1 // Usamos el índice del array + 1 ?></td>
-            <td><?= htmlspecialchars($infractor['N_INFRACTOR']) ?></td>
-            <td><?= htmlspecialchars($infractor['A_INFRACTOR']) ?></td>
-            <td><?= htmlspecialchars($infractor['C_INFRACTOR']) ?></td>
-            <td>
-                <?php if (!empty($asociados[$infractor['ID_INFRACTOR']])) : ?>
-                <?php foreach($asociados[$infractor['ID_INFRACTOR']] as $proceso) : ?>
-                <div class="mb-2 d-flex align-items-center">
-                    <span class="me-2">Proceso
-                        #<?= htmlspecialchars($proceso['ID_PROCESO']) ?> -
-                        <?= htmlspecialchars($proceso['NOMBRE_PROCESO']) ?></span>
-                    <a href="<?= site_url('SearchController/detalle/' . $proceso['ID_PROCESO']) ?>"
-                        class="btn btn-info btn-sm">
-                        <i class="bx bx-show"></i> Ver Proceso
-                    </a>
-                </div>
-                <?php endforeach; ?>
-                <?php else : ?>
-                <div class="text-muted">No hay procesos asociados</div>
-                <?php endif; ?>
-            </td>
-            <td>
-                <button type="button"
-                    class="btn btn-primary btn-sm cargar-modal-infractor"
-                    data-id="<?= $infractor['ID_INFRACTOR'] ?>">
-                    <i class="fas fa-plus"></i> Agregar Proceso
-                </button>
-            </td>
-        </tr>
-        <?php endforeach; ?>
-    </tbody>
-</table>
+                                            <thead class="bg-light">
+                                                <tr>
+                                                    <th>#</th>
+                                                    <th>Nombres</th>
+                                                    <th>Apellidos</th>
+                                                    <th>Cédula</th>
+                                                    <th>Procesos Asociados</th>
+                                                    <th>Acciones</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <?php $contador = 1; // Inicializamos el contador ?>
+                                                <?php foreach ($infractores as $key => $infractor): ?>
+                                                <tr>
+                                                    <td><?= $key + 1 // Usamos el índice del array + 1 ?></td>
+                                                    <td><?= htmlspecialchars($infractor['N_INFRACTOR']) ?></td>
+                                                    <td><?= htmlspecialchars($infractor['A_INFRACTOR']) ?></td>
+                                                    <td><?= htmlspecialchars($infractor['C_INFRACTOR']) ?></td>
+                                                    <td>
+                                                        <?php if (!empty($asociados[$infractor['ID_INFRACTOR']])) : ?>
+                                                        <?php foreach($asociados[$infractor['ID_INFRACTOR']] as $proceso) : ?>
+                                                        <div class="mb-2 d-flex align-items-center">
+                                                            <span class="me-2">Proceso
+                                                                #<?= htmlspecialchars($proceso['ID_PROCESO']) ?> -
+                                                                <?= htmlspecialchars($proceso['RESOLUCION']) ?></span>
+                                                            <a href="<?= site_url('SearchController/detalle/' . $proceso['ID_PROCESO']) ?>"
+                                                                class="btn btn-info btn-sm">
+                                                                <i class="bx bx-show"></i> Ver Proceso
+                                                            </a>
+                                                        </div>
+                                                        <?php endforeach; ?>
+                                                        <?php else : ?>
+                                                        <div class="text-muted">No hay procesos asociados</div>
+                                                        <?php endif; ?>
+                                                    </td>
+                                                    <td>
+                                                        <button type="button"
+                                                            class="btn btn-primary btn-sm cargar-modal-infractor"
+                                                            data-id="<?= $infractor['ID_INFRACTOR'] ?>">
+                                                            <i class="fas fa-plus"></i> Agregar Proceso
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                                <?php endforeach; ?>
+                                            </tbody>
+                                        </table>
+                                        </div>
+                                        
                                     </div>
 
                                     <!-- Contenedor del formulario -->
@@ -268,37 +271,37 @@
     <script>
     var baseUrl = '<?php echo base_url(); ?>';
     </script>
-   <script>
+    <script>
     $(document).ready(function() {
-    // Clean up modal when it's closed
-    $(document).on('hidden.bs.modal', '#modalVistaInfractor', function() {
-        $(this).remove();
-    });
-
-    // Handler for opening modal buttons
-    $(document).on('click', '.cargar-modal-infractor', function() {
-        loadInfractorModal($(this).data('id'));
-    });
-
-    // Function to load and show infractor modal
-    function loadInfractorModal(id_infractor) {
-        Swal.fire({
-            title: 'Cargando...',
-            text: 'Por favor espere',
-            allowOutsideClick: false,
-            didOpen: () => {
-                Swal.showLoading();
-            }
+        // Clean up modal when it's closed
+        $(document).on('hidden.bs.modal', '#modalVistaInfractor', function() {
+            $(this).remove();
         });
 
-        // Remove existing modal if present
-        $('#modalVistaInfractor').remove();
+        // Handler for opening modal buttons
+        $(document).on('click', '.cargar-modal-infractor', function() {
+            loadInfractorModal($(this).data('id'));
+        });
 
-        // Load modal content
-        $.get(baseUrl + 'index.php/ProcesosController/cargar_vista_modal/' + id_infractor)
-            .done(function(modalContent) {
-                // Create modal structure
-                const modalHTML = `
+        // Function to load and show infractor modal
+        function loadInfractorModal(id_infractor) {
+            Swal.fire({
+                title: 'Cargando...',
+                text: 'Por favor espere',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            // Remove existing modal if present
+            $('#modalVistaInfractor').remove();
+
+            // Load modal content
+            $.get(baseUrl + 'index.php/ProcesosController/cargar_vista_modal/' + id_infractor)
+                .done(function(modalContent) {
+                    // Create modal structure
+                    const modalHTML = `
                     <div class="modal fade" id="modalVistaInfractor" tabindex="-1" role="dialog">
                         <div class="modal-dialog modal-xl" role="document">
                             <div class="modal-content">
@@ -317,81 +320,81 @@
                     </div>
                 `;
 
-                // Append modal to body and update content
-                $('body').append(modalHTML);
-                $('#modalVistaInfractor .modal-body').html(modalContent);
-                
-                // Show modal after content is loaded
-                $('#modalVistaInfractor').modal('show');
-                Swal.close();
-            })
-            .fail(function(error) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'Error al cargar los datos del infractor'
-                });
-            });
-    }
+                    // Append modal to body and update content
+                    $('body').append(modalHTML);
+                    $('#modalVistaInfractor .modal-body').html(modalContent);
 
-    // Form submission handler
-    $('#formRegistroInfractor').on('submit', function(e) {
-        e.preventDefault();
-        if (!this.checkValidity()) {
-            return false;
-        }
-
-        var formData = new FormData(this);
-        
-        Swal.fire({
-            title: 'Registrando...',
-            text: 'Por favor espere',
-            allowOutsideClick: false,
-            didOpen: () => {
-                Swal.showLoading();
-            }
-        });
-
-        $.ajax({
-            url: baseUrl + 'index.php/ProcesosController/registrar_infractor',
-            type: 'POST',
-            data: formData,
-            processData: false,
-            contentType: false,
-            dataType: 'json',
-            success: function(response) {
-                if (response.success) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: '¡Éxito!',
-                        text: 'Infractor registrado correctamente',
-                        showConfirmButton: false,
-                        timer: 1500
-                    }).then(() => {
-                        // Load modal using the shared function
-                        if (response.modal_url) {
-                            loadInfractorModal(response.id_infractor);
-                        }
-                    });
-                } else {
+                    // Show modal after content is loaded
+                    $('#modalVistaInfractor').modal('show');
+                    Swal.close();
+                })
+                .fail(function(error) {
                     Swal.fire({
                         icon: 'error',
                         title: 'Error',
-                        text: response.message || 'Error al registrar infractor'
+                        text: 'Error al cargar los datos del infractor'
+                    });
+                });
+        }
+
+        // Form submission handler
+        $('#formRegistroInfractor').on('submit', function(e) {
+            e.preventDefault();
+            if (!this.checkValidity()) {
+                return false;
+            }
+
+            var formData = new FormData(this);
+
+            Swal.fire({
+                title: 'Registrando...',
+                text: 'Por favor espere',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            $.ajax({
+                url: baseUrl + 'index.php/ProcesosController/registrar_infractor',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: '¡Éxito!',
+                            text: 'Infractor registrado correctamente',
+                            showConfirmButton: false,
+                            timer: 1500
+                        }).then(() => {
+                            // Load modal using the shared function
+                            if (response.modal_url) {
+                                loadInfractorModal(response.id_infractor);
+                            }
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: response.message || 'Error al registrar infractor'
+                        });
+                    }
+                },
+                error: function(xhr, status, error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Error en el servidor: ' + error
                     });
                 }
-            },
-            error: function(xhr, status, error) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'Error en el servidor: ' + error
-                });
-            }
+            });
         });
     });
-});
-   </script>
+    </script>
     <script>
     $(document).ready(function() {
         // Por defecto, mostrar la lista y ocultar el formulario
@@ -425,16 +428,14 @@
                     "sPrevious": "Anterior"
                 }
             },
-            "columnDefs": [
-        {
-            "targets": 0, // Primera columna (índice 0)
-            "searchable": false,
-            "orderable": true,
-            "render": function (data, type, row, meta) {
-                return meta.row + 1; // Numeración automática
-            }
-        }
-    ],
+            "columnDefs": [{
+                "targets": 0, // Primera columna (índice 0)
+                "searchable": false,
+                "orderable": true,
+                "render": function(data, type, row, meta) {
+                    return meta.row + 1; // Numeración automática
+                }
+            }],
             "order": [
                 [0, 'asc']
             ], // Esto ordena por la primera columna de forma descendente

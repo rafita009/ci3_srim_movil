@@ -97,7 +97,7 @@ class SearchController extends CI_Controller
             'act_procede' => $this->SearchModel->obtener_act_procede($id_proceso),
             'placas' => $this->SearchModel->obtener_placas($id_proceso),
             'tipo_placa' => $this->SearchModel->obtener_tipo_placa($id_proceso),
-            'ruta_foto' => $this->SearchModel->obtener_foto_infractor($id_proceso),
+            'ruta_foto' => $this->SearchModel->obtener_foto_infractor($proceso['ID_INFRACTOR']),
             'causas_distrito_infractor_canton' => $this->SearchModel->obtener_causa_distrito($id_proceso),
             'pruebas' => $this->SearchModel->obtener_pruebas($id_proceso),
             'fecha_procedimiento' => $this->SearchModel->obtener_fechas_procedimiento($id_proceso),

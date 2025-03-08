@@ -58,14 +58,14 @@
                                 </div>
                                 <div class="card-body">
                                     <?php 
-    $hasProcesses = false;
-    foreach ($asociados as $procesos) {
-        if (!empty($procesos)) {
-            $hasProcesses = true;
-            break;
-        }
-    }
-    ?>
+                                        $hasProcesses = false;
+                                        foreach ($asociados as $procesos) {
+                                            if (!empty($procesos)) {
+                                                $hasProcesses = true;
+                                                break;
+                                            }
+                                        }
+                                        ?>
 
                                     <?php if ($hasProcesses): ?>
                                     <div class="table-responsive">
@@ -116,7 +116,7 @@
                                                                 style="border-bottom: 1px solid #eee; min-height: 48px;">
                                                                 <span class="me-2">Proceso
                                                                     #<?= htmlspecialchars($proceso['ID_PROCESO']) ?> -
-                                                                    <?= htmlspecialchars($proceso['NOMBRE_PROCESO']) ?>
+                                                                    <?= htmlspecialchars($proceso['RESOLUCION']) ?>
                                                                 </span>
                                                                 <a href="<?= site_url('SearchController/detalle/' . $proceso['ID_PROCESO']) ?>"
                                                                     class="btn btn-info btn-sm ms-auto">
@@ -184,23 +184,23 @@
 
     <script>
     $(document).ready(function() {
-        $('#tablaProcesos').DataTable({
-            "language": {
-                "lengthMenu": "Mostrar _MENU_ registros por página",
-                "zeroRecords": "No se encontraron resultados",
-                "info": "Mostrando página _PAGE_ de _PAGES_",
-                "infoEmpty": "No hay registros disponibles",
-                "infoFiltered": "(filtrado de _MAX_ registros totales)",
-                "search": "Buscar:",
-                "paginate": {
-                    "first": "Primero",
-                    "last": "Último",
-                    "next": "Siguiente",
-                    "previous": "Anterior"
-                }
+    $('#tablaProcesos').DataTable({
+        "language": {
+            "lengthMenu": "Mostrar _MENU_ registros por página",
+            "zeroRecords": "No se encontraron resultados",
+            "info": "Mostrando página _PAGE_ de _PAGES_ (Total: _TOTAL_ registros)",
+            "infoEmpty": "No hay registros disponibles",
+            "infoFiltered": "(filtrado de _MAX_ registros totales)",
+            "search": "Buscar:",
+            "paginate": {
+                "first": "Primero",
+                "last": "Último",
+                "next": "Siguiente",
+                "previous": "Anterior"
             }
-        });
+        }
     });
+});
     </script>
     <!-- DataTables JS -->
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>

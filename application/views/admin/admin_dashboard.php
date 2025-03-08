@@ -50,8 +50,10 @@
                     <!-- Page Heading -->
                     <div class="d-sm-flex align-items-center justify-content-between mb-4">
                         <h1 class="h3 mb-0 text-gray-800">Dashboard</h1>
-                        <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i
-                                class="fas fa-download fa-sm text-white-50"></i> Generate Report</a>
+                        <a href="<?= site_url('BdController/generate') ?>"
+                            class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
+                            <i class="fas fa-download fa-sm text-white-50"></i> Generar Respaldo
+                        </a>
                     </div>
 
                     <!-- Content Row -->
@@ -168,10 +170,16 @@
                                     </div>
                                 </div>
                                 <!-- Card Body -->
+                                <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Procesos por Mes - <?= $año ?></h6>
+        </div>
                                 <div class="card-body">
                                     <div class="chart-area">
-                                        <canvas id="myAreaChart"></canvas>
+                                    <canvas id="graficoProcesosPorMes"></canvas>
                                     </div>
+                                    <hr>
+                                    <p>Este gráfico muestra el número total de procesos registrados por mes durante el año <?= $año ?>.</p>
+
                                 </div>
                             </div>
                         </div>
@@ -328,7 +336,8 @@
                                 <div class="card-body">
                                     <div class="text-center">
                                         <img class="img-fluid px-3 px-sm-4 mt-3 mb-4" style="width: 25rem;"
-                                            src="<?php echo base_url();?>public/assets/img/undraw_posting_photo.svg" alt="">
+                                            src="<?php echo base_url();?>public/assets/img/undraw_posting_photo.svg"
+                                            alt="">
                                     </div>
                                     <p>Add some quality, svg illustrations to your project courtesy of <a
                                             target="_blank" rel="nofollow" href="https://undraw.co/">unDraw</a>, a
@@ -398,7 +407,102 @@
     </div>
 
     <script src="<?php echo base_url();?>public/assets/vendor/jquery/jquery.min.js"></script>
-
+    <script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Preparar los datos para el gráfico
+    var datos = <?= json_encode(array_values($datos)) ?>;
+    
+    // Configurar el gráfico
+    var ctx = document.getElementById("graficoProcesosPorMes");
+    var myLineChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"],
+            datasets: [{
+                label: "Procesos",
+                lineTension: 0.3,
+                backgroundColor: "rgba(78, 115, 223, 0.05)",
+                borderColor: "rgba(78, 115, 223, 1)",
+                pointRadius: 3,
+                pointBackgroundColor: "rgba(78, 115, 223, 1)",
+                pointBorderColor: "rgba(78, 115, 223, 1)",
+                pointHoverRadius: 3,
+                pointHoverBackgroundColor: "rgba(78, 115, 223, 1)",
+                pointHoverBorderColor: "rgba(78, 115, 223, 1)",
+                pointHitRadius: 10,
+                pointBorderWidth: 2,
+                data: datos,
+            }],
+        },
+        options: {
+            maintainAspectRatio: false,
+            layout: {
+                padding: {
+                    left: 10,
+                    right: 25,
+                    top: 25,
+                    bottom: 0
+                }
+            },
+            scales: {
+                xAxes: [{
+                    time: {
+                        unit: 'date'
+                    },
+                    gridLines: {
+                        display: false,
+                        drawBorder: false
+                    },
+                    ticks: {
+                        maxTicksLimit: 7
+                    }
+                }],
+                yAxes: [{
+                    ticks: {
+                        maxTicksLimit: 5,
+                        padding: 10,
+                        // Valores enteros para la cantidad de procesos
+                        callback: function(value, index, values) {
+                            return value;
+                        }
+                    },
+                    gridLines: {
+                        color: "rgb(234, 236, 244)",
+                        zeroLineColor: "rgb(234, 236, 244)",
+                        drawBorder: false,
+                        borderDash: [2],
+                        zeroLineBorderDash: [2]
+                    }
+                }],
+            },
+            legend: {
+                display: false
+            },
+            tooltips: {
+                backgroundColor: "rgb(255,255,255)",
+                bodyFontColor: "#858796",
+                titleMarginBottom: 10,
+                titleFontColor: '#6e707e',
+                titleFontSize: 14,
+                borderColor: '#dddfeb',
+                borderWidth: 1,
+                xPadding: 15,
+                yPadding: 15,
+                displayColors: false,
+                intersect: false,
+                mode: 'index',
+                caretPadding: 10,
+                callbacks: {
+                    label: function(tooltipItem, chart) {
+                        var datasetLabel = chart.datasets[tooltipItem.datasetIndex].label || '';
+                        return datasetLabel + ': ' + tooltipItem.yLabel + ' procesos';
+                    }
+                }
+            }
+        }
+    });
+});
+</script>
     <!-- Bootstrap core JavaScript-->
     <script src="<?php echo base_url();?>public/assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 
@@ -407,7 +511,7 @@
 
     <!-- Custom scripts for all pages-->
     <script src="<?php echo base_url();?>public/assets/js/sb-admin-2.min.js"></script>
-     <!-- Page level plugins -->
+    <!-- Page level plugins -->
     <script src="<?php echo base_url();?>public/assets/vendor/chart.js/Chart.min.js"></script>
 
     <!-- Page level custom scripts -->

@@ -104,10 +104,10 @@ public function obtener_infractor($id_infractor)
 }
 
 public function obtenerProcesos_infractores($id_infractor) {
-    $this->db->select('p.ID_PROCESO, p.NOMBRE_PROCESO, p.FECHA_REGISTRO')
+    $this->db->select('p.ID_PROCESO, p.RESOLUCION, p.FECHA_REGISTRO')
              ->from('procesos p')
              ->where('p.ID_INFRACTOR', $id_infractor)
-             ->group_by('p.ID_PROCESO, p.NOMBRE_PROCESO')  // Agregar agrupación por nombre también
+             ->group_by('p.ID_PROCESO, p.RESOLUCION')  // Agregar agrupación por nombre también
              ->order_by('p.ID_PROCESO', 'ASC');  // Ordenar por ID_PROCESO
 
     $query = $this->db->get();
@@ -115,7 +115,7 @@ public function obtenerProcesos_infractores($id_infractor) {
 }
 public function obtenerProcesoscompletos($id_infractor) {
     $this->db->distinct()
-             ->select('p.ID_PROCESO, p.NOMBRE_PROCESO, p.FECHA_REGISTRO, pl.PLACA, c.CAUSA')
+             ->select('p.ID_PROCESO, p.RESOLUCION, p.FECHA_REGISTRO, pl.PLACA, c.CAUSA')
              ->from('procesos p')
              ->join('placas pl', 'p.ID_PLACA = pl.ID_PLACA', 'left')
              ->join('causa_distrito_infractor_canton cdic', 'p.ID_INFRACTOR = cdic.ID_INFRACTOR', 'left')

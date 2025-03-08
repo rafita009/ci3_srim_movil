@@ -64,7 +64,7 @@ public function obtener_foto_infractor($id_infractor) {
              ->where('ID_INFRACTOR', $id_infractor);
              
     $result = $this->db->get()->row_array();
-    return $result['RUTA_INFRACTOR'] ?? null;
+    return $result['F_INFRACTOR_RUTA'];
 }
 
 public function obtener_fotos_pertenencias($id_proceso) {
@@ -173,9 +173,8 @@ public function obtener_comentarios($id_proceso) {
 // Obtener archivos de libertad
 public function obtener_archivos_libertad($id_proceso) {
     $this->db->select('ID_ARCH_LIBERTAD, RUTA_ARCH_LIBERTAD')
-             ->from('archivos_libertad al')
-             ->join('procesos p', 'p.ID_INFRACTOR = al.ID_INFRACTOR')
-             ->where('p.ID_PROCESO', $id_proceso);
+             ->from('archivos_libertad')
+             ->where('ID_PROCESO', $id_proceso);
     return $this->db->get()->result_array() ?: null;
 }
 
@@ -188,11 +187,10 @@ public function obtener_datos_cdit($id_proceso) {
         a.NOMBRES_ACT, a.APELLIDOS_ACT
     ')
     ->from('cant_periodos p')
-    ->join('procesos pr', 'pr.ID_INFRACTOR = p.ID_INFRACTOR')
-    ->join('fecha_ingresos_cdit f', 'p.ID_INFRACTOR = f.ID_INFRACTOR', 'left')
+    ->join('fecha_ingresos_cdit f', 'f.ID_PROCESO = p.ID_PROCESO', 'left')
     ->join('cdit c', 'p.ID_CDIT = c.ID_CDIT', 'left')
-    ->join('tab_agentes a', 'f.ACT_RECIBE_CDIT = a.ID_AGENTE', 'left') // Aquí está la corrección
-    ->where('pr.ID_PROCESO', $id_proceso);
+    ->join('tab_agentes a', 'f.ACT_RECIBE_CDIT = a.ID_AGENTE', 'left')
+    ->where('p.ID_PROCESO', $id_proceso);
 
     return $this->db->get()->row_array();
 }

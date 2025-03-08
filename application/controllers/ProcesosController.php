@@ -426,127 +426,106 @@ public function search_acts()
     }
     
     public function guardar() 
-    {
-        $tipo = $this->input->post('resolucion_audiencia');
-    
-        // Obtener las reglas de validación
-        $rules = $this->form_validation_rules->get_rules($tipo);
-    
-        // Establecer las reglas
-        $this->form_validation->set_rules($rules);
-    
-        // Validar el formulario
-        if ($this->form_validation->run() === FALSE) {  
-            // Devolver errores en caso de solicitud AJAX
-            if ($this->input->is_ajax_request()) {
-                echo json_encode([
-                    'status' => 'error',
-                    'errors' => $this->form_validation->error_array()
-                ]);
-                return;
-            }
-    
-            // Mensaje de error para solicitudes normales
-            $this->session->set_flashdata('mensaje', [
+{
+    $tipo = $this->input->post('resolucion_audiencia');
+
+    // Obtener las reglas de validación
+    $rules = $this->form_validation_rules->get_rules($tipo);
+
+    // Establecer las reglas
+    $this->form_validation->set_rules($rules);
+
+    // Validar el formulario
+    if ($this->form_validation->run() === FALSE) {  
+        // Devolver errores en caso de solicitud AJAX
+        if ($this->input->is_ajax_request()) {
+            echo json_encode([
                 'status' => 'error',
-                'message' => 'Por favor, corrige los errores en el formulario.'
+                'errors' => $this->form_validation->error_array()
             ]);
-            redirect('ProcesosController/index');
             return;
-        }   
-    
-        // Iniciar transacción
-        $this->db->trans_start();
-    
-        try {
-            // Agrupar y validar datos
-            $datos = $this->agrupar_datos_por_tablas();
-            if (empty($datos)) {
-                throw new Exception('No se pudieron agrupar los datos del formulario.');
-            }
-    
-            // Insertar datos secuencialmente
-            $this->insertar_datos_secuencialmente($datos);
-    
-            // Completar transacción
-            $this->db->trans_complete();
-            if ($this->db->trans_status() === FALSE) {
-                throw new Exception('Error en la transacción de la base de datos.');
-            }
-    
-            // Devolver éxito en caso de solicitud AJAX
-            if ($this->input->is_ajax_request()) {
-                echo json_encode([
-                    'status' => 'success',
-                    'message' => '¡Registro guardado exitosamente!'
-                ]);
-                return;
-            }
-    
-            // Mensaje de éxito para solicitudes normales
-            $this->session->set_flashdata('mensaje', [
+        }
+
+        // Mensaje de error para solicitudes normales
+        $this->session->set_flashdata('mensaje', [
+            'status' => 'error',
+            'message' => 'Por favor, corrige los errores en el formulario.'
+        ]);
+        redirect('ProcesosController/index');
+        return;
+    }   
+
+    // Iniciar transacción
+    $this->db->trans_start();
+    $id_proceso = null; // Variable para almacenar el ID del proceso
+
+    try {
+        // Agrupar y validar datos
+        $datos = $this->agrupar_datos_por_tablas();
+        if (empty($datos)) {
+            throw new Exception('No se pudieron agrupar los datos del formulario.');
+        }
+
+        // Insertar datos secuencialmente y capturar el ID del proceso
+        $id_proceso = $this->insertar_datos_secuencialmente($datos, $tipo);
+        
+        // Verificar que se haya obtenido un ID válido
+        if (!$id_proceso) {
+            throw new Exception('No se pudo obtener el ID del proceso registrado.');
+        }
+
+        // Completar transacción
+        $this->db->trans_complete();
+        if ($this->db->trans_status() === FALSE) {
+            throw new Exception('Error en la transacción de la base de datos.');
+        }
+
+        // Devolver éxito en caso de solicitud AJAX
+        if ($this->input->is_ajax_request()) {
+            echo json_encode([
                 'status' => 'success',
-                'message' => '¡Registro guardado exitosamente!'
+                'message' => '¡Registro guardado exitosamente!',
+                'id_proceso' => $id_proceso // Incluir el ID del proceso en la respuesta
             ]);
-        } catch (Exception $e) {
-            // Revertir transacción y devolver error
-            $this->db->trans_rollback();
-    
-            if ($this->input->is_ajax_request()) {
-                echo json_encode([
-                    'status' => 'error',
-                    'message' => $e->getMessage()
-                ]);
-                return;
-            }
-    
-            $this->session->set_flashdata('mensaje', [
+            return;
+        }
+
+        // Mensaje de éxito para solicitudes normales
+        $this->session->set_flashdata('mensaje', [
+            'status' => 'success',
+            'message' => '¡Registro guardado exitosamente!',
+            'id_proceso' => $id_proceso // Incluir el ID del proceso en el mensaje flash
+        ]);
+        
+    } catch (Exception $e) {
+        // Revertir transacción y devolver error
+        $this->db->trans_rollback();
+
+        if ($this->input->is_ajax_request()) {
+            echo json_encode([
                 'status' => 'error',
                 'message' => $e->getMessage()
             ]);
+            return;
         }
-    
-        // Redirigir después del proceso (para solicitudes normales)
-        redirect('ProcesosController/select_infractor');
+
+        $this->session->set_flashdata('mensaje', [
+            'status' => 'error',
+            'message' => $e->getMessage()
+        ]);
     }
-    
-    // Método para cargar los datos en la vista de edición
-public function editar($id_infractor) 
-{
 
-    
-    // Obtener los detalles del usuario desde el modelo
-    $id_usuario = $this->session->userdata('id_usuario');
-
-    // Obtener los datos del infractor y sus procesos asociados por ID_INFRACTOR
-    $data['infractor'] = $this->SearchModel->obtener_infractor($id_infractor);
-    $data['act_procede'] = $this->SearchModel->obtener_act_procede($id_infractor);
-    $data['placas'] = $this->SearchModel->obtener_placas($id_infractor);
-    $data['tipo_placa'] = $this->SearchModel->obtener_tipo_placa($id_infractor);
-    $data['ruta_foto'] = $this->SearchModel->obtener_foto_infractor($id_infractor);
-    $data['causas_distrito_infractor_canton'] = $this->SearchModel->obtener_causa_distrito($id_infractor);
-    $data['pruebas'] = $this->SearchModel->obtener_pruebas($id_infractor);
-    $data['fecha_procedimiento'] = $this->SearchModel->obtener_fechas_procedimiento($id_infractor);
-    $data['fecha_hora_entrada_vm'] = $this->SearchModel->obtener_fecha_hora_entrada($id_infractor);
-    $data['fotos_pertenencias'] = $this->SearchModel->obtener_fotos_pertenencias($id_infractor);
-    $data['fecha_hora_salida_vm'] = $this->SearchModel->obtener_fecha_hora_salida($id_infractor);
-    $data['comentarios'] = $this->SearchModel->obtener_comentarios($id_infractor);
-    $data['archivos_libertad'] = $this->SearchModel->obtener_archivos_libertad($id_infractor);
-    $data['datos_cdit'] = $this->SearchModel->obtener_datos_cdit($id_infractor);
-    $data['archivos_detencion'] = $this->SearchModel->obtener_archivos_detencion($id_infractor);
-
-    // Obtener detalles del usuario (esto dependerá de cómo obtienes los datos del usuario)
-    $user_details = $this->UsersModel->get_user_by_id($id_usuario);
-    // Ejemplo de cómo obtener los datos del usuario
-
-    // Agregar nombre completo y foto al array $data
-    $data['usuario'] = $user_details['NOMBRES'] . ' ' . $user_details['APELLIDOS']; // Nombre completo
-    $data['foto'] = !empty($user_details['FOTO']) ? $user_details['FOTO'] : 'default_profile.png'; // Foto del usuario o predeterminada
-
-    // Cargar la vista de edición y pasar los datos
-    // Cargar la vista de edición y pasar los datos
-    $this->load->view('admin/edit_proces', $data);
+    // Redirigir después del proceso (para solicitudes normales)
+    if ($id_proceso) {
+        // Redirigir a la página deseada con el ID del proceso
+        redirect('SearchController/detalle/' . $id_proceso);
+    } else {
+        // Si no hay ID (error), redirigir a la página principal
+        redirect('ProcesosController/index');
+    }
 }
+    
+    
 
     
     private function agrupar_datos_por_tablas() 
@@ -626,12 +605,12 @@ public function editar($id_infractor)
         ];
     }
     
-        private function insertar_datos_secuencialmente($datos) 
+        private function insertar_datos_secuencialmente($datos, $tipo = null) 
         {
             
             $id_infractor = $this->input->post('id_infractor');
             $infractor = $this->ProcesosModel->obtener_infractor($id_infractor);
-
+            
             
             
             // 4. Insertar agente de procedimiento
@@ -645,12 +624,20 @@ public function editar($id_infractor)
             
             // 6. Insertar proceso (relaciona las entidades principales)
             // 6. Construir y registrar proceso
+             // Determinar el nombre del proceso según el valor seleccionado
+                $nombre_proceso = 'Registro de Infractor'; // Valor por defecto
+                
+                if ($tipo == '1') {
+                    $nombre_proceso = 'Libertad';
+                } else if ($tipo == '2') {
+                    $nombre_proceso = 'Detención';
+                }
             $proceso_data = [
                 'ID_USUARIO' => $this->session->userdata('id_usuario'),
                 'ID_INFRACTOR' => $id_infractor,
                 'ID_PLACA' => $id_placa,
                 'ID_AGENTE' => $id_agente_procede,
-                'NOMBRE_PROCESO' => 'Registro de Infractor',
+                'RESOLUCION' => $nombre_proceso,
                 'FECHA_REGISTRO' => date('Y-m-d H:i:s')
             ];
         
@@ -711,36 +698,40 @@ public function editar($id_infractor)
 
                    // 12. Insertar Fecha Ingreso Cdit si existe
              
-           // Verificar y hacer la inserción para fecha_ingresos_cdit
-            if (
-                !empty($datos['fecha_ingresos_cdit']['ID_CDIT']) && 
-                !empty($datos['fecha_ingresos_cdit']['FECHA_HORA_INGRESO_CDIT']) && 
-                !empty($datos['fecha_ingresos_cdit']['ACT_RECIBE_CDIT'])
-            ) {
-                $datos['fecha_ingresos_cdit']['ID_INFRACTOR'] = $id_infractor; // Asignar el ID_INFRACTOR
-                if (!$this->db->insert('fecha_ingresos_cdit', $datos['fecha_ingresos_cdit'])) {
-                    throw new Exception('Error al insertar en fecha_ingresos_cdit');
+         // Verificar y hacer la inserción para fecha_ingresos_cdit
+                if (
+                    !empty($datos['fecha_ingresos_cdit']['ID_CDIT']) && 
+                    !empty($datos['fecha_ingresos_cdit']['FECHA_HORA_INGRESO_CDIT']) && 
+                    !empty($datos['fecha_ingresos_cdit']['ACT_RECIBE_CDIT'])
+                ) {
+                    $datos['fecha_ingresos_cdit']['ID_INFRACTOR'] = $id_infractor; // Asignar el ID_INFRACTOR
+                    $datos['fecha_ingresos_cdit']['ID_PROCESO'] = $id_proceso; // Asignar el ID_PROCESO
+                    if (!$this->db->insert('fecha_ingresos_cdit', $datos['fecha_ingresos_cdit'])) {
+                        throw new Exception('Error al insertar en fecha_ingresos_cdit');
+                    }
+                } else {
+                    log_message('error', 'Datos incompletos para fecha_ingresos_cdit: ' . json_encode($datos['fecha_ingresos_cdit']));
                 }
-            } else {
-                log_message('error', 'Datos incompletos para fecha_ingresos_cdit: ' . json_encode($datos['fecha_ingresos_cdit']));
-            }
 
-            // Verificar y hacer la inserción para cant_periodos
-            if (
-                !empty($datos['cant_periodos']['ID_CDIT']) && // ID_CDIT debe ser un valor válido
-                is_numeric($datos['cant_periodos']['ANIOS']) && 
-                is_numeric($datos['cant_periodos']['MESES']) && 
-                is_numeric($datos['cant_periodos']['DIAS']) && 
-                is_numeric($datos['cant_periodos']['HORAS'])
-            ) {
-                $datos['cant_periodos']['ID_INFRACTOR'] = $id_infractor; // Asignar el ID_INFRACTOR
-                if (!$this->db->insert('cant_periodos', $datos['cant_periodos'])) {
-                    throw new Exception('Error al insertar en cant_periodos');
+                // Verificar y hacer la inserción para cant_periodos
+                if (
+                    !empty($datos['cant_periodos']['ID_CDIT']) && // ID_CDIT debe ser un valor válido
+                    is_numeric($datos['cant_periodos']['ANIOS']) && 
+                    is_numeric($datos['cant_periodos']['MESES']) && 
+                    is_numeric($datos['cant_periodos']['DIAS']) && 
+                    is_numeric($datos['cant_periodos']['HORAS'])
+                ) {
+                    $datos['cant_periodos']['ID_INFRACTOR'] = $id_infractor; // Asignar el ID_INFRACTOR
+                    $datos['cant_periodos']['ID_PROCESO'] = $id_proceso; // Asignar el ID_PROCESO
+                    if (!$this->db->insert('cant_periodos', $datos['cant_periodos'])) {
+                        throw new Exception('Error al insertar en cant_periodos');
+                    }
+                } else {
+                    log_message('error', 'Datos inválidos para cant_periodos: ' . json_encode($datos['cant_periodos']));
                 }
-            } else {
-                log_message('error', 'Datos inválidos para cant_periodos: ' . json_encode($datos['cant_periodos']));
-            }
 
+                 // Devolver el ID del proceso
+                    return $id_proceso;
             
 }
             

@@ -52,6 +52,10 @@
                 href="<?= site_url('AgentesController/index') ?>">
                 <i class="fas fa-user-shield"></i> Agentes
             </a>
+            <a class="collapse-item <?= ($this->uri->segment(1) == 'AgentesController' && $this->uri->segment(2) == 'index') ? 'active' : '' ?>"
+                href="<?= site_url('InfractoresController/index') ?>">
+                <i class="fas fa-user-shield"></i> Infractores
+            </a>
         </div>
     </div>
 </li>
@@ -106,6 +110,8 @@
         <div id="collapsePages" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
             <div class="bg-white py-2 collapse-inner rounded">
                 <h6 class="collapse-header">Insertar:</h6>
+                <a class="collapse-item" href="<?= site_url('BdController/index') ?>">Respaldos</a>
+
                 <a class="collapse-item" href="<?= site_url('CausasController/index') ?>">Causas</a>
                 <a class="collapse-item" href="<?= site_url('Tipo_p_Controller/index') ?>">Tipos de Pruebas</a>
                 <a class="collapse-item" href="<?= site_url('CditController/index') ?>">Centros de Detenciones</a>

@@ -95,6 +95,10 @@ class LoginController extends CI_Controller {
         $this->session->sess_destroy();
         redirect('logincontroller');
     }
-    
+    public function forgot_password() {
+        $this->load->view('forgot_password');
+    }
+
+   
 
 }

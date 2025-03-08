@@ -363,16 +363,16 @@
 
                                         <div class="col-md-3">
                                                 <div class="input-group">
-                                                    <input type="number" class="form-control" id="tiempo_detenido_meses"
-                                                        name="tiempo_detenido_meses" min="0" max="11" value="0">
-                                                    <span class="input-group-text">Años</span>
+                                                    <input type="number" class="form-control" id="tiempo_detenido_anos"
+                                                        name="tiempo_detenido_anos" min="0"  value="" placeholder="0">
+                                                    <span class="input-group-text" aria-label="Años">Años</span>
                                                 </div>
                                             </div>
 
                                             <div class="col-md-3">
                                                 <div class="input-group">
                                                     <input type="number" class="form-control" id="tiempo_detenido_meses"
-                                                        name="tiempo_detenido_meses" min="0" max="11" value="0">
+                                                        name="tiempo_detenido_meses" min="0" max="11" value="">
                                                     <span class="input-group-text">Meses</span>
                                                 </div>
                                             </div>
@@ -380,7 +380,7 @@
                                             <div class="col-md-3">
                                                 <div class="input-group">
                                                     <input type="number" class="form-control" id="tiempo_detenido_dias"
-                                                        name="tiempo_detenido_dias" min="0" max="30" value="0">
+                                                        name="tiempo_detenido_dias" min="0" max="30" value="">
                                                     <span class="input-group-text">Días</span>
                                                 </div>
                                             </div>
@@ -388,7 +388,7 @@
                                             <div class="col-md-3">
                                                 <div class="input-group">
                                                     <input type="number" class="form-control" id="tiempo_detenido_horas"
-                                                        name="tiempo_detenido_horas" min="0" max="23" value="0">
+                                                        name="tiempo_detenido_horas" min="0" max="23" value="">
                                                     <span class="input-group-text">Horas</span>
                                                 </div>
                                             </div>
@@ -504,45 +504,249 @@
 
         <script src="<?php echo base_url();?>public/assets/vendor/jquery/jquery.min.js"></script>
 
-    <!-- Script para mostrar/ocultar campos -->
-    <script>
-        $(document).on('shown.bs.modal', '#modalVistaInfractor', function() {
-            const libertadRadio = document.getElementById("libertad");
-            const detencionRadio = document.getElementById("detencion");
-            const detencionFields = document.getElementById("detencionFields");
-            const fotoFieldLibertad = document.getElementById("fotoFieldLibertad");
-            const centroDetencionField = document.getElementById("centro_detencion");
+    <!-- Script completo con limpieza de campos y solución para act_cdit -->
+<script>
+$(document).on('shown.bs.modal', '#modalVistaInfractor', function() {
+    const $modalForm = $("#modalVistaInfractor form");
+    
+    // Referencias a elementos
+    const $libertadRadio = $("#libertad", $modalForm);
+    const $detencionRadio = $("#detencion", $modalForm);
+    const $detencionFields = $("#detencionFields");
+    const $fotoFieldLibertad = $("#fotoFieldLibertad");
+    const $actCdit = $("#act_cdit", $modalForm);
+    
+    // Función para limpiar campos de detención
+    function limpiarCamposDetencion() {
+        console.log("Limpiando campos de detención");
+        
+        // Limpiamos todos los campos de detención
+        $("#tiempo_detenido_anos", $modalForm).val("0");
+        $("#tiempo_detenido_meses", $modalForm).val("0");
+        $("#tiempo_detenido_dias", $modalForm).val("0");
+        $("#tiempo_detenido_horas", $modalForm).val("0");
+        $("#centro_detencion", $modalForm).val("");
+        $("#fecha_hora_recibe", $modalForm).val("");
+        $("#foto_detencion", $modalForm).val("");
+        $("#foto_detencionError", $modalForm).text("").hide();
+        
+        // Desconectamos el campo act_cdit de la validación y limpiamos su valor
+        $actCdit.val("").prop("required", false);
+        
+        // Si es un select, reseteamos la selección al primer elemento
+        if ($actCdit.is("select")) {
+            $actCdit.prop('selectedIndex', 0);
+        }
+    }
+    
+    // Función para limpiar campos de libertad
+    function limpiarCamposLibertad() {
+        console.log("Limpiando campos de libertad");
+        
+        // Limpiamos todos los campos relacionados con libertad
+        $("#foto_libertad", $modalForm).val("");
+        $("#foto_libertadError", $modalForm).text("").hide();
+    }
+    
+    // Eliminamos handlers previos para evitar duplicados
+    $libertadRadio.off("change");
+    $detencionRadio.off("change");
+    
+    // Manejadores de eventos para los radio buttons
+    $libertadRadio.on("change", function() {
+        if ($(this).is(":checked")) {
+            console.log("Opción Libertad seleccionada");
+            
+            // Mostrar campos de libertad y ocultar campos de detención
+            $fotoFieldLibertad.removeClass("d-none");
+            
+            // IMPORTANTE: Primero quitar el required antes de ocultar
+            $actCdit.prop("required", false);
+            
+            // Limpiar campos de detención ANTES de ocultar
+            limpiarCamposDetencion();
+            
+            // Ahora ocultamos los campos
+            $detencionFields.addClass("d-none");
+        }
+    });
+    
+    $detencionRadio.on("change", function() {
+        if ($(this).is(":checked")) {
+            console.log("Opción Detención seleccionada");
+            
+            // Ocultar campos de libertad
+            $fotoFieldLibertad.addClass("d-none");
+            
+            // Limpiar campos de libertad
+            limpiarCamposLibertad();
+            
+            // IMPORTANTE: Primero mostramos los campos antes de manipular sus valores
+            $detencionFields.removeClass("d-none");
+            
+            // Restaurar el required después de mostrar
+            $actCdit.prop("required", true);
+        }
+    });
+    
+    // Establecer estado inicial cuando se abre el modal
+    console.log("Estado inicial - Libertad:", $libertadRadio.is(":checked"), "Detención:", $detencionRadio.is(":checked"));
+    
+    if ($libertadRadio.is(":checked")) {
+        $libertadRadio.trigger("change");
+    } else if ($detencionRadio.is(":checked")) {
+        $detencionRadio.trigger("change");
+    } else {
+        // Si no hay ninguna opción seleccionada por defecto, configuramos ambos campos
+        $actCdit.prop("required", false);
+        $detencionFields.addClass("d-none");
+        $fotoFieldLibertad.addClass("d-none");
+    }
+    
+    // Manejo del envío del formulario
+    $modalForm.off("submit").on("submit", function(e) {
+        e.preventDefault();
+        $(".error-message", $modalForm).text("").hide();
+        
+        const isLibertad = $libertadRadio.is(":checked");
+        const isDetencion = $detencionRadio.is(":checked");
+        
+        // Verificar una vez más que el required esté correcto antes de enviar
+        if (isLibertad) {
+            $actCdit.prop("required", false);
+        }
+        
+        const formData = new FormData(this);
 
-            if (libertadRadio && detencionRadio && detencionFields && fotoFieldLibertad && centroDetencionField) {
-                libertadRadio.removeEventListener("change", libertadChangeHandler);
-                detencionRadio.removeEventListener("change", detencionChangeHandler);
+        if (isLibertad) {
+            formData.set('tipo', '1');
+            
+            // Para libertad, aseguramos que los campos de detención estén vacíos
+            // pero sin tocar los campos visualmente, solo a nivel de datos
+            formData.set('tiempo_detenido_anos', '0');
+            formData.set('tiempo_detenido_meses', '0');
+            formData.set('tiempo_detenido_dias', '0');
+            formData.set('tiempo_detenido_horas', '0');
+            formData.set('centro_detencion', '');
+            formData.set('fecha_hora_recibe', '');
+            formData.set('act_cdit', '');
+            
+            const libertadFiles = $("#foto_libertad", this)[0].files;
+            if (libertadFiles.length > 0) {
+                Array.from(libertadFiles).forEach((file, index) => {
+                    formData.append(`foto_libertad[${index}]`, file);
+                });
+            } else {
+                $("#foto_libertadError", this).text("Debe seleccionar al menos un archivo.").show();
+                return;
+            }
+        }
 
-                function libertadChangeHandler() {
-                    if (this.checked) {
-                        fotoFieldLibertad.classList.remove("d-none");
-                        detencionFields.classList.add("d-none"); // Cambiado a classList
-                    }
-                }
+        if (isDetencion) {
+            formData.set('tipo', '2');
+            
+            // Para detención, aseguramos que los campos de libertad estén vacíos
+            formData.delete('foto_libertad');
+            
+            const detencionFiles = $("#foto_detencion", this)[0].files;
+            if (detencionFiles.length > 0) {
+                Array.from(detencionFiles).forEach((file, index) => {
+                    formData.append(`foto_detencion[${index}]`, file);
+                });
+            } else {
+                $("#foto_detencionError", this).text("Debe seleccionar al menos un archivo.").show();
+                return;
+            }
+        }
 
-                function detencionChangeHandler() {
-                    if (this.checked) {
-                        fotoFieldLibertad.classList.add("d-none");
-                        detencionFields.classList.remove("d-none"); // Cambiado a classList
-                    }
-                }
-
-                libertadRadio.addEventListener("change", libertadChangeHandler);
-                detencionRadio.addEventListener("change", detencionChangeHandler);
-
-                // Establecer estado inicial
-                if (libertadRadio.checked) {
-                    libertadChangeHandler.call(libertadRadio);
-                } else if (detencionRadio.checked) {
-                    detencionChangeHandler.call(detencionRadio);
-                }
+        // Continuar con el envío AJAX...
+        Swal.fire({
+            title: 'Guardando...',
+            text: 'Por favor espere',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
             }
         });
-    </script>
+
+        $.ajax({
+            url: baseUrl + "index.php/ProcesosController/guardar",
+            type: "POST",
+            data: formData,
+            dataType: "json",
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                Swal.close();
+                
+                if (response.status === "error") {
+                    if (response.errors) {
+                        const errors = response.errors;
+                        for (const field in errors) {
+                            $(`#${field}Error`, $modalForm).text(errors[field]).show();
+                        }
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Por favor, verifica los datos ingresados.'
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: response.message || 'Ocurrió un error en el formulario. Por favor, verifica los datos.'
+                        });
+                    }
+                } else {
+                    Swal.fire({
+                        icon: 'success',
+                        title: '¡Éxito!',
+                        text: 'Registro guardado exitosamente.',
+                        showConfirmButton: false,
+                        timer: 1500
+                    }).then(() => {
+                        try {
+                            // Cerrar el modal primero
+                            $('#modalVistaInfractor').modal('hide');
+                            
+                            // Verificar si tenemos un ID de proceso para redirigir
+                            if (response.id_proceso) {
+                                // Redirigir a la página de detalles del proceso
+                                window.location.href = baseUrl + 'index.php/SearchController/detalle/' + response.id_proceso;
+                            } else {
+                                // Si no hay ID, simplemente recargar la página
+                                location.reload();
+                            }
+                        } catch (error) {
+                            console.error("Error al cerrar el modal:", error);
+                            // Alternativa manual para cerrar el modal en caso de error
+                            $('#modalVistaInfractor').removeClass('show').css('display', 'none');
+                            $('body').removeClass('modal-open');
+                            $('.modal-backdrop').remove();
+                            
+                            // Redirigir después de cerrar manualmente
+                            if (response.id_proceso) {
+                                window.location.href = baseUrl + 'index.php/SearchController/detalle/' + response.id_proceso;
+                            } else {
+                                location.reload();
+                            }
+                        }
+                    });
+                }
+            },
+            error: function(xhr, status, error) {
+                Swal.close();
+                console.error(xhr.responseText);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Ocurrió un error al procesar la solicitud.'
+                });
+            }
+        });
+    });
+});
+</script>
 
     <!--script para visualizar fotos-->
     <script>
@@ -610,142 +814,7 @@
         });
     </script>
 
-    <!--script para limpiar valores de campos-->
-    <script>
-        $(document).on('shown.bs.modal', '#modalVistaInfractor', function() {
-            const $modalForm = $("#modalVistaInfractor form");
-
-            function limpiarCamposDetencion() {
-                $("#tiempo_detenido_meses", $modalForm).val("0");
-                $("#tiempo_detenido_dias", $modalForm).val("0");
-                $("#tiempo_detenido_horas", $modalForm).val("0");
-                $("#centro_detencion", $modalForm).val("");
-                $("#fecha_hora_recibe", $modalForm).val("");
-                $("#act_cdit", $modalForm).val("").prop('selectedIndex', 0);
-                $("#foto_detencion", $modalForm).val("");
-                $("#foto_detencionError", $modalForm).text("").hide();
-            }
-
-            function limpiarCamposLibertad() {
-                $("#foto_libertad", $modalForm).val("");
-                $("#foto_libertadError", $modalForm).text("").hide();
-            }
-
-            $("#libertad", $modalForm).on('change', function() {
-                if($(this).is(":checked")) {
-                    limpiarCamposDetencion();
-                }
-            });
-
-            $("#detencion", $modalForm).on('change', function() {
-                if($(this).is(":checked")) {
-                    limpiarCamposLibertad();
-                }
-            });
-
-            $modalForm.on("submit", function(e) {
-                e.preventDefault();
-                $(".error-message").text("").hide();
-                
-                const isLibertad = $("#libertad", this).is(":checked");
-                const isDetencion = $("#detencion", this).is(":checked");
-                
-                const formData = new FormData(this);
-
-                if (isLibertad) {
-                    formData.set('tipo', '1');
-                    limpiarCamposDetencion();
-                    
-                    const libertadFiles = $("#foto_libertad", this)[0].files;
-                    if (libertadFiles.length > 0) {
-                        Array.from(libertadFiles).forEach((file, index) => {
-                            formData.append(`foto_libertad[${index}]`, file);
-                        });
-                    } else {
-                        $("#foto_libertadError", this).text("Debe seleccionar al menos un archivo.").show();
-                        return;
-                    }
-                }
-
-                if (isDetencion) {
-                    formData.set('tipo', '2');
-                    limpiarCamposLibertad();
-                    
-                    const detencionFiles = $("#foto_detencion", this)[0].files;
-                    if (detencionFiles.length > 0) {
-                        Array.from(detencionFiles).forEach((file, index) => {
-                            formData.append(`foto_detencion[${index}]`, file);
-                        });
-                    } else {
-                        $("#foto_detencionError", this).text("Debe seleccionar al menos un archivo.").show();
-                        return;
-                    }
-                }
-
-                Swal.fire({
-                    title: 'Guardando...',
-                    text: 'Por favor espere',
-                    allowOutsideClick: false,
-                    didOpen: () => {
-                        Swal.showLoading();
-                    }
-                });
-
-                $.ajax({
-                    url: baseUrl + "index.php/ProcesosController/guardar",
-                    type: "POST",
-                    data: formData,
-                    dataType: "json",
-                    processData: false,
-                    contentType: false,
-                    success: function(response) {
-                        Swal.close();
-                        
-                        if (response.status === "error") {
-                            if (response.errors) {
-                                const errors = response.errors;
-                                for (const field in errors) {
-                                    $(`#${field}Error`, $modalForm).text(errors[field]).show();
-                                }
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Error',
-                                    text: 'Por favor, verifica los datos ingresados.'
-                                });
-                            } else {
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Error',
-                                    text: 'Ocurrió un error en el formulario. Por favor, verifica los datos.'
-                                });
-                            }
-                        } else {
-                            Swal.fire({
-                                icon: 'success',
-                                title: '¡Éxito!',
-                                text: 'Registro guardado exitosamente.',
-                                showConfirmButton: false,
-                                timer: 1500
-                            }).then(() => {
-                                $('#modalVistaInfractor').modal('hide');
-                                location.reload();
-                            });
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        Swal.close();
-                        console.error(xhr.responseText);
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: 'Ocurrió un error al procesar la solicitud.'
-                        });
-                    }
-                });
-            });
-        });
-    </script>
-
+   
     <!-- Script para presionar boton de guardar -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {

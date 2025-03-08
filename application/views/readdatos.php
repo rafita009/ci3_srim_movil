@@ -56,8 +56,7 @@
                         <div class="row">
                         <div class="process-details">
                                 <h3>Proceso #<?= $proceso['ID_PROCESO'] ?></h3>
-                                <p><strong>Nombre del Proceso:</strong> <?= $proceso['NOMBRE_PROCESO'] ?></p>
-                                <!-- ... otros detalles del proceso -->
+                                <p><strong>Resolucion de Audiencia:</strong> <?= $proceso['RESOLUCION'] ?></p>
                             </div>
                             <!-- Columna Izquierda: Foto del Infractor y Fotos de Pertenencias -->
                             <div class="col-md-4">
