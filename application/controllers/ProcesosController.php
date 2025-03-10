@@ -85,6 +85,8 @@ public function search_acts()
 
         // Agregar regla de validación de cédula
         $cedula = $this->input->post('cedula_inf');
+        $nombre = $this->input->post('nombre_inf');
+        $apellido = $this->input->post('apellido_inf');
         if (!$this->ValidatesModel->validarCedula($cedula)) {
             $response = array(
                 'success' => false,
@@ -99,6 +101,14 @@ public function search_acts()
             $response = array(
                 'success' => false,
                 'message' => 'La cédula ya está registrada en el sistema.'
+            );
+            echo json_encode($response);
+            return;
+        }
+        if ($this->ProcesosModel->existe_nombre_apellido($nombre, $apellido)) {
+            $response = array(
+                'success' => false,
+                'message' => 'Ya existe un infractor con el mismo nombre y apellido.'
             );
             echo json_encode($response);
             return;

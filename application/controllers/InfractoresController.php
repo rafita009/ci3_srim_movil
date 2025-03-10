@@ -11,6 +11,9 @@ class InfractoresController extends CI_Controller
         $this->load->model('InfractoresModel');
         $this->load->model('UsersModel');
         $this->load->model('ProcesosModel');
+        $this->load->library('form_validation'); 
+        $this->load->library('form_validation_rules');
+        $this->load->model('ValidatesModel');
 
            // Verificar si el usuario está logueado
            if ($this->session->userdata('logged_in') !== TRUE) {
@@ -23,34 +26,43 @@ class InfractoresController extends CI_Controller
         $this->estado = $this->session->userdata('ESTADO');
         $this->rol = $this->session->userdata('ROL');          
     }
-    public function index (){
-        // Obtener los detalles del usuario desde el modelo
-        $id_usuario = $this->session->userdata('id_usuario');
-        $user_details = $this->UsersModel->get_user_by_id($id_usuario);
-
-        // Preparar los datos para la vista
-        $data = [
-            'titulo' => 'Infractores',
-
-            'usuario' => $user_details['NOMBRES'] . ' ' . $user_details['APELLIDOS'], // Nombre completo
-            'foto' => !empty($user_details['FOTO']) ? $user_details['FOTO'] : 'default_profile.png' // Foto del usuario o predeterminada
-        ];  
+        public function index (){
+            // Obtener los detalles del usuario desde el modelo
+            $id_usuario = $this->session->userdata('id_usuario');
+            $user_details = $this->UsersModel->get_user_by_id($id_usuario);
+            $datos = $this->InfractoresModel->getInfractores();
+            $total_infractores = count($datos);
 
 
+            // Preparar los datos para la vista
+            $data = [
+                'titulo' => 'Infractores',
 
-        $this->load->view('infractores', $data);
-    }
+                'usuario' => $user_details['NOMBRES'] . ' ' . $user_details['APELLIDOS'], // Nombre completo
+                'foto' => !empty($user_details['FOTO']) ? $user_details['FOTO'] : 'default_profile.png', // Foto del usuario o predeterminada
+                'datos' => $datos,
+                'total_infractores' => $total_infractores
+            ];  
+
+
+
+
+            $this->load->view('infractores', $data);
+        }
     public function registrar_infractor() {
         // Validar que sea una petición AJAX
         if (!$this->input->is_ajax_request()) {
             show_404();
         }
 
-        // Obtener las reglas base desde la librería
-        $this->form_validation->set_rules($this->form_validation_rules->get_base_rules_infractor());
-
+        // Obtener las reglas 
+        $this->form_validation->set_rules('n_infractor', 'Nombre', 'required|trim');
+        $this->form_validation->set_rules('a_infractor', 'Apellidos', 'required|trim');
+        $this->form_validation->set_rules('cedula_inf', 'Cédula', 'required|trim|exact_length[10]');
         // Agregar regla de validación de cédula
         $cedula = $this->input->post('cedula_inf');
+        $nombre = $this->input->post('n_infractor');
+        $apellido = $this->input->post('a_infractor');
         if (!$this->ValidatesModel->validarCedula($cedula)) {
             $response = array(
                 'success' => false,
@@ -70,10 +82,10 @@ class InfractoresController extends CI_Controller
             return;
         }
 
-        if ($this->form_validation->run() === FALSE) {
+        if ($this->ProcesosModel->existe_nombre_apellido($nombre, $apellido)) {
             $response = array(
                 'success' => false,
-                'message' => validation_errors()
+                'message' => 'Ya existe un infractor con el mismo nombre y apellido.'
             );
             echo json_encode($response);
             return;
@@ -82,15 +94,15 @@ class InfractoresController extends CI_Controller
         try {
             // Preparar datos del infractor
             $datos = array(
-                'N_INFRACTOR' => $this->input->post('nombre_inf'),
-                'A_INFRACTOR' => $this->input->post('apellidos_inf'),
+                'N_INFRACTOR' => $this->input->post('n_infractor'),
+                'A_INFRACTOR' => $this->input->post('a_infractor'),
                 'C_INFRACTOR' => $cedula,
-                'T_INFRACTOR' => $this->input->post('telefono_inf')
+                'T_INFRACTOR' => $this->input->post('t_infractor')
             );
 
             
              // Procesar la foto si existe
-                if (!empty($_FILES['foto_inf']['name'])) {
+                if (!empty($_FILES['foto_inf']['name']) && !empty($this->input->post('foto_inf'))) {
                     // Directorio de destino para la foto
                     $directorio_destino = './uploads/fotos_infractores/';
 
@@ -152,95 +164,196 @@ class InfractoresController extends CI_Controller
 
         echo json_encode($response);
     }
-    public function obtener_cdit($id) {
+    public function obtener_infractor($id) {
         // Validar que sea una petición AJAX
         if (!$this->input->is_ajax_request()) {
             show_404();
         }
     
         // Obtener el cdit
-        $cdit = $this->CditModel->getCditById($id);
+        $infractor = $this->InfractoresModel->getInfractorById($id);
         
-        if ($cdit) {
+        if ($infractor) {
             $response = array(
                 'success' => true,
-                'data' => $cdit
+                'data' => $infractor
             );
         } else {
             $response = array(
                 'success' => false,
-                'message' => 'No se encontró el Centro de detencion'
+                'message' => 'No se encontró el Infractor'
             );
         }
     
         echo json_encode($response);
     }
 
-        // Función para procesar la actualización
-        public function actualizar()
-        {
-            // Validar que sea una petición AJAX
-            if (!$this->input->is_ajax_request()) {
-                show_404();
+       // Función para procesar la actualización
+       public function actualizar() 
+    {
+        // Validar que sea una petición AJAX
+        if (!$this->input->is_ajax_request()) {
+            show_404();
+        }
+       
+        $id = $this->input->post('id_infractor');
+        $n_infractor = $this->input->post('n_infractor');
+        $a_infractor = $this->input->post('a_infractor');
+        $t_infractor = $this->input->post('t_infractor');
+        $cedula = $this->input->post('cedula_inf');
+       
+        // Validar que los campos no estén vacíos
+        if(empty($id) || empty($n_infractor) || empty($a_infractor) || empty($cedula)) {
+            $message = '';
+            if(empty($n_infractor)) {
+                $message .= 'El campo Nombre no puede estar vacío. ';
             }
-           
-            $id = $this->input->post('id_cdit');
-            $cdit= $this->input->post('cdit');
-            $cdit_direccion= $this->input->post('direccion');
-           
-            // Validar que los campos no estén vacíos
-            if(empty($id) || empty($cdit) || empty($cdit_direccion)) {
-                $message = '';
-                if(empty($cdit)) {
-                    $message .= 'El campo CDIT no puede estar vacío. ';
-                }
-                if(empty($cdit_direccion)) {
-                    $message .= 'El campo Dirección no puede estar vacío.';
-                }
-                
+            if(empty($a_infractor)) {
+                $message .= 'El campo Apellido no puede estar vacío. ';  
+            }
+            if(empty($cedula)) {
+                $message .= 'El campo Cédula no puede estar vacío. ';
+            }
+            
+            $response = array(
+                'success' => false,
+                'message' => trim($message)
+            );
+            echo json_encode($response);
+            return;
+        }
+        
+        // Agregar regla de validación de cédula
+        if (!$this->ValidatesModel->validarCedula($cedula)) {
+            $response = array(
+                'success' => false,
+                'message' => 'La cédula ingresada no es válida.'
+            );
+            echo json_encode($response);
+            return;
+        }
+        
+        // Verificar si la cédula ya existe (excluyendo el infractor actual)
+        if ($this->InfractoresModel->existe_cedula($cedula, $id)) {
+            $response = array(
+                'success' => false,
+                'message' => 'La cédula ya está registrada en el sistema.'
+            );
+            echo json_encode($response);
+            return;
+        }
+         // Verificar si ya existe un infractor con el mismo nombre y apellido (excluyendo el actual)
+            if ($this->InfractoresModel->existe_nombre_apellido($n_infractor, $a_infractor, $id)) {
                 $response = array(
                     'success' => false,
-                    'message' => trim($message) // trim para eliminar espacios extra
+                    'message' => 'Ya existe un infractor con el mismo nombre y apellido.'
                 );
                 echo json_encode($response);
                 return;
             }
-           
-            if (!$this->CditModel->existeCdit($cdit, $id)) {
-                if ($this->CditModel->actualizarCdit($id, $cdit, $cdit_direccion)) {
-                    $response = array(
-                        'success' => true,
-                        'message' => 'Centro de detención actualizado correctamente'
+                
+                try {
+                    // Preparar datos del infractor
+                    $datos = array(
+                        'N_INFRACTOR' => $n_infractor,
+                        'A_INFRACTOR' => $a_infractor,
+                        'C_INFRACTOR' => $cedula,
+                        'T_INFRACTOR' => $t_infractor
                     );
-                } else {
+                    
+                    // Verificar si se ha subido un archivo nuevo
+                    if (isset($_FILES['foto_inf']) && !empty($_FILES['foto_inf']['name'])) {
+                        // Primero, obtener la información de la foto actual
+                        $infractor_actual = $this->InfractoresModel->getInfractorById($id);
+                        $foto_actual_ruta = isset($infractor_actual['F_INFRACTOR_RUTA']) ? $infractor_actual['F_INFRACTOR_RUTA'] : '';
+                        
+                        // Si existe una foto actual, moverla a la carpeta de eliminados
+                        if (!empty($foto_actual_ruta) && file_exists('./'.$foto_actual_ruta)) {
+                            // Crear la carpeta eliminados si no existe
+                            if (!is_dir('./eliminados')) {
+                                mkdir('./eliminados', 0777, true);
+                            }
+                            
+                            // Obtener el nombre del archivo para reutilizarlo
+                            $foto_name = basename($foto_actual_ruta);
+                            
+                            // Mover archivo a la carpeta eliminados
+                            rename('./'.$foto_actual_ruta, './eliminados/'.$foto_name);
+                        }
+                        
+                        // Directorio de destino para la foto
+                        $directorio_destino = './uploads/fotos_infractores/';
+            
+                        // Verificar si el directorio existe, si no, crearlo
+                        if (!is_dir($directorio_destino)) {
+                            mkdir($directorio_destino, 0777, true);
+                        }
+            
+                        // Generar nombre de archivo
+                        if (!empty($foto_actual_ruta)) {
+                            // Reutilizar el nombre pero respetando la extensión original
+                            $nombre_base = pathinfo(basename($foto_actual_ruta), PATHINFO_FILENAME);
+                            $extension_nueva = pathinfo($_FILES['foto_inf']['name'], PATHINFO_EXTENSION);
+                            $nombre_archivo = $nombre_base . '.' . $extension_nueva;
+                        } else {
+                            // Generar nuevo nombre
+                            $nombre_archivo = preg_replace(
+                                '/[^a-zA-Z0-9_-]/',
+                                '_',
+                                $datos['N_INFRACTOR'] . '_' . $datos['A_INFRACTOR'] . '_' . uniqid()
+                            ) . '.' . pathinfo($_FILES['foto_inf']['name'], PATHINFO_EXTENSION);
+                        }
+            
+                        // Configuración para la subida
+                        $config = [
+                            'upload_path' => $directorio_destino,
+                            'allowed_types' => 'jpg|jpeg|png',
+                            'max_size' => 2048,
+                            'file_name' => pathinfo($nombre_archivo, PATHINFO_FILENAME), // Nombre sin extensión
+                            'overwrite' => TRUE
+                        ];
+            
+                        $this->load->library('upload');
+                        $this->upload->initialize($config);
+            
+                        if ($this->upload->do_upload('foto_inf')) {
+                            $data = $this->upload->data();
+                            
+                            // Guardar la ruta completa del archivo en la base de datos
+                            $datos['F_INFRACTOR_RUTA'] = 'uploads/fotos_infractores/' . $data['file_name']; // Ruta para la base de datos
+                        } else {
+                            log_message('error', 'Error al subir foto infractor: ' . $this->upload->display_errors());
+                            $response = array(
+                                'success' => false,
+                                'message' => 'Error al subir la foto: ' . $this->upload->display_errors('', '')
+                            );
+                            echo json_encode($response);
+                            return;
+                        }
+                    }
+                    
+                    if ($this->InfractoresModel->actualizarInfractor($id, $datos)) {
+                        $response = array(
+                            'success' => true,
+                            'message' => 'Infractor actualizado correctamente'
+                        );
+                    } else {
+                        $response = array(
+                            'success' => false,
+                            'message' => 'Error al actualizar el infractor'
+                        );
+                    }
+                } catch (Exception $e) {
+                    log_message('error', 'Error en actualizar_infractor: ' . $e->getMessage());
                     $response = array(
                         'success' => false,
-                        'message' => 'Error al actualizar el centro de detención'
+                        'message' => 'Error en el servidor al procesar la solicitud'
                     );
                 }
-            } else {
-                $response = array(
-                    'success' => false,
-                    'message' => 'El centro de detención ya existe'
-                );
-            }
-           
-            echo json_encode($response);
-        }
-
-       
-    public function eliminar($id)
-    {
-        $this->CditModel->eliminarCdit($id);
-        $this->session->set_flashdata('success', 'Centro de detencion eliminado correctamente');
-        redirect('CditController/index');
+            
+                echo json_encode($response);
     }
 
-    public function reactivar($id)
-    {
-        $this->CditModel->reactivarCdit($id);
-        $this->session->set_flashdata('success', 'Centro de detencion reactivado correctamente');
-        redirect('CditController/index');
-    }
+    
 }
 ?>

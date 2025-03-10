@@ -33,14 +33,14 @@ class LoginController extends CI_Controller {
         $usuario_data = $this->UsersModel->get_user_by_username($username);
 
         if (!$usuario_data) {
-            $this->session->set_flashdata('error', 'Usuario o contraseña incorrectos.');
+            $this->session->set_flashdata('error', 'Usuario incorrectos.');
             redirect('logincontroller'); // Redirigir al formulario de login
             return;
         }
 
         // Verificar la contraseña
         if (!password_verify($password, $usuario_data['PASSWORD'])) {
-            $this->session->set_flashdata('error', 'Usuario o contraseña incorrectos.');
+            $this->session->set_flashdata('error', 'contraseña incorrecta.');
             redirect('logincontroller'); // Redirigir al formulario de login
             return;
         }
@@ -73,20 +73,14 @@ class LoginController extends CI_Controller {
             'estado' => $estado // Aquí almacenamos el estado del usuario
         ]);
 
-        // Redirigir según el rol del usuario
-        switch ($rol) {
-            case 'administrador':
-                redirect('dashboardcontroller/admin');
-                break;
-            case 'usuario':
-                redirect('dashboardcontroller/usuario');
-                break;
-            default:
+                // Redirigir a todos los roles al mismo lugar
+            if ($rol === 'administrador' || $rol === 'gestor') {
+                redirect('dashboardcontroller/admin'); // O la ruta que prefieras para todos
+            } else {
                 $this->session->set_flashdata('error', 'Rol no asignado. Comuníquese con soporte.');
                 redirect('logincontroller');
-                break;
-        }
-
+            }
+            
             }
             
 

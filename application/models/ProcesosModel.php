@@ -128,4 +128,10 @@ public function obtenerProcesoscompletos($id_infractor) {
     $result = $this->db->get()->result_array();
     return !empty($result) ? $result : null;
 }
+public function existe_nombre_apellido($nombre, $apellido) {
+    $this->db->where('N_INFRACTOR', $nombre);
+    $this->db->where('A_INFRACTOR', $apellido);
+    $query = $this->db->get('infractores');
+    return $query->num_rows() > 0;
+}
 }
