@@ -46,9 +46,15 @@
 
                 <!-- Begin Page Content -->
                 <div class="card shadow-sm p-4 mb-4">
-                    <div class="card-header bg-primary text-white">
-                        <h4 class="mb-0">Detalles del Infractor</h4>
-                    </div>
+                    <!-- Agregar este código en la parte superior de la card-header en tu vista readdatos.php -->
+<div class="card-header bg-primary text-white">
+    <div class="d-flex justify-content-between align-items-center">
+        <h4 class="mb-0">Detalles del Infractor</h4>
+        <a href="<?= site_url('PdfController/generarPDF/' . $proceso['ID_PROCESO']) ?>" class="btn btn-success">
+            <i class="fas fa-file-pdf"></i> Descargar PDF
+        </a>
+    </div>
+</div>
                     <div class="card-body">
 
 
@@ -58,6 +64,7 @@
                                 <h3>Proceso #<?= $proceso['ID_PROCESO'] ?></h3>
                                 <p><strong>Resolucion de Audiencia:</strong> <?= $proceso['RESOLUCION'] ?></p>
                             </div>
+                            
                             <!-- Columna Izquierda: Foto del Infractor y Fotos de Pertenencias -->
                             <div class="col-md-4">
                                 <!-- Foto del Infractor -->
@@ -174,7 +181,7 @@
                                 </div>
 
                                 <div class="card shadow-lg border-0 rounded-lg mb-4 p-4">
-                                    <h5 class="border-bottom pb-3 text-primary">Ubicación y Responsable</h5>
+                                    <h5 class="border-bottom pb-3 text-primary">Ubicación</h5>
                                     <div class="row">
                                         <div class="col-md-4">
                                             <p><strong>Distrito:</strong>
@@ -475,6 +482,7 @@
         });
     });
     </script>
+    
     <!--bootstrap js-->
     <script src="<?php echo base_url();?>public/assets/js/bootstrap.bundle.min.js"></script>
     <!-- Bootstrap core JavaScript-->

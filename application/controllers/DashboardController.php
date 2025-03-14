@@ -23,12 +23,12 @@ class DashboardController extends CI_Controller {
        
     }
     
-        public function admin() {
+        public function all() {
              // Verificar el rol del usuario desde la sesión
     $rol = $this->session->userdata('rol');
     
-    // Comprobar si el usuario es un administrador
-    if ($rol !== 'administrador') {
+    // Comprobar si el usuario es un administrador o gestor
+    if ($rol !== 'administrador' && $rol !== 'gestor') {
         show_error('No tienes permiso para acceder a esta página.', 403);
     }
 
@@ -36,6 +36,7 @@ class DashboardController extends CI_Controller {
     $id_usuario = $this->session->userdata('id_usuario');
     $user_details = $this->UsersModel->get_user_by_id($id_usuario);
     
+    $data['año'] = date('Y'); // Año actual 
 
     // Preparar los datos para la vista
     $data = [
@@ -45,15 +46,10 @@ class DashboardController extends CI_Controller {
     
 
     // Cargar la vista y pasar los datos
-    $this->load->view('admin/admin_dashboard', $data);
+    $this->load->view('admin/dashboard', $data);
           
         }
     
 
-    public function usuario() {
-        if ($this->session->userdata('role') != 2) {
-            show_error('No tienes permiso para acceder a esta página.', 403);
-        }
-        $this->load->view('user_dashboard');
-    }
+    
 }

@@ -25,6 +25,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.min.css">
     <!-- JavaScript de SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.all.min.js"></script>
+    
 
 </head>
 
@@ -54,7 +55,7 @@
                         <div class="col-12">
                             <div class="card">
                                 <div class="card-header">
-                                    <h3 class="card-title">Procesos Registrados</h3>
+                                    <h3 class="card-title text-dark">Procesos Registrados</h3>
                                 </div>
                                 <div class="card-body">
                                     <?php 
@@ -70,7 +71,7 @@
                                     <?php if ($hasProcesses): ?>
                                     <div class="table-responsive">
                                         <table class="table table-striped table-bordered" id="tablaProcesos">
-                                            <thead class="bg-light">
+                                            <thead class="bg-dark text-white">
                                                 <tr>
                                                     <th>Nombres</th>
                                                     <th>Apellidos</th>
@@ -184,7 +185,7 @@
 
     <script>
     $(document).ready(function() {
-    $('#tablaInfractores').DataTable({
+    $('#tablaProcesos').DataTable({
         "language": {
             "lengthMenu": "Mostrar _MENU_ registros por página",
             "zeroRecords": "No se encontraron resultados",

@@ -1,15 +1,14 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 
 <head>
-
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="">
+    <meta name="description" content="Sistema SCRIM">
     <meta name="author" content="">
 
-    <title>SB Admin 2 - Login</title>
+    <title>Sistema SCRIM - Iniciar Sesión</title>
 
     <!-- Custom fonts for this template-->
     <link href="<?php echo base_url(); ?>public/assets/vendor/fontawesome-free/css/all.min.css" rel="stylesheet"
@@ -21,100 +20,220 @@
     <!-- Custom styles for this template-->
     <link href="<?php echo base_url(); ?>public/assets/css/sb-admin-2.min.css" rel="stylesheet">
 
-</head>
+    <style>
+        :root {
+            --primary: #4e73df;
+            --primary-dark: #224abe;
+            --secondary: #858796;
+            --success: #1cc88a;
+            --info: #36b9cc;
+            --warning: #f6c23e;
+            --danger: #e74a3b;
+            --light: #f8f9fc;
+            --dark: #5a5c69;
+        }
 
-<style>
-body {
-    background-color: #f8f9fa;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-}
+        body {
+            background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Nunito', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
 
-.login-container {
-    background: white;
-    padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    max-width: 400px;
-}
+        .login-container {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.15);
+            width: 100%;
+            max-width: 420px;
+            transition: all 0.3s ease;
+            animation: fadeInUp 0.5s;
+        }
 
-.login-container img {
-    max-width: 180px;
-    display: block;
-    margin: 0 auto 15px;
-}
+        .login-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0.75rem 2.5rem rgba(0, 0, 0, 0.2);
+        }
 
-.login-container h2 {
-    text-align: center;
-    margin-bottom: 20px;
-    font-weight: bold;
-}
+        .login-container img {
+            max-width: 150px;
+            display: block;
+            margin: 0 auto 1.5rem;
+        }
 
-.form-control {
-    border-radius: 5px;
-    height: 45px;
-}
+        .login-container h2 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            font-weight: 700;
+            color: #3a3b45;
+            font-size: 1.8rem;
+        }
 
-.btn-primary {
-    background-color: #0d6efd;
-    border: none;
-    height: 45px;
-    font-size: 16px;
-    font-weight: bold;
-}
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
 
-.btn-primary:hover {
-    background-color: #0056b3;
-}
+        .form-group label {
+            font-weight: 600;
+            color: #5a5c69;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
 
-.input-group-text {
-    background-color: white;
-    border-left: none;
-    cursor: pointer;
-}
+        .form-control {
+            border-radius: 0.5rem;
+            height: 3.25rem;
+            font-size: 0.9rem;
+            padding: 0.75rem 1rem;
+            border: 1px solid #d1d3e2;
+            transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
 
-.form-group input {
-    border-right: none;
-}
+        .form-control:focus {
+            border-color: #bac8f3;
+            box-shadow: 0 0 0 0.25rem rgba(78, 115, 223, 0.25);
+        }
 
-.forgot-password {
-    text-align: center;
-    margin-top: 15px;
-}
+        .input-group {
+            position: relative;
+        }
 
-.forgot-password a {
-    color: #007bff;
-    font-weight: bold;
-    text-decoration: none;
-}
+        .input-group-append {
+            position: absolute;
+            right: 0;
+            top: 0;
+            height: 100%;
+            z-index: 10;
+        }
 
-.forgot-password a:hover {
-    text-decoration: underline;
-}
-</style>
+        .input-group-text {
+            background-color: transparent;
+            border: none;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            padding: 0 1rem;
+            color: #6e707e;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .input-group-text:hover {
+            color: var(--primary);
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            border: none;
+            height: 3.25rem;
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            transition: all 0.2s;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-primary:active {
+            transform: translateY(1px);
+        }
+
+        .btn-block {
+            width: 100%;
+        }
+
+        .forgot-password {
+            text-align: center;
+            margin-top: 1.5rem;
+        }
+
+        .forgot-password a {
+            color: var(--primary);
+            font-weight: 600;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .forgot-password a:hover {
+            color: var(--primary-dark);
+            text-decoration: underline;
+        }
+
+        .alert {
+            border-radius: 0.5rem;
+            border: none;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .alert-danger::before {
+            content: '\f071';
+            font-family: 'Font Awesome 5 Free';
+            font-weight: 900;
+            margin-right: 0.75rem;
+            font-size: 1.1rem;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 576px) {
+            .login-container {
+                padding: 2rem;
+                margin: 1rem;
+                border-radius: 0.75rem;
+            }
+        }
+    </style>
 </head>
 
 <body>
-
     <div class="login-container">
-        <img src="<?php echo base_url();?>public/assets/img/logo.png" alt="EPM Logo">
+        <img src="<?php echo base_url();?>public/assets/img/logo.png" alt="Logo del Sistema">
         <h2>Iniciar Sesión</h2>
+        
         <?php if ($this->session->flashdata('error')): ?>
-                    <div class="alert alert-danger"><?= $this->session->flashdata('error'); ?></div>
-                <?php endif; ?>
+            <div class="alert alert-danger" role="alert">
+                <?= $this->session->flashdata('error'); ?>
+            </div>
+        <?php endif; ?>
+        
         <form action="<?= site_url(); ?>/LoginController/validar" method="POST">
             <div class="form-group">
-                <label>Usuario</label>
-                <input type="text" name="user" id="user" class="form-control" placeholder="Ingrese Usuario" maxlength="15" required>
-                </div>
+                <label for="user">Usuario</label>
+                <input type="text" name="user" id="user" class="form-control" 
+                    placeholder="Ingrese su nombre de usuario" maxlength="15" required>
+            </div>
+            
             <div class="form-group">
-                <label>Contraseña</label>
+                <label for="contrasena">Contraseña</label>
                 <div class="input-group">
-                <input type="password" name="contrasena" id="contrasena" class="form-control" placeholder="Ingrese Contraseña" maxlength="30" required>
-
+                    <input type="password" name="contrasena" id="contrasena" class="form-control" 
+                        placeholder="Ingrese su contraseña" maxlength="30" required>
                     <div class="input-group-append">
                         <span class="input-group-text" id="togglePassword">
                             <i class="fas fa-eye"></i>
@@ -122,16 +241,21 @@ body {
                     </div>
                 </div>
             </div>
-            <button type="submit" class="btn btn-primary btn-block">Iniciar Sesión</button>
+            
+            <button type="submit" class="btn btn-primary btn-block">
+                <i class="fas fa-sign-in-alt mr-2"></i> Iniciar Sesión
+            </button>
+            
             <div class="forgot-password">
-                <p>¿Olvidaste tu contraseña? <a href="#">Recuperar</a></p>
+                <p>¿Olvidaste tu contraseña? <a href="<?php echo site_url();?>/LoginController/forgot_password">Recuperar</a></p>
             </div>
         </form>
     </div>
 
+    <!-- Script para mostrar/ocultar contraseña -->
     <script>
     document.getElementById("togglePassword").addEventListener("click", function() {
-        var passwordInput = document.getElementById("password");
+        var passwordInput = document.getElementById("contrasena");
         var icon = this.querySelector("i");
         if (passwordInput.type === "password") {
             passwordInput.type = "text";
@@ -154,24 +278,6 @@ body {
 
     <!-- Custom scripts for all pages-->
     <script src="<?php echo base_url();?>public/assets/js/sb-admin-2.min.js"></script>
-
-    <script>
-    $(document).ready(function() {
-        $("#togglePassword").click(function() {
-            var input = $("#exampleInputPassword");
-            var icon = $(this).find("i");
-
-            if (input.attr("type") === "password") {
-                input.attr("type", "text");
-                icon.removeClass("fa-eye").addClass("fa-eye-slash");
-            } else {
-                input.attr("type", "password");
-                icon.removeClass("fa-eye-slash").addClass("fa-eye");
-            }
-        });
-    });
-    </script>
-
 </body>
 
 </html>

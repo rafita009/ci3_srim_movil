@@ -49,12 +49,14 @@
 
                     <!-- Page Heading -->
                     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-                        <h1 class="h3 mb-0 text-gray-800">Dashboard</h1>
-                        <a href="<?= site_url('BdController/generate') ?>"
-                            class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
-                            <i class="fas fa-download fa-sm text-white-50"></i> Generar Respaldo
-                        </a>
-                    </div>
+    <h1 class="h3 mb-0 text-gray-800">Dashboard</h1>
+    <?php if($this->session->userdata('rol') == 'administrador'): ?>
+        <a href="<?= site_url('BdController/generate') ?>"
+            class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
+            <i class="fas fa-download fa-sm text-white-50"></i> Generar Respaldo
+        </a>
+    <?php endif; ?>
+</div>
 
                     <!-- Content Row -->
                     <div class="row">

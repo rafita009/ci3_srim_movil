@@ -68,7 +68,6 @@
                                             </button>
                                         </div>
                                     <?php endif; ?>
-                                    <br>
                                     <div class="d-flex align-items-center mb-3">
 
                                         <div class="table-responsive">
@@ -130,9 +129,9 @@
                                                                                             <option value="administrador"
                                                                                                 <?= ($usuario->ROL == 'administrador') ? 'selected' : '' ?>>
                                                                                                 Administrador</option>
-                                                                                            <option value="usuario"
-                                                                                                <?= ($usuario->ROL == 'usuario') ? 'selected' : '' ?>>
-                                                                                                Usuario</option>
+                                                                                            <option value="gestor"
+                                                                                                <?= ($usuario->ROL == 'gestor') ? 'selected' : '' ?>>
+                                                                                                Gestor</option>
                                                                                         </select>
                                                                                     </div>
                                                                                 </div>

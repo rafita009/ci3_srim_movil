@@ -19,7 +19,7 @@ class UsersController extends CI_Controller
     }
     public function index()
     {
-
+        
         // Obtén los roles desde la base de datos
         $data['roles'] = $this->RolesModel->obtener_roles();
         // Cargar el formulario
@@ -94,12 +94,12 @@ class UsersController extends CI_Controller
             $rol_generado = $this->RolesModel->get_rol_by_usuario_id($id_persona);
 
           // Enviar email con las credenciales
-$email_enviado = $this->enviar_email_credenciales(
-    $persona_data['EMAIL'],
-    $usuario_generado,
-    $password_plano,
-    $persona_data['NOMBRES'] . ' ' . $persona_data['APELLIDOS']
-);
+        $email_enviado = $this->enviar_email_credenciales(
+            $persona_data['EMAIL'],
+            $usuario_generado,
+            $password_plano,
+            $persona_data['NOMBRES'] . ' ' . $persona_data['APELLIDOS']
+        );
 
             // Retornar datos al frontend
             echo json_encode([
@@ -125,11 +125,19 @@ $email_enviado = $this->enviar_email_credenciales(
     
         // Cargar el modelo
         $this->load->model('UsersModel');
-    
+        
         // Obtener el ID del usuario asociado con la persona
         $id_usuario = $this->UsersModel->obtener_id_usuario_por_persona($id_persona);
     
         if ($id_usuario) {
+            $tiene_registros = $this->UsersModel->tiene_registros_asociados($id_usuario);
+        
+            if ($tiene_registros) {
+                // El usuario tiene registros asociados, no se puede eliminar
+                $this->session->set_flashdata('error', 'No se puede eliminar este usuario porque tiene procesos asociados en el sistema.');
+                redirect('PersonasController/index'); // Ajusta esta ruta según tus necesidades
+                return;
+            }
             // Eliminar los roles asociados al usuario
             $roles_eliminados = $this->RolesModel->eliminar_roles_usuario($id_usuario);
             if (!$roles_eliminados) {
@@ -168,7 +176,7 @@ $email_enviado = $this->enviar_email_credenciales(
         }
 
         // Verificar que el rol sea válido
-        if (!in_array($rol, ['administrador', 'usuario'])) {
+        if (!in_array($rol, ['administrador', 'gestor'])) {
             $this->session->set_flashdata('error', 'Rol no válido');
             redirect('RolesController/index');
             return;

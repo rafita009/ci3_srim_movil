@@ -137,8 +137,72 @@ public function eliminar_foto($id_usuario)
     return $this->db->update('USUARIOS', $data);
 }
 
-
-
+public function tiene_registros_asociados($id_usuario) 
+{
+    // Verificar en la tabla tab_datos_accidentes
+    $this->db->where('ID_USUARIO', $id_usuario);
+    $query = $this->db->get('procesos');
+    
+    return ($query->num_rows() > 0);
+}
+public function get_user_by_email($email)
+{
+    // Primero buscamos el usuario por email en la tabla datos_funcionarios
+    $this->db->select('ID_PERSONA, NOMBRES, APELLIDOS, EMAIL');
+    $this->db->from('PERSONAS');
+    $this->db->where('EMAIL', $email);
+    $query = $this->db->get();
+    
+    if ($query->num_rows() == 0) {
+        return null; // No se encontró el email
+    }
+    
+    $datos_persona = $query->row_array();
+    
+    // Ahora buscamos la información de usuario correspondiente
+    $this->db->select('ID_USUARIO, USUARIO, PASSWORD');
+    $this->db->from('usuarios');
+    $this->db->where('ID_USUARIO', $datos_persona['ID_PERSONA']);
+    $query_usuario = $this->db->get();
+    
+    if ($query_usuario->num_rows() == 0) {
+        return null; // El funcionario no tiene cuenta de usuario
+    }
+    
+    $datos_usuario = $query_usuario->row_array();
+    
+    // Combinamos los resultados
+    return array_merge($datos_usuario, $datos_persona);
+}
+public function actualizar_contrasena_temporal($id_usuario, $contrasena_temporal)
+{
+    // Generar hash de la contraseña
+    $hashed_password = password_hash($contrasena_temporal, PASSWORD_DEFAULT);
+    
+    // Actualizar la contraseña
+    $this->db->where('ID_USUARIO', $id_usuario);
+    $this->db->update('usuarios', [
+        'PASSWORD' => $hashed_password, // Cambiar la contraseña temporal a la nueva
+        'CAMBIO_PENDIENTE' => 1 // Indica que se debe cambiar la contraseña
+    ]);
+    
+    return ($this->db->affected_rows() > 0);
+}
+    public function actualizar_contrasena_definitiva($id_usuario, $nueva_contrasena)
+{
+    // Generar hash de la contraseña
+    $hashed_password = password_hash($nueva_contrasena, PASSWORD_DEFAULT);
+    
+    // Actualizar la contraseña
+    $this->db->where('ID_USUARIO', $id_usuario);
+    $this->db->update('usuarios', [
+        'PASSWORD' => $hashed_password, // Cambiar la contraseña a la nueva
+        'CAMBIO_PENDIENTE' => 0 // Ya no se requiere cambio
+    ]);
+    
+    return ($this->db->affected_rows() > 0);
+}
 
 }
+
 ?>

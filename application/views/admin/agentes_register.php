@@ -47,81 +47,78 @@
 
                 <!-- Begin Page Content -->
                 <div class="container-fluid">
-                    <h1 class="h3 mb-2 text-gray-800"><?php echo $titulo; ?></h1>
-                    <div>
-                        <p>
-                            <button type="button" class="btn btn-info" data-toggle="modal" data-target="#modalAgente">
-                                <i class="fas fa-plus"></i> Agregar
-                            </button>
-                            <button type="button" class="btn btn-danger" data-toggle="modal"
-                                data-target="#modalEliminados">
-                                <i class="fas fa-trash"></i> Eliminados
-                            </button>
-                        </p>
-                    </div>
-                    <?php if ($this->session->flashdata('success')): ?>
-                    <div class="alert alert-success alert-dismissible fade show" role="alert">
-                        <?= $this->session->flashdata('success'); ?>
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <?php elseif ($this->session->flashdata('error')): ?>
-                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                        <?= $this->session->flashdata('error'); ?>
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <?php endif; ?>
+    
 
-                    <div class="table-responsive">
-                        <table id="tablaAgentes" class="table table-bordered table-hover datatable">
-                            <thead class="thead-dark">
-                                <tr>
-                                    <th class="d-none">ID</th>
-                                    <th>Nombre</th>
-                                    <th>Apellidos</th>
-                                    <th>Nro Agente</th>
-                                    <th>Acciones</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php if (!empty($agentes)): ?>
-                                <?php foreach ($agentes as $agente): ?>
-                                <!-- Asegúrate de usar las claves correctas según tu base de datos -->
-                                <tr>
-                                    <td class="d-none"><?php echo $agente['ID_AGENTE']; ?></td>
-                                <td><?php echo isset($agente['NOMBRES_ACT']) ? $agente['NOMBRES_ACT'] : ''; ?></td>
+    <!-- Tabla de Agentes -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <h4 class="m-0 font-weight-bold text-primary">Listado de Agentes</h4>
+            <div>
+                <button type="button" class="btn btn-info" data-toggle="modal" data-target="#modalAgente">
+                    <i class="fas fa-plus"></i> Agregar
+                </button>
+                <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#modalEliminados">
+                    <i class="fas fa-trash"></i> Eliminados
+                </button>
+            </div>
+        </div>
+        <div class="card-body">
+            <?php if ($this->session->flashdata('success')): ?>
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <?= $this->session->flashdata('success'); ?>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <?php elseif ($this->session->flashdata('error')): ?>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <?= $this->session->flashdata('error'); ?>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <?php endif; ?>
 
-                                    <td><?php echo isset($agente['APELLIDOS_ACT']) ? $agente['APELLIDOS_ACT'] : ''; ?>
-                                    <td><?php echo isset($agente['NRO_ACT']) ? $agente['NRO_ACT'] : ''; ?></td>
- 
-                                </td>
-                                <td>
-                                    <button type="button" class="btn btn-success btn-editar" data-id="<?php echo $agente['ID_AGENTE']; ?>">
-                                        <i class="fas fa-pencil-alt"></i> Editar
-                                    </button>
-
-                                    </td>
-                                    <td>
-                                        <a href="<?php echo site_url('AgentesController/eliminar/'.$agente['ID_AGENTE']); ?>"
-                                            class="btn btn-danger">
-                                            <i class="fas fa-trash"></i> Eliminar
-                                        </a>
-                                    </td>
-                                </tr>
-                                <?php endforeach; ?>
-                                <?php else: ?>
-                                <tr>
-                                    <td colspan="4" class="text-center">No hay agentes registrados</td>
-                                </tr>
-                                <?php endif; ?>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+            <div class="table-responsive">
+                <table id="tablaAgentes" class="table table-bordered" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th class="d-none">ID</th>
+                            <th>Nombre</th>
+                            <th>Apellidos</th>
+                            <th>Nro Agente</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php if (!empty($agentes)): ?>
+                        <?php foreach ($agentes as $agente): ?>
+                        <tr>
+                            <td class="d-none"><?php echo $agente['ID_AGENTE']; ?></td>
+                            <td><?php echo isset($agente['NOMBRES_ACT']) ? $agente['NOMBRES_ACT'] : ''; ?></td>
+                            <td><?php echo isset($agente['APELLIDOS_ACT']) ? $agente['APELLIDOS_ACT'] : ''; ?></td>
+                            <td><?php echo isset($agente['NRO_ACT']) ? $agente['NRO_ACT'] : ''; ?></td>
+                            <td>
+                                <button type="button" class="btn btn-sm btn-success btn-editar" data-id="<?php echo $agente['ID_AGENTE']; ?>">
+                                    <i class="fas fa-pencil-alt"></i> Editar
+                                </button>
+                                <a href="<?php echo site_url('AgentesController/eliminar/'.$agente['ID_AGENTE']); ?>" class="btn btn-sm btn-danger">
+                                    <i class="fas fa-trash"></i> Eliminar
+                                </a>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                        <?php else: ?>
+                        <tr>
+                            <td colspan="4" class="text-center">No hay agentes registrados</td>
+                        </tr>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
                 <!-- /.container-fluid -->
 
             </div>

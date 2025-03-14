@@ -13,8 +13,8 @@ class BdController extends CI_Controller {
         $this->load->library('session');
         $this->load->model('UsersModel'); // Carga el modelo de Usuario
 
-          // Verificar si el usuario está logueado
-          if ($this->session->userdata('logged_in') !== TRUE) {
+        // Verificar si el usuario está logueado
+        if ($this->session->userdata('logged_in') !== TRUE) {
             redirect('logincontroller'); // Redirige al login si no está autenticado
         }
 
@@ -36,6 +36,9 @@ class BdController extends CI_Controller {
         // Obtener la lista de archivos de respaldo
         $data['backups'] = $this->get_backup_files();
         
+        // Obtener el nombre del último respaldo generado
+        $data['ultimo_respaldo'] = $this->get_latest_backup();
+        
         // Datos del usuario para la vista
         $data['usuario'] = $user_details['NOMBRES'] . ' ' . $user_details['APELLIDOS']; 
         $data['foto'] = !empty($user_details['FOTO']) ? $user_details['FOTO'] : 'default_profile.png';
@@ -43,6 +46,7 @@ class BdController extends CI_Controller {
         // Cargar las vistas
         $this->load->view('admin/respaldos', $data);
     }
+
     private function get_backup_files() {
         $backup_path = FCPATH . 'backups/';
         $backup_files = array();
@@ -51,8 +55,8 @@ class BdController extends CI_Controller {
             $files = scandir($backup_path);
             
             foreach ($files as $file) {
-                // Asegurate de usar el mismo criterio que usas para eliminar
-                if ($file != '.' && $file != '..' && strpos($file, '.zip') !== false) {
+                // Ahora buscamos archivos .sql en lugar de .zip
+                if ($file != '.' && $file != '..' && strpos($file, '.sql') !== false) {
                     $backup_files[] = array(
                         'name' => $file,
                         'size' => filesize($backup_path . $file),
@@ -60,16 +64,27 @@ class BdController extends CI_Controller {
                     );
                 }
             }
+            
+            // Ordenar por fecha de modificación (más reciente primero)
+            usort($backup_files, function($a, $b) {
+                return strtotime($b['date']) - strtotime($a['date']);
+            });
         }
         
         // Asegúrate de que siempre se devuelva un array, incluso si está vacío
         return $backup_files;
     }
     
+    // Obtener el último respaldo generado
+    private function get_latest_backup() {
+        $backups = $this->get_backup_files();
+        return !empty($backups) ? $backups[0]['name'] : null;
+    }
+    
     public function generate() {
         // Configuración del respaldo
         $config = array(
-            'format'      => 'zip',              // Formato del archivo (zip, txt, gzip)
+            'format'      => 'txt',              // Formato cambiado a texto plano
             'filename'    => 'backup-' . date('Y-m-d-H-i-s') . '.sql',  // Nombre del archivo SQL
             'add_drop'    => TRUE,               // Agregar sentencias DROP TABLE
             'add_insert'  => TRUE,               // Agregar sentencias INSERT
@@ -80,10 +95,10 @@ class BdController extends CI_Controller {
         // Crear el respaldo
         $backup = $this->dbutil->backup($config);
 
-        // Nombre del archivo zip
-        $backup_name = 'backup-' . date('Y-m-d-H-i-s') . '.zip';
+        // Nombre del archivo SQL
+        $backup_name = 'backup-' . date('Y-m-d-H-i-s') . '.sql';
         
-        // Guardar el archivo en el servidor (opcional)
+        // Guardar el archivo en el servidor
         $save_path = FCPATH . 'backups/';
         
         // Crear la carpeta si no existe
@@ -102,7 +117,7 @@ class BdController extends CI_Controller {
         // Esta función puede ser llamada mediante CRON para respaldos automáticos
         // Configuración del respaldo
         $config = array(
-            'format'      => 'zip',
+            'format'      => 'txt',              // Formato cambiado a texto plano
             'filename'    => 'auto-backup-' . date('Y-m-d-H-i-s') . '.sql',
             'add_drop'    => TRUE,
             'add_insert'  => TRUE,
@@ -113,8 +128,8 @@ class BdController extends CI_Controller {
         // Crear el respaldo
         $backup = $this->dbutil->backup($config);
 
-        // Nombre del archivo zip
-        $backup_name = 'auto-backup-' . date('Y-m-d-H-i-s') . '.zip';
+        // Nombre del archivo SQL
+        $backup_name = 'auto-backup-' . date('Y-m-d-H-i-s') . '.sql';
         
         // Guardar el archivo en el servidor
         $save_path = FCPATH . 'backups/';
@@ -133,6 +148,7 @@ class BdController extends CI_Controller {
             return FALSE;
         }
     }
+    
     public function download($filename = NULL) {
         if ($filename === NULL) {
             $this->session->set_flashdata('message', 'No se especificó el archivo a descargar');
@@ -174,6 +190,69 @@ class BdController extends CI_Controller {
         } else {
             $this->session->set_flashdata('message', 'El archivo no existe');
             $this->session->set_flashdata('message_type', 'danger');
+        }
+        
+        redirect('BdController');
+    }
+    
+    // Nueva función para restaurar el último respaldo
+    public function restore($filename = NULL) {
+        // Verificar permisos (solo administradores deberían poder hacer esto)
+       
+        
+        if ($filename === NULL) {
+            $this->session->set_flashdata('message', 'No se especificó el archivo a restaurar');
+            $this->session->set_flashdata('message_type', 'danger');
+            redirect('BdController');
+        }
+        
+        $file_path = FCPATH . 'backups/' . $filename;
+        
+        if (!file_exists($file_path)) {
+            $this->session->set_flashdata('message', 'El archivo de respaldo no existe');
+            $this->session->set_flashdata('message_type', 'danger');
+            redirect('BdController');
+        }
+        
+        // Leer el contenido del archivo SQL
+        $sql = file_get_contents($file_path);
+        
+        // Dividir las consultas SQL
+        $queries = explode(';', $sql);
+        
+        // Conectar directamente a la base de datos para ejecutar las consultas
+        $this->load->database();
+        
+        // Deshabilitar las verificaciones de claves foráneas
+        $this->db->query('SET FOREIGN_KEY_CHECKS = 0');
+        
+        // Contador de consultas exitosas
+        $success_count = 0;
+        $error_count = 0;
+        
+        // Ejecutar cada consulta
+        foreach ($queries as $query) {
+            $query = trim($query);
+            if ($query) {
+                try {
+                    $this->db->query($query);
+                    $success_count++;
+                } catch (Exception $e) {
+                    $error_count++;
+                    log_message('error', 'Error al restaurar la base de datos: ' . $e->getMessage());
+                }
+            }
+        }
+        
+        // Habilitar nuevamente las verificaciones de claves foráneas
+        $this->db->query('SET FOREIGN_KEY_CHECKS = 1');
+        
+        if ($error_count == 0) {
+            $this->session->set_flashdata('message', 'Base de datos restaurada correctamente. Se ejecutaron ' . $success_count . ' consultas.');
+            $this->session->set_flashdata('message_type', 'success');
+        } else {
+            $this->session->set_flashdata('message', 'La restauración completó con ' . $error_count . ' errores. Consulta el log para más detalles.');
+            $this->session->set_flashdata('message_type', 'warning');
         }
         
         redirect('BdController');
