@@ -202,7 +202,73 @@ public function actualizar_contrasena_temporal($id_usuario, $contrasena_temporal
     
     return ($this->db->affected_rows() > 0);
 }
-
+public function contar_procesos_ultimo_mes() {
+    // Fecha de inicio del mes anterior
+    $inicio_mes_anterior = date('Y-m-d', strtotime('first day of last month'));
+    // Fecha de fin del mes anterior
+    $fin_mes_anterior = date('Y-m-d', strtotime('last day of last month'));
+    
+    $this->db->select('COUNT(*) as total');
+    $this->db->from('procesos');
+    $this->db->where('DATE(FECHA_REGISTRO) >=', $inicio_mes_anterior);
+    $this->db->where('DATE(FECHA_REGISTRO) <=', $fin_mes_anterior);
+    
+    $resultado = $this->db->get()->row();
+    return $resultado->total;
 }
-
+public function contar_procesos_mes_actual() {
+    // Fecha de inicio del mes actual
+    $inicio_mes = date('Y-m-01'); // Primer día del mes actual
+    // Fecha actual (hoy)
+    $hoy = date('Y-m-d');
+    
+    $this->db->select('COUNT(*) as total');
+    $this->db->from('procesos');
+    $this->db->where('DATE(FECHA_REGISTRO) >=', $inicio_mes);
+    $this->db->where('DATE(FECHA_REGISTRO) <=', $hoy);
+    
+    $query = $this->db->get();
+    $resultado = $query->row();
+    
+    // Depuración
+    error_log("SQL Query: " . $this->db->last_query());
+    error_log("Resultado: " . print_r($resultado, true));
+    
+    return $resultado ? $resultado->total : 0;
+}
+public function obtener_relacion_detencion_libertad() {
+    // Total de procesos
+    $this->db->select('COUNT(*) as total');
+    $this->db->from('procesos');
+    $this->db->where('RESOLUCION IS NOT NULL'); // Solo considerar procesos con resolución
+    $total = $this->db->get()->row()->total;
+    
+    // Procesos con resolución "Libertad"
+    $this->db->select('COUNT(*) as libertad');
+    $this->db->from('procesos');
+    $this->db->where('RESOLUCION', 'Libertad');
+    $libertad = $this->db->get()->row()->libertad;
+    
+    // Procesos con resolución "Detención"
+    $this->db->select('COUNT(*) as detencion');
+    $this->db->from('procesos');
+    $this->db->where('RESOLUCION', 'Detención');
+    $detencion = $this->db->get()->row()->detencion;
+    
+    // Calcular porcentaje de libertad
+    $porcentaje_libertad = ($total > 0) ? ($libertad / $total) * 100 : 0;
+    
+    return [
+        'porcentaje_libertad' => round($porcentaje_libertad, 1),
+        'total' => $total,
+        'libertad' => $libertad,
+        'detencion' => $detencion
+    ];
+}
+public function contar_total_infractores() {
+    $this->db->select('COUNT(*) as total');
+    $this->db->from('infractores');
+    return $this->db->get()->row()->total;
+}
+}
 ?>

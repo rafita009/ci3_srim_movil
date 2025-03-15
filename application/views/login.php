@@ -214,6 +214,7 @@
 <body>
     <div class="login-container">
         <img src="<?php echo base_url();?>public/assets/img/logo.png" alt="Logo del Sistema">
+         <H4 class="text-center">SCRIM</H4>
         <h2>Iniciar Sesión</h2>
         
         <?php if ($this->session->flashdata('error')): ?>

@@ -235,15 +235,15 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
+                    <h5 class="modal-title" id="exampleModalLabel">Seguro que quieres cerrar sesión?</h5>
                     <button class="close" type="button" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">×</span>
                     </button>
                 </div>
-                <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
+                <div class="modal-body">Selecciona "Cerrar sesión" si estás seguro de que quieres cerrar tu sesión.</div>
                 <div class="modal-footer">
-                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-                    <a class="btn btn-primary" href="<?php echo site_url();?>/LoginController/logout">Logout</a>
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancelar</button>
+                    <a class="btn btn-primary" href="<?php echo site_url();?>/LoginController/logout">Cerrar sesión</a>
                 </div>
             </div>
         </div>
@@ -272,348 +272,272 @@
     var baseUrl = '<?php echo base_url(); ?>';
     </script>
     <script>
-    $(document).ready(function() {
-        // Clean up modal when it's closed
-        $(document).on('hidden.bs.modal', '#modalVistaInfractor', function() {
-            $(this).remove();
+   $(document).ready(function() {
+    // Clean up modal when it's closed
+    $(document).on('hidden.bs.modal', '#modalVistaInfractor', function() {
+        $(this).remove();
+    });
+
+    // Handler for opening modal buttons
+    $(document).on('click', '.cargar-modal-infractor', function() {
+        loadInfractorModal($(this).data('id'));
+    });
+
+    // Function to load and show infractor modal
+    function loadInfractorModal(id_infractor) {
+        Swal.fire({
+            title: 'Cargando...',
+            text: 'Por favor espere',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
         });
 
-        // Handler for opening modal buttons
-        $(document).on('click', '.cargar-modal-infractor', function() {
-            loadInfractorModal($(this).data('id'));
-        });
+        // Remove existing modal if present
+        $('#modalVistaInfractor').remove();
 
-        // Function to load and show infractor modal
-        function loadInfractorModal(id_infractor) {
-            Swal.fire({
-                title: 'Cargando...',
-                text: 'Por favor espere',
-                allowOutsideClick: false,
-                didOpen: () => {
-                    Swal.showLoading();
-                }
-            });
-
-            // Remove existing modal if present
-            $('#modalVistaInfractor').remove();
-
-            // Load modal content
-            $.get(baseUrl + 'index.php/ProcesosController/cargar_vista_modal/' + id_infractor)
-                .done(function(modalContent) {
-                    // Create modal structure
-                    const modalHTML = `
-                    <div class="modal fade" id="modalVistaInfractor" tabindex="-1" role="dialog">
-                        <div class="modal-dialog modal-xl" role="document">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title">Registrar</h5>
-                                    <button type="button" class="close" data-dismiss="modal">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
-                                </div>
-                                <div class="modal-body"></div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-                                </div>
+        // Load modal content
+        $.get(baseUrl + 'index.php/ProcesosController/cargar_vista_modal/' + id_infractor)
+            .done(function(modalContent) {
+                // Create modal structure
+                const modalHTML = `
+                <div class="modal fade" id="modalVistaInfractor" tabindex="-1" role="dialog">
+                    <div class="modal-dialog modal-xl" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Registrar</h5>
+                                <button type="button" class="close" data-dismiss="modal">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body"></div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
                             </div>
                         </div>
                     </div>
-                `;
+                </div>
+            `;
 
-                    // Append modal to body and update content
-                    $('body').append(modalHTML);
-                    $('#modalVistaInfractor .modal-body').html(modalContent);
+                // Append modal to body and update content
+                $('body').append(modalHTML);
+                $('#modalVistaInfractor .modal-body').html(modalContent);
 
-                    // Show modal after content is loaded
-                    $('#modalVistaInfractor').modal('show');
-                    Swal.close();
-                })
-                .fail(function(error) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: 'Error al cargar los datos del infractor'
-                    });
+                // Show modal after content is loaded
+                $('#modalVistaInfractor').modal('show');
+                Swal.close();
+            })
+            .fail(function(error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Error al cargar los datos del infractor'
                 });
-        }
-
-        // Form submission handler
-        $('#formRegistroInfractor').on('submit', function(e) {
-            e.preventDefault();
-            if (!this.checkValidity()) {
-                return false;
-            }
-
-            var formData = new FormData(this);
-
-            Swal.fire({
-                title: 'Registrando...',
-                text: 'Por favor espere',
-                allowOutsideClick: false,
-                didOpen: () => {
-                    Swal.showLoading();
-                }
             });
+    }
 
-            $.ajax({
-                url: baseUrl + 'index.php/ProcesosController/registrar_infractor',
-                type: 'POST',
-                data: formData,
-                processData: false,
-                contentType: false,
-                dataType: 'json',
-                success: function(response) {
-                    if (response.success) {
-                        Swal.fire({
-                            icon: 'success',
-                            title: '¡Éxito!',
-                            text: 'Infractor registrado correctamente',
-                            showConfirmButton: false,
-                            timer: 1500
-                        }).then(() => {
-                            // Load modal using the shared function
-                            if (response.modal_url) {
-                                loadInfractorModal(response.id_infractor);
-                            }
-                        });
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: response.message || 'Error al registrar infractor'
-                        });
-                    }
-                },
-                error: function(xhr, status, error) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: 'Error en el servidor: ' + error
-                    });
-                }
+    // Por defecto, mostrar la lista y ocultar el formulario
+    $('#contenedorLista').show();
+    $('#contenedorFormulario').hide();
+
+    // Destruir DataTable si ya existe
+    if ($.fn.DataTable.isDataTable('#tablaInfractores')) {
+        $('#tablaInfractores').DataTable().destroy();
+    }
+
+    // Inicializar DataTable (esta parte queda igual)
+    var table = $('#tablaInfractores').DataTable({
+        "language": {
+            "sProcessing": "Procesando...",
+            "sLengthMenu": "Mostrar _MENU_ registros",
+            "sZeroRecords": "No se encontraron resultados",
+            "sEmptyTable": "Ningún dato disponible en esta tabla",
+            "sInfo": "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+            "sInfoEmpty": "Mostrando registros del 0 al 0 de un total de 0 registros",
+            "sInfoFiltered": "(filtrado de un total de _MAX_ registros)",
+            "sInfoPostFix": "",
+            "sSearch": "Buscar:",
+            "sUrl": "",
+            "sInfoThousands": ",",
+            "sLoadingRecords": "Cargando...",
+            "oPaginate": {
+                "sFirst": "Primero",
+                "sLast": "Último",
+                "sNext": "Siguiente",
+                "sPrevious": "Anterior"
+            }
+        },
+        "columnDefs": [{
+            "targets": 0, // Primera columna (índice 0)
+            "searchable": false,
+            "orderable": true,
+            "render": function(data, type, row, meta) {
+                return meta.row + 1; // Numeración automática
+            }
+        }],
+        "order": [
+            [0, 'asc']
+        ], // Esto ordena por la primera columna de forma descendente
+        "autoWidth": false,
+        "dom": "<'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>" +
+            "<'row'<'col-sm-12'tr>>" +
+            "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+        "processing": true,
+        "pageLength": 10,
+        "lengthMenu": [
+            [5, 10, 25, 50, -1],
+            [5, 10, 25, 50, "Todos"]
+        ]
+    });
+
+    // Evento para mostrar la lista (se mantiene igual)
+    $('#btnMostrarLista').on('click', function() {
+        $('#contenedorFormulario').fadeOut('fast', function() {
+            $('#contenedorLista').fadeIn('fast', function() {
+                table.columns.adjust();
             });
         });
     });
-    </script>
-    <script>
-    $(document).ready(function() {
-        // Por defecto, mostrar la lista y ocultar el formulario
-        $('#contenedorLista').show();
-        $('#contenedorFormulario').hide();
 
-        // Destruir DataTable si ya existe
-        if ($.fn.DataTable.isDataTable('#tablaInfractores')) {
-            $('#tablaInfractores').DataTable().destroy();
+    // Evento para mostrar el formulario
+    $('#btnMostrarFormulario').on('click', function() {
+        // Limpiar el formulario
+        $('#formRegistroInfractor')[0].reset();
+        // Restaurar el estado inicial de la foto
+        $('#photo-preview').hide();
+        $('#default-icon').show();
+
+        $('#contenedorLista').fadeOut('fast', function() {
+            $('#contenedorFormulario').fadeIn('fast');
+            $('#nombre_inf').focus();
+        });
+    });
+
+    // Evento para volver a la lista (se mantiene igual)
+    $('#btnVolverLista').on('click', function() {
+        $('#contenedorFormulario').fadeOut('fast', function() {
+            $('#contenedorLista').fadeIn('fast', function() {
+                table.columns.adjust();
+            });
+        });
+    });
+
+    // FORM SUBMISSION - Keep only one handler, removing the duplicate
+    $('#formRegistroInfractor').on('submit', function(e) {
+        e.preventDefault();
+        if (!this.checkValidity()) {
+            return false;
         }
-
-        // Inicializar DataTable (esta parte queda igual)
-        var table = $('#tablaInfractores').DataTable({
-            "language": {
-                "sProcessing": "Procesando...",
-                "sLengthMenu": "Mostrar _MENU_ registros",
-                "sZeroRecords": "No se encontraron resultados",
-                "sEmptyTable": "Ningún dato disponible en esta tabla",
-                "sInfo": "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
-                "sInfoEmpty": "Mostrando registros del 0 al 0 de un total de 0 registros",
-                "sInfoFiltered": "(filtrado de un total de _MAX_ registros)",
-                "sInfoPostFix": "",
-                "sSearch": "Buscar:",
-                "sUrl": "",
-                "sInfoThousands": ",",
-                "sLoadingRecords": "Cargando...",
-                "oPaginate": {
-                    "sFirst": "Primero",
-                    "sLast": "Último",
-                    "sNext": "Siguiente",
-                    "sPrevious": "Anterior"
+        var formData = new FormData(this);
+        Swal.fire({
+            title: 'Registrando...',
+            text: 'Por favor espere',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+        $.ajax({
+            url: baseUrl + 'index.php/ProcesosController/registrar_infractor',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            dataType: 'json',
+            success: function(response) {
+                // First close the loading dialog
+                Swal.close();
+                
+                if (response.success) {
+                    // Success case - show success message then modal
+                    Swal.fire({
+                        icon: 'success',
+                        title: '¡Éxito!',
+                        text: 'Infractor registrado correctamente',
+                        showConfirmButton: false,
+                        timer: 1500
+                    }).then(() => {
+                        // Load modal after success message
+                        loadInfractorModal(response.id_infractor);
+                    });
+                } else {
+                    // Error case
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: response.message || 'Error al registrar infractor'
+                    }).then(() => {
+                        // Check if it's a "cedula already exists" error with infractor info
+                        if (response.infractor_existe && response.id_infractor) {
+                            // Load infractor modal with existing data
+                            loadInfractorModal(response.id_infractor);
+                        }
+                    });
                 }
             },
-            "columnDefs": [{
-                "targets": 0, // Primera columna (índice 0)
-                "searchable": false,
-                "orderable": true,
-                "render": function(data, type, row, meta) {
-                    return meta.row + 1; // Numeración automática
-                }
-            }],
-            "order": [
-                [0, 'asc']
-            ], // Esto ordena por la primera columna de forma descendente
-            "autoWidth": false,
-            "dom": "<'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>" +
-                "<'row'<'col-sm-12'tr>>" +
-                "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
-            "processing": true,
-            "pageLength": 10,
-            "lengthMenu": [
-                [5, 10, 25, 50, -1],
-                [5, 10, 25, 50, "Todos"]
-            ]
-        });
-
-        // Evento para mostrar la lista (se mantiene igual)
-        $('#btnMostrarLista').on('click', function() {
-            $('#contenedorFormulario').fadeOut('fast', function() {
-                $('#contenedorLista').fadeIn('fast', function() {
-                    table.columns.adjust();
+            error: function(xhr, status, error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Error en el servidor: ' + error
                 });
-            });
-        });
-
-        // Evento para mostrar el formulario
-        $('#btnMostrarFormulario').on('click', function() {
-            // Limpiar el formulario
-            $('#formRegistroInfractor')[0].reset();
-            // Restaurar el estado inicial de la foto
-            $('#photo-preview').hide();
-            $('#default-icon').show();
-
-            $('#contenedorLista').fadeOut('fast', function() {
-                $('#contenedorFormulario').fadeIn('fast');
-                $('#nombre_inf').focus();
-            });
-        });
-
-        // Evento para volver a la lista (se mantiene igual)
-        $('#btnVolverLista').on('click', function() {
-            $('#contenedorFormulario').fadeOut('fast', function() {
-                $('#contenedorLista').fadeIn('fast', function() {
-                    table.columns.adjust();
-                });
-            });
-        });
-
-        $('#formRegistroInfractor').on('submit', function(e) {
-            e.preventDefault();
-            if (!this.checkValidity()) {
-                return false;
-            }
-            var formData = new FormData(this);
-            Swal.fire({
-                title: 'Registrando...',
-                text: 'Por favor espere',
-                allowOutsideClick: false,
-                didOpen: () => {
-                    Swal.showLoading();
-                }
-            });
-            $.ajax({
-                url: baseUrl + 'index.php/ProcesosController/registrar_infractor',
-                type: 'POST',
-                data: formData,
-                processData: false,
-                contentType: false,
-                dataType: 'json',
-                success: function(response) {
-                    if (response.success) {
-                        Swal.fire({
-                            icon: 'success',
-                            title: '¡Éxito!',
-                            text: 'Infractor registrado correctamente',
-                            showConfirmButton: false,
-                            timer: 1500
-                        }).then(() => {
-                            // Cargar y mostrar el modal después del mensaje de éxito
-                            $.get(response.modal_url, function(modalContent) {
-                                // Crear o actualizar el modal
-                                if ($('#modalVistaInfractor').length ===
-                                    0) {
-                                    $('body').append(`
-                                <div class="modal fade" id="modalVistaInfractor" tabindex="-1" role="dialog">
-                                    <div class="modal-dialog modal-xl" role="document">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title">Detalles del Infractor</h5>
-                                                <button type="button" class="close" data-dismiss="modal">
-                                                    <span aria-hidden="true">&times;</span>
-                                                </button>
-                                            </div>
-                                            <div class="modal-body">
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            `);
-                                }
-
-                                // Actualizar el contenido del modal y mostrarlo
-                                $('#modalVistaInfractor .modal-body').html(
-                                    modalContent);
-                                $('#modalVistaInfractor').modal('show');
-                            });
-                        });
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: response.message || 'Error al registrar infractor'
-                        });
-                    }
-                },
-                error: function(xhr, status, error) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: 'Error en el servidor: ' + error
-                    });
-                }
-            });
-        });
-        // Ajustar la tabla cuando la ventana cambie de tamaño
-        $(window).on('resize', function() {
-            table.columns.adjust();
-        });
-
-        // Validación de la foto antes de la subida
-        $('#foto_inf').on('change', function() {
-            if (this.files && this.files[0]) {
-                var file = this.files[0];
-                var fileType = file.type;
-                var maxSize = 2 * 1024 * 1024; // 2MB
-
-                // Validar tipo de archivo
-                if (!fileType.match('image.*')) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: 'Por favor, seleccione solo archivos de imagen'
-                    });
-                    this.value = '';
-                    $('#photo-preview').hide();
-                    $('#default-icon').show();
-                    return false;
-                }
-
-                // Validar tamaño del archivo
-                if (file.size > maxSize) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: 'El archivo es demasiado grande. El tamaño máximo es 2MB'
-                    });
-                    this.value = '';
-                    $('#photo-preview').hide();
-                    $('#default-icon').show();
-                    return false;
-                }
-
-                // Si pasa las validaciones, mostrar la previsualización
-                var reader = new FileReader();
-                reader.onload = function(e) {
-                    $('#photo-preview').attr('src', e.target.result);
-                    $('#photo-preview').show();
-                    $('#default-icon').hide();
-                }
-                reader.readAsDataURL(file);
-            } else {
-                $('#photo-preview').hide();
-                $('#default-icon').show();
             }
         });
     });
+    
+    // Ajustar la tabla cuando la ventana cambie de tamaño
+    $(window).on('resize', function() {
+        table.columns.adjust();
+    });
+
+    // Validación de la foto antes de la subida
+    $('#foto_inf').on('change', function() {
+        if (this.files && this.files[0]) {
+            var file = this.files[0];
+            var fileType = file.type;
+            var maxSize = 2 * 1024 * 1024; // 2MB
+
+            // Validar tipo de archivo
+            if (!fileType.match('image.*')) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Por favor, seleccione solo archivos de imagen'
+                });
+                this.value = '';
+                $('#photo-preview').hide();
+                $('#default-icon').show();
+                return false;
+            }
+
+            // Validar tamaño del archivo
+            if (file.size > maxSize) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'El archivo es demasiado grande. El tamaño máximo es 2MB'
+                });
+                this.value = '';
+                $('#photo-preview').hide();
+                $('#default-icon').show();
+                return false;
+            }
+
+            // Si pasa las validaciones, mostrar la previsualización
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                $('#photo-preview').attr('src', e.target.result);
+                $('#photo-preview').show();
+                $('#default-icon').hide();
+            }
+            reader.readAsDataURL(file);
+        } else {
+            $('#photo-preview').hide();
+            $('#default-icon').show();
+        }
+    });
+});
     </script>
 
 </body>

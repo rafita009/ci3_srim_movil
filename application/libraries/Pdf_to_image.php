@@ -20,14 +20,7 @@ class Pdf_to_image {
     public function __construct() {
         $this->ci =& get_instance();
         
-        // Crear carpetas si no existen
-        if (!file_exists(FCPATH . $this->temp_folder)) {
-            mkdir(FCPATH . $this->temp_folder, 0755, true);
-        }
         
-        if (!file_exists(FCPATH . $this->cache_folder)) {
-            mkdir(FCPATH . $this->cache_folder, 0755, true);
-        }
     }
     
     /**

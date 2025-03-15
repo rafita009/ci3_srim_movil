@@ -134,4 +134,14 @@ public function existe_nombre_apellido($nombre, $apellido) {
     $query = $this->db->get('infractores');
     return $query->num_rows() > 0;
 }
+public function obtener_infractor_por_cedula($cedula) {
+    $this->db->where('C_INFRACTOR', $cedula);
+    $query = $this->db->get('infractores'); // Replace with your actual table name
+    
+    if ($query->num_rows() > 0) {
+        return $query->row();
+    }
+    
+    return null;
+}
 }

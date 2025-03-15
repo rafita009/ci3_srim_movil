@@ -391,8 +391,11 @@
                                                         name="tiempo_detenido_horas" min="0" max="23" value="">
                                                     <span class="input-group-text">Horas</span>
                                                 </div>
+
                                             </div>
                                         </div>
+                                        <div id="tiempo_detenido_anos_error" class="text-danger mt-2"></div>
+
                                     </div>
                                     
                                     <!-- Información del Centro de Detención -->
@@ -482,30 +485,30 @@
             <i class="fas fa-angle-up"></i>
         </a>
 
-        <!-- Logout Modal-->
-        <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-            aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
-                        <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">×</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
-                    <div class="modal-footer">
-                        <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-                        <a class="btn btn-primary" href="<?php echo site_url();?>/LoginController/logout">Logout</a>
-                    </div>
+         <!-- Logout Modal-->
+    <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Seguro que quieres cerrar sesión?</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">Selecciona "Cerrar sesión" si estás seguro de que quieres cerrar tu sesión.</div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancelar</button>
+                    <a class="btn btn-primary" href="<?php echo site_url();?>/LoginController/logout">Cerrar sesión</a>
                 </div>
             </div>
         </div>
+    </div>
 
         <script src="<?php echo base_url();?>public/assets/vendor/jquery/jquery.min.js"></script>
 
     <!-- Script completo con limpieza de campos y solución para act_cdit -->
-<script>
+    <script>
 $(document).on('shown.bs.modal', '#modalVistaInfractor', function() {
     const $modalForm = $("#modalVistaInfractor form");
     
@@ -515,6 +518,11 @@ $(document).on('shown.bs.modal', '#modalVistaInfractor', function() {
     const $detencionFields = $("#detencionFields");
     const $fotoFieldLibertad = $("#fotoFieldLibertad");
     const $actCdit = $("#act_cdit", $modalForm);
+    
+    // Agregar contenedor para errores de tiempo detenido si no existe
+    if ($("#tiempo_detenido_error", $modalForm).length === 0) {
+        $(".row", $detencionFields).first().append('<div id="tiempo_detenido_error" class="text-danger mt-2 col-12"></div>');
+    }
     
     // Función para limpiar campos de detención
     function limpiarCamposDetencion() {
@@ -529,6 +537,10 @@ $(document).on('shown.bs.modal', '#modalVistaInfractor', function() {
         $("#fecha_hora_recibe", $modalForm).val("");
         $("#foto_detencion", $modalForm).val("");
         $("#foto_detencionError", $modalForm).text("").hide();
+        
+        // Limpiar mensaje de error de tiempo detenido
+        $("#tiempo_detenido_error", $modalForm).text("").hide();
+        $(".tiempo-detenido-input").removeClass("is-invalid");
         
         // Desconectamos el campo act_cdit de la validación y limpiamos su valor
         $actCdit.val("").prop("required", false);
@@ -603,6 +615,25 @@ $(document).on('shown.bs.modal', '#modalVistaInfractor', function() {
         $fotoFieldLibertad.addClass("d-none");
     }
     
+    // Añadir clase a los inputs de tiempo detenido para facilitar su selección
+    $("#tiempo_detenido_anos, #tiempo_detenido_meses, #tiempo_detenido_dias, #tiempo_detenido_horas", $modalForm)
+        .addClass("tiempo-detenido-input");
+    
+    // Validación en tiempo real para campos de tiempo detenido
+    $(".tiempo-detenido-input", $modalForm).on("input", function() {
+        // Verificar si al menos un campo tiene valor > 0
+        const anos = parseInt($("#tiempo_detenido_anos", $modalForm).val()) || 0;
+        const meses = parseInt($("#tiempo_detenido_meses", $modalForm).val()) || 0;
+        const dias = parseInt($("#tiempo_detenido_dias", $modalForm).val()) || 0;
+        const horas = parseInt($("#tiempo_detenido_horas", $modalForm).val()) || 0;
+        
+        if (anos > 0 || meses > 0 || dias > 0 || horas > 0) {
+            // Quitar mensajes de error si al menos un campo tiene valor
+            $(".tiempo-detenido-input", $modalForm).removeClass("is-invalid");
+            $("#tiempo_detenido_error", $modalForm).text("").hide();
+        }
+    });
+    
     // Manejo del envío del formulario
     $modalForm.off("submit").on("submit", function(e) {
         e.preventDefault();
@@ -614,6 +645,23 @@ $(document).on('shown.bs.modal', '#modalVistaInfractor', function() {
         // Verificar una vez más que el required esté correcto antes de enviar
         if (isLibertad) {
             $actCdit.prop("required", false);
+        }
+        
+        // Validar tiempo detenido antes de enviar (si está en modo detención)
+        if (isDetencion) {
+            const anos = parseInt($("#tiempo_detenido_anos", $modalForm).val()) || 0;
+            const meses = parseInt($("#tiempo_detenido_meses", $modalForm).val()) || 0;
+            const dias = parseInt($("#tiempo_detenido_dias", $modalForm).val()) || 0;
+            const horas = parseInt($("#tiempo_detenido_horas", $modalForm).val()) || 0;
+            
+            if (anos === 0 && meses === 0 && dias === 0 && horas === 0) {
+                // Mostrar error si todos los campos son 0
+                $(".tiempo-detenido-input", $modalForm).addClass("is-invalid");
+                $("#tiempo_detenido_error", $modalForm)
+                    .text("Debe ingresar al menos un valor mayor a 0 en los campos de tiempo detenido.")
+                    .show();
+                return; // Detener envío
+            }
         }
         
         const formData = new FormData(this);
@@ -683,7 +731,13 @@ $(document).on('shown.bs.modal', '#modalVistaInfractor', function() {
                     if (response.errors) {
                         const errors = response.errors;
                         for (const field in errors) {
-                            $(`#${field}Error`, $modalForm).text(errors[field]).show();
+                            if (field === "tiempo_detenido_anos") {
+                                // Manejo especial para error de tiempo detenido
+                                $(".tiempo-detenido-input", $modalForm).addClass("is-invalid");
+                                $("#tiempo_detenido_error", $modalForm).text(errors[field]).show();
+                            } else {
+                                $(`#${field}Error`, $modalForm).text(errors[field]).show();
+                            }
                         }
                         Swal.fire({
                             icon: 'error',
@@ -747,7 +801,6 @@ $(document).on('shown.bs.modal', '#modalVistaInfractor', function() {
     });
 });
 </script>
-
     <!--script para visualizar fotos-->
     <script>
         $(document).on('shown.bs.modal', '#modalVistaInfractor', function() {

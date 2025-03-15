@@ -29,33 +29,93 @@ class SearchController extends CI_Controller
         
     }
     public function index()
-    {
-        $id_usuario = $this->session->userdata('id_usuario');
-        $user_details = $this->UsersModel->get_user_by_id($id_usuario);
-        
-        $data = [
-            'usuario' => isset($user_details['NOMBRES']) ? $user_details['NOMBRES'] . ' ' . $user_details['APELLIDOS'] : 'Usuario desconocido',
-            'foto' => !empty($user_details['FOTO']) ? $user_details['FOTO'] : 'default_profile.png',
-            'resultados' => []
-        ];
+{
+    $id_usuario = $this->session->userdata('id_usuario');
+    $user_details = $this->UsersModel->get_user_by_id($id_usuario);
     
-       // Si hay parámetros de búsqueda
-     if($this->input->get('buscar_por')) {
-        // Validar y obtener parámetros
+    $data = [
+        'usuario' => isset($user_details['NOMBRES']) ? $user_details['NOMBRES'] . ' ' . $user_details['APELLIDOS'] : 'Usuario desconocido',
+        'foto' => !empty($user_details['FOTO']) ? $user_details['FOTO'] : 'default_profile.png',
+        'resultados' => [],
+        'parametros_busqueda' => [] // Añadimos este array para almacenar los parámetros
+    ];
+
+    // Verificar si se ha enviado el formulario (se presionó el botón Buscar)
+    if($this->input->server('REQUEST_METHOD') === 'GET' && 
+       $this->input->get('filtrar_fecha') !== NULL) {
+        
+        // Obtener los parámetros
         $buscar_por = $this->input->get('buscar_por');
         $valor = $this->input->get('seleccion_db') ?: $this->input->get('valor_busqueda');
         $filtrar_fecha = $this->input->get('filtrar_fecha');
         $fecha_inicio = $this->input->get('fecha_inicio');
         $fecha_fin = $this->input->get('fecha_fin');
-
-        // Validaciones básicas
+        $filtrar_resolucion = $this->input->get('filtrar_resolucion');
+        
+        // Almacenar los parámetros para mostrarlos en la vista
+        $data['parametros_busqueda'] = [
+            'buscar_por' => $buscar_por,
+            'valor' => $valor,
+            'filtrar_fecha' => $filtrar_fecha,
+            'fecha_inicio' => $fecha_inicio,
+            'fecha_fin' => $fecha_fin,
+            'filtrar_resolucion' => $filtrar_resolucion
+        ];
+        
+        // Obtener texto descriptivo para los IDs
+        if (!empty($buscar_por) && !empty($valor) && is_numeric($valor)) {
+            switch ($buscar_por) {
+                case 'causa':
+                    $item = $this->BusquedaModel->obtener_por_id('causas', 'ID_CAUSA', $valor, 'CAUSA');
+                    if ($item) {
+                        $data['parametros_busqueda']['valor_texto'] = $item->nombre;
+                    }
+                    break;
+                case 'distrito':
+                    $item = $this->BusquedaModel->obtener_por_id('distritos', 'ID_DISTRITO', $valor, 'NOMBRE_DISTRITO');
+                    if ($item) {
+                        $data['parametros_busqueda']['valor_texto'] = $item->nombre;
+                    }
+                    break;
+                case 'canton':
+                    $item = $this->BusquedaModel->obtener_por_id('cantones', 'ID_CANTON', $valor, 'NOMBRE_CANTON');
+                    if ($item) {
+                        $data['parametros_busqueda']['valor_texto'] = $item->nombre;
+                    }
+                    break;
+                case 'centro_detencion':
+                    $item = $this->BusquedaModel->obtener_por_id('cdit', 'ID_CDIT', $valor, 'NOMBRE_CDIT');
+                    if ($item) {
+                        $data['parametros_busqueda']['valor_texto'] = $item->nombre;
+                    }
+                    break;
+                case 'tipo_prueba':
+                    $item = $this->BusquedaModel->obtener_por_id('tipo_pruebas', 'ID_TIPO_PRUEBA', $valor, 'NOMBRE_PRUEBA');
+                    if ($item) {
+                        $data['parametros_busqueda']['valor_texto'] = $item->nombre;
+                    }
+                    break;
+            }
+        }
+        
+        // Si hay criterios específicos o si no hay criterios (buscar todos)
         if(!empty($buscar_por) && (!empty($valor) || ($fecha_inicio && $fecha_fin))) {
+            // Búsqueda con criterios específicos
             $data['resultados'] = $this->BusquedaModel->buscar(
                 $buscar_por,
                 $valor,
                 $filtrar_fecha,
                 $fecha_inicio,
-                $fecha_fin
+                $fecha_fin,
+                $filtrar_resolucion
+            );
+        } else {
+            // Búsqueda sin criterios específicos (mostrar todos los procesos)
+            $data['resultados'] = $this->BusquedaModel->obtener_todos_procesos(
+                $filtrar_fecha,
+                $fecha_inicio,
+                $fecha_fin,
+                $filtrar_resolucion
             );
         }
     }
@@ -68,7 +128,7 @@ class SearchController extends CI_Controller
         // Para peticiones normales, cargar la vista completa
         $this->load->view('search', $data);
     }
-    }
+}
     
     public function detalle($id_proceso) {
         $id_usuario = $this->session->userdata('id_usuario');
@@ -107,7 +167,8 @@ class SearchController extends CI_Controller
             'comentarios' => $this->SearchModel->obtener_comentarios($id_proceso),
             'archivos_libertad' => $this->SearchModel->obtener_archivos_libertad($id_proceso),
             'datos_cdit' => $this->SearchModel->obtener_datos_cdit($id_proceso),
-            'archivos_detencion' => $this->SearchModel->obtener_archivos_detencion($id_proceso)
+            'archivos_detencion' => $this->SearchModel->obtener_archivos_detencion($id_proceso),
+            'fecha_registro' => $this->SearchModel->obtener_fecha_registro($id_proceso)
         ];
     
         if (!$data['infractor']) {

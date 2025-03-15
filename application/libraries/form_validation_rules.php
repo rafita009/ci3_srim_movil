@@ -203,9 +203,10 @@ class Form_validation_rules {
             [
                 'field' => 'tiempo_detenido_anos',
                 'label' => 'Años de Detención',
-                'rules' => 'numeric',
+                'rules' => 'numeric|callback_validar_tiempo_detenido',
                 'errors' => [
-                    'numeric' => 'El campo %s debe contener solo números.'
+                    'numeric' => 'El campo %s debe contener solo números.',
+                    'validar_tiempo_detenido' => 'Debe ingresar al menos un valor mayor a 0 en los campos de tiempo detenido.'
                 ]
             ],
             [

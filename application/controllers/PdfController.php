@@ -63,7 +63,8 @@ class PdfController extends CI_Controller {
             'comentarios' => $this->SearchModel->obtener_comentarios($id_proceso),
             'archivos_libertad' => $this->SearchModel->obtener_archivos_libertad($id_proceso),
             'datos_cdit' => $this->SearchModel->obtener_datos_cdit($id_proceso),
-            'archivos_detencion' => $this->SearchModel->obtener_archivos_detencion($id_proceso)
+            'archivos_detencion' => $this->SearchModel->obtener_archivos_detencion($id_proceso),
+            'fecha_registro' => $this->SearchModel->obtener_fecha_registro($id_proceso)
         ];
     
         if (!$data['infractor']) {

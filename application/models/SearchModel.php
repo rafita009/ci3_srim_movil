@@ -212,4 +212,16 @@ public function obtener_proceso($id_proceso) {
     
     return $query->row_array();
 }
+public function obtener_fecha_registro($id_proceso) {
+    $this->db->select('FECHA_REGISTRO');
+    $this->db->from('procesos');
+    $this->db->where('ID_PROCESO', $id_proceso);
+    $query = $this->db->get();
+    
+    if ($query->num_rows() > 0) {
+        return $query->row()->FECHA_REGISTRO;
+    } else {
+        return null; // O un valor predeterminado como 'No disponible'
+    }
+}
 }

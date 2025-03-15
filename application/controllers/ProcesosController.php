@@ -86,7 +86,7 @@ public function search_acts()
         // Agregar regla de validación de cédula
         $cedula = $this->input->post('cedula_inf');
         $nombre = $this->input->post('nombre_inf');
-        $apellido = $this->input->post('apellido_inf');
+        $apellido = $this->input->post('apellidos_inf');
         if (!$this->ValidatesModel->validarCedula($cedula)) {
             $response = array(
                 'success' => false,
@@ -97,14 +97,31 @@ public function search_acts()
         }
 
         // Verificar si la cédula ya existe
-        if ($this->ProcesosModel->existe_cedula($cedula)) {
-            $response = array(
-                'success' => false,
-                'message' => 'La cédula ya está registrada en el sistema.'
-            );
-            echo json_encode($response);
-            return;
-        }
+        // Verificar si la cédula ya existe
+            if ($this->ProcesosModel->existe_cedula($cedula)) {
+                // Obtener la información del infractor existente
+                $infractor_existente = $this->ProcesosModel->obtener_infractor_por_cedula($cedula);
+                
+                if ($infractor_existente) {
+                    $id_infractor = $infractor_existente->ID_INFRACTOR; // Asumiendo que este es el nombre del campo
+                    
+                    $response = array(
+                        'success' => false,
+                        'message' => 'La cédula ya está registrada en el sistema.',
+                        'infractor_existe' => true,
+                        'id_infractor' => $id_infractor,
+                        'modal_url' => site_url('ProcesosController/cargar_vista_modal/' . $id_infractor)
+                    );
+                } else {
+                    $response = array(
+                        'success' => false,
+                        'message' => 'La cédula ya está registrada en el sistema, pero no se pudo cargar la información.'
+                    );
+                }
+                
+                echo json_encode($response);
+                return;
+            }
         if ($this->ProcesosModel->existe_nombre_apellido($nombre, $apellido)) {
             $response = array(
                 'success' => false,
@@ -216,21 +233,21 @@ public function search_acts()
         // Carga la vista que quieres mostrar en el modal
         $this->load->view('register_infractores', $data);
     }
-    private function guardar_fotos_pertenencias($id_infractor, $id_proceso, $infractor, $archivos) 
+   private function guardar_fotos_pertenencias($id_infractor, $id_proceso, $infractor, $archivos)
 {
     // Directorio de destino para las fotos
     $directorio_destino = './uploads/fotos_pertenencias/';
-    
+   
     // Verificar si el directorio existe, si no, crearlo
     if (!is_dir($directorio_destino)) {
         mkdir($directorio_destino, 0777, true);
     }
-    
+   
     // Verificar si hay fotos de pertenencias
     if (isset($archivos['foto_pertenencias']) && !empty($archivos['foto_pertenencias']['name'][0])) {
         $fotos = $archivos['foto_pertenencias'];
         $total_fotos = count($fotos['name']);
-        
+       
         // Recorrer las fotos para guardarlas individualmente
         for ($i = 0; $i < $total_fotos; $i++) {
             // Preparar cada archivo individual
@@ -241,36 +258,93 @@ public function search_acts()
                 'error' => $fotos['error'][$i],
                 'size' => $fotos['size'][$i]
             ];
-
-            // Crear el nombre del archivo basado en el nombre y apellido del infractor, el índice y un identificador único
+            
+            // Crear el nombre del archivo
             $nombre_archivo = preg_replace(
-                '/[^a-zA-Z0-9_-]/', 
-                '_', 
+                '/[^a-zA-Z0-9_-]/',
+                '_',
                 $infractor['N_INFRACTOR'] . '_' . $infractor['A_INFRACTOR'] . '_' . ($i + 1) . '_' . uniqid()
             );
-            
+           
             // Configuración para la subida
             $config = [
                 'upload_path' => $directorio_destino,
-                'allowed_types' => 'jpg|jpeg|png',
-                'max_size' => 2048,
+                'allowed_types' => 'jpg|jpeg|png|gif|webp|svg|avif',
+                'max_size' => 10240, // 10MB para permitir subir imágenes grandes inicialmente
                 'file_name' => $nombre_archivo,
                 'overwrite' => FALSE
             ];
-
+            
             // Inicializar la librería de subida
             $this->load->library('upload');
             $this->upload->initialize($config);
-
+            
             // Subir archivo
             if ($this->upload->do_upload('foto_pertenencia')) {
                 $data = $this->upload->data();
                 $ruta = $directorio_destino . $data['file_name'];
+                $extension = strtolower(pathinfo($data['file_name'], PATHINFO_EXTENSION));
                 
-                // Insertar en la tabla fotos_pertenencias con ID_PROCESO
+                // No procesar SVG ya que son vectoriales
+                if ($extension != 'svg') {
+                    // Obtener dimensiones de la imagen original
+                    $image_info = getimagesize($ruta);
+                    $width = $image_info[0];
+                    $height = $image_info[1];
+                    
+                    // Cargar librería de manipulación de imágenes
+                    $this->load->library('image_lib');
+                    
+                    // PASO 1: Redimensionar imágenes muy grandes a un tamaño máximo razonable
+                    $max_dimension = 1500; // Dimensión máxima para cualquier lado de la imagen
+                    $need_resize = ($width > $max_dimension || $height > $max_dimension);
+                    
+                    if ($need_resize) {
+                        $config_resize = [
+                            'source_image' => $ruta,
+                            'maintain_ratio' => TRUE,
+                            'width' => $max_dimension,
+                            'height' => $max_dimension,
+                            'master_dim' => 'auto' // Mantiene proporción basándose en la dimensión más grande
+                        ];
+                        
+                        $this->image_lib->initialize($config_resize);
+                        
+                        if (!$this->image_lib->resize()) {
+                            log_message('error', 'Error al redimensionar imagen: ' . $this->image_lib->display_errors());
+                        }
+                        
+                        $this->image_lib->clear();
+                    }
+                    
+                    // PASO 2: Optimizar la imagen según su formato
+                    // Para JPG/JPEG/WEBP - usar compresión de calidad alta
+                    if (in_array($extension, ['jpg', 'jpeg', 'webp'])) {
+                        $config_optimize = [
+                            'source_image' => $ruta,
+                            'quality' => '92%', // Alta calidad sin pérdida visual notable
+                            'maintain_ratio' => TRUE
+                        ];
+                        
+                        $this->image_lib->initialize($config_optimize);
+                        
+                        if (!$this->image_lib->resize()) { // Resize sin cambiar dimensiones recomprime
+                            log_message('error', 'Error al optimizar imagen: ' . $this->image_lib->display_errors());
+                        }
+                        
+                        $this->image_lib->clear();
+                    }
+                    // Para PNG - si es posible, usar compression_level
+                    elseif ($extension == 'png') {
+                        // En CodeIgniter no hay un método directo para comprimir PNG sin convertirlo
+                        // Si necesitas optimización avanzada de PNG, consideraría usar una librería externa
+                    }
+                }
+               
+                // Insertar en la tabla fotos_pertenencias
                 $this->db->insert('fotos_pertenencias', [
                     'ID_INFRACTOR' => $id_infractor,
-                    'ID_PROCESO' => $id_proceso,    // Agregamos el ID_PROCESO
+                    'ID_PROCESO' => $id_proceso,
                     'RUTA_PERTENENCIAS' => $ruta
                 ]);
             } else {
@@ -280,160 +354,160 @@ public function search_acts()
     }
 }
     
-    private function guardar_foto_libertad($id_infractor, $id_proceso, $infractor, $archivos)
-    {
-        try {
-            $directorio_destino = './uploads/fotos_libertad/';
-    
-            // Crear el directorio si no existe
-            if (!is_dir($directorio_destino)) {
-                mkdir($directorio_destino, 0777, true);
-            }
-    
-            // Verificar si hay archivos válidos en el campo `foto_libertad`
-            if (isset($archivos['foto_libertad']['name']) && count($archivos['foto_libertad']['name']) > 0) {
-                // Comprobar si al menos un archivo tiene un tamaño mayor a 0
-                $hay_archivo_valido = false;
-                foreach ($archivos['foto_libertad']['size'] as $size) {
-                    if ($size > 0) {
-                        $hay_archivo_valido = true;
-                        break;
-                    }
-                }
-    
-                if (!$hay_archivo_valido) {
-                    return "No se subieron archivos válidos.";
-                }
-    
-                $this->load->library('upload');
-    
-                foreach ($archivos['foto_libertad']['name'] as $index => $name) {
-                    if ($archivos['foto_libertad']['size'][$index] > 0) {
-                        // Generar un nombre único para el archivo utilizando uniqid
-                        $nombre_archivo = preg_replace(
-                            '/[^a-zA-Z0-9_-]/',
-                            '_',
-                            $infractor['N_INFRACTOR'] . ' ' . $infractor['A_INFRACTOR']
-                        ) . '_' . uniqid(); // Usamos uniqid() para generar un ID único
-    
-                        $config = [
-                            'upload_path' => $directorio_destino,
-                            'allowed_types' => 'jpg|jpeg|png|pdf',
-                            'max_size' => 2048,
-                            'file_name' => $nombre_archivo,
-                            'overwrite' => FALSE
-                        ];
-    
-                        $_FILES['archivo_actual'] = [
-                            'name' => $archivos['foto_libertad']['name'][$index],
-                            'type' => $archivos['foto_libertad']['type'][$index],
-                            'tmp_name' => $archivos['foto_libertad']['tmp_name'][$index],
-                            'error' => $archivos['foto_libertad']['error'][$index],
-                            'size' => $archivos['foto_libertad']['size'][$index],
-                        ];
-    
-                        $this->upload->initialize($config);
-    
-                        if ($this->upload->do_upload('archivo_actual')) {
-                            $data = $this->upload->data();
-                            $ruta = $directorio_destino . $data['file_name'];
-    
-                            $this->db->insert('archivos_libertad', [
-                                'ID_INFRACTOR' => $id_infractor,
-                                'ID_PROCESO' => $id_proceso,
-                                'RUTA_ARCH_LIBERTAD' => $ruta
-                            ]);
-                        } else {
-                            log_message('error', 'Error al subir archivo ' . $name . ': ' . $this->upload->display_errors());
-                            throw new Exception('Error al subir el archivo ' . $name . '. Intente nuevamente.');
-                        }
-                    }
-                }
-                return "Todos los archivos se subieron correctamente.";
-            } else {
-                return "No se subieron archivos, ya que no se seleccionó ninguno.";
-            }
-        } catch (Exception $e) {
-            log_message('error', 'Error en guardar_foto_libertad: ' . $e->getMessage());
-            return $e->getMessage();
-        }
-    }
+private function guardar_foto_libertad($id_infractor, $id_proceso, $infractor, $archivos)
+{
+    try {
+        $directorio_destino = './uploads/fotos_libertad/';
 
-    private function guardar_foto_detencion($id_infractor, $id_proceso, $infractor, $archivos)
-    {
-        try {
-            $directorio_destino = './uploads/fotos_detencion/';
-    
-            if (!is_dir($directorio_destino)) {
-                mkdir($directorio_destino, 0777, true);
-            }
-    
-            if (isset($archivos['foto_detencion']['name']) && count($archivos['foto_detencion']['name']) > 0) {
-                $hay_archivo_valido = false;
-                foreach ($archivos['foto_detencion']['size'] as $size) {
-                    if ($size > 0) {
-                        $hay_archivo_valido = true;
-                        break;
-                    }
-                }
-    
-                if (!$hay_archivo_valido) {
-                    return "No se subieron archivos válidos.";
-                }
-    
-                $this->load->library('upload');
-    
-                foreach ($archivos['foto_detencion']['name'] as $index => $name) {
-                    if ($archivos['foto_detencion']['size'][$index] > 0) {
-                        // Generar un nombre único para el archivo utilizando uniqid
-                        $nombre_archivo = preg_replace(
-                            '/[^a-zA-Z0-9_-]/',
-                            '_',
-                            $infractor['N_INFRACTOR'] . ' ' . $infractor['A_INFRACTOR']
-                        ) . '_' . uniqid(); // Usamos uniqid() para generar un ID único
-    
-                        $config = [
-                            'upload_path' => $directorio_destino,
-                            'allowed_types' => 'jpg|jpeg|png|pdf',
-                            'max_size' => 2048,
-                            'file_name' => $nombre_archivo,
-                            'overwrite' => FALSE
-                        ];
-    
-                        $_FILES['archivo_actual'] = [
-                            'name' => $archivos['foto_detencion']['name'][$index],
-                            'type' => $archivos['foto_detencion']['type'][$index],
-                            'tmp_name' => $archivos['foto_detencion']['tmp_name'][$index],
-                            'error' => $archivos['foto_detencion']['error'][$index],
-                            'size' => $archivos['foto_detencion']['size'][$index],
-                        ];
-    
-                        $this->upload->initialize($config);
-    
-                        if ($this->upload->do_upload('archivo_actual')) {
-                            $data = $this->upload->data();
-                            $ruta = $directorio_destino . $data['file_name'];
-    
-                            $this->db->insert('archivos_detencion', [
-                                'ID_INFRACTOR' => $id_infractor,
-                                'ID_PROCESO' => $id_proceso,
-                                'RUTA_ARCH_DETENCION' => $ruta
-                            ]);
-                        } else {
-                            log_message('error', 'Error al subir archivo ' . $name . ': ' . $this->upload->display_errors());
-                            throw new Exception('Error al subir el archivo ' . $name . '. Intente nuevamente.');
-                        }
-                    }
-                }
-                return "Todos los archivos se subieron correctamente.";
-            } else {
-                return "No se subieron archivos, ya que no se seleccionó ninguno.";
-            }
-        } catch (Exception $e) {
-            log_message('error', 'Error en guardar_foto_detencion: ' . $e->getMessage());
-            return $e->getMessage();
+        // Crear el directorio si no existe
+        if (!is_dir($directorio_destino)) {
+            mkdir($directorio_destino, 0777, true);
         }
+
+        // Verificar si hay archivos válidos en el campo `foto_libertad`
+        if (isset($archivos['foto_libertad']['name']) && count($archivos['foto_libertad']['name']) > 0) {
+            // Comprobar si al menos un archivo tiene un tamaño mayor a 0
+            $hay_archivo_valido = false;
+            foreach ($archivos['foto_libertad']['size'] as $size) {
+                if ($size > 0) {
+                    $hay_archivo_valido = true;
+                    break;
+                }
+            }
+
+            if (!$hay_archivo_valido) {
+                return "No se subieron archivos válidos.";
+            }
+
+            $this->load->library('upload');
+
+            foreach ($archivos['foto_libertad']['name'] as $index => $name) {
+                if ($archivos['foto_libertad']['size'][$index] > 0) {
+                    // Generar un nombre único para el archivo utilizando uniqid
+                    $nombre_archivo = preg_replace(
+                        '/[^a-zA-Z0-9_-]/',
+                        '_',
+                        $infractor['N_INFRACTOR'] . ' ' . $infractor['A_INFRACTOR']
+                    ) . '_' . uniqid(); // Usamos uniqid() para generar un ID único
+
+                    $config = [
+                        'upload_path' => $directorio_destino,
+                        'allowed_types' => 'jpg|jpeg|png|gif|webp|svg|avif|pdf',
+                        'max_size' => 2048,
+                        'file_name' => $nombre_archivo,
+                        'overwrite' => FALSE
+                    ];
+
+                    $_FILES['archivo_actual'] = [
+                        'name' => $archivos['foto_libertad']['name'][$index],
+                        'type' => $archivos['foto_libertad']['type'][$index],
+                        'tmp_name' => $archivos['foto_libertad']['tmp_name'][$index],
+                        'error' => $archivos['foto_libertad']['error'][$index],
+                        'size' => $archivos['foto_libertad']['size'][$index],
+                    ];
+
+                    $this->upload->initialize($config);
+
+                    if ($this->upload->do_upload('archivo_actual')) {
+                        $data = $this->upload->data();
+                        $ruta = $directorio_destino . $data['file_name'];
+
+                        $this->db->insert('archivos_libertad', [
+                            'ID_INFRACTOR' => $id_infractor,
+                            'ID_PROCESO' => $id_proceso,
+                            'RUTA_ARCH_LIBERTAD' => $ruta
+                        ]);
+                    } else {
+                        log_message('error', 'Error al subir archivo ' . $name . ': ' . $this->upload->display_errors());
+                        throw new Exception('Error al subir el archivo ' . $name . '. Intente nuevamente.');
+                    }
+                }
+            }
+            return "Todos los archivos se subieron correctamente.";
+        } else {
+            return "No se subieron archivos, ya que no se seleccionó ninguno.";
+        }
+    } catch (Exception $e) {
+        log_message('error', 'Error en guardar_foto_libertad: ' . $e->getMessage());
+        return $e->getMessage();
     }
+}
+
+private function guardar_foto_detencion($id_infractor, $id_proceso, $infractor, $archivos)
+{
+    try {
+        $directorio_destino = './uploads/fotos_detencion/';
+
+        if (!is_dir($directorio_destino)) {
+            mkdir($directorio_destino, 0777, true);
+        }
+
+        if (isset($archivos['foto_detencion']['name']) && count($archivos['foto_detencion']['name']) > 0) {
+            $hay_archivo_valido = false;
+            foreach ($archivos['foto_detencion']['size'] as $size) {
+                if ($size > 0) {
+                    $hay_archivo_valido = true;
+                    break;
+                }
+            }
+
+            if (!$hay_archivo_valido) {
+                return "No se subieron archivos válidos.";
+            }
+
+            $this->load->library('upload');
+
+            foreach ($archivos['foto_detencion']['name'] as $index => $name) {
+                if ($archivos['foto_detencion']['size'][$index] > 0) {
+                    // Generar un nombre único para el archivo utilizando uniqid
+                    $nombre_archivo = preg_replace(
+                        '/[^a-zA-Z0-9_-]/',
+                        '_',
+                        $infractor['N_INFRACTOR'] . ' ' . $infractor['A_INFRACTOR']
+                    ) . '_' . uniqid(); // Usamos uniqid() para generar un ID único
+
+                    $config = [
+                        'upload_path' => $directorio_destino,
+                        'allowed_types' => 'jpg|jpeg|png|gif|webp|svg|avif|pdf',
+                        'max_size' => 2048,
+                        'file_name' => $nombre_archivo,
+                        'overwrite' => FALSE
+                    ];
+
+                    $_FILES['archivo_actual'] = [
+                        'name' => $archivos['foto_detencion']['name'][$index],
+                        'type' => $archivos['foto_detencion']['type'][$index],
+                        'tmp_name' => $archivos['foto_detencion']['tmp_name'][$index],
+                        'error' => $archivos['foto_detencion']['error'][$index],
+                        'size' => $archivos['foto_detencion']['size'][$index],
+                    ];
+
+                    $this->upload->initialize($config);
+
+                    if ($this->upload->do_upload('archivo_actual')) {
+                        $data = $this->upload->data();
+                        $ruta = $directorio_destino . $data['file_name'];
+
+                        $this->db->insert('archivos_detencion', [
+                            'ID_INFRACTOR' => $id_infractor,
+                            'ID_PROCESO' => $id_proceso,
+                            'RUTA_ARCH_DETENCION' => $ruta
+                        ]);
+                    } else {
+                        log_message('error', 'Error al subir archivo ' . $name . ': ' . $this->upload->display_errors());
+                        throw new Exception('Error al subir el archivo ' . $name . '. Intente nuevamente.');
+                    }
+                }
+            }
+            return "Todos los archivos se subieron correctamente.";
+        } else {
+            return "No se subieron archivos, ya que no se seleccionó ninguno.";
+        }
+    } catch (Exception $e) {
+        log_message('error', 'Error en guardar_foto_detencion: ' . $e->getMessage());
+        return $e->getMessage();
+    }
+}
     
     public function guardar() 
 {
@@ -783,11 +857,27 @@ public function search_acts()
     }
     public function validar_imagen($str, $field_name) // $field_name es el nombre del campo en el formulario
 {
-    // Tipos de archivos permitidos (imágenes y PDF)
-    $allowed_types = ['image/jpeg', 'image/png', 'image/gif', 'application/pdf'];
-
+    // Tipos de archivos permitidos (ampliados para incluir todos los formatos solicitados)
+    $allowed_types = [
+        'image/jpeg', 
+        'image/jpg',
+        'image/pjpeg',    // Variante MIME de JPEG
+        'image/png', 
+        'image/gif', 
+        'image/webp',     // Para formato WEBP
+        'image/svg+xml',  // Para formato SVG
+        'image/avif',     // Para formato AVIF
+        'application/pdf'
+    ];
+    
     // Verificar si el campo existe en $_FILES
     if (isset($_FILES[$field_name])) {
+        // Verificar si hay archivos seleccionados
+        if (empty($_FILES[$field_name]['name'][0])) {
+            $this->form_validation->set_message('validar_imagen', 'Debe seleccionar al menos un archivo.');
+            return false;
+        }
+        
         // Recorrer los archivos cargados
         foreach ($_FILES[$field_name]['name'] as $key => $filename) {
             // Verificar si hubo errores en el archivo actual
@@ -795,23 +885,38 @@ public function search_acts()
                 $this->form_validation->set_message('validar_imagen', "Error al cargar el archivo {$filename}.");
                 return false;
             }
-
+            
             // Obtener el tipo del archivo actual
             $file_type = $_FILES[$field_name]['type'][$key];
-
+            
             // Verificar si el tipo de archivo es válido
             if (!in_array($file_type, $allowed_types)) {
-                $this->form_validation->set_message('validar_imagen', "El archivo {$filename} no es válido. Solo se permiten imágenes y PDF.");
+                $this->form_validation->set_message('validar_imagen', "El archivo {$filename} no es válido. Solo se permiten imágenes (JPG, JPEG, PNG, GIF, WEBP, SVG, AVIF) y PDF.");
                 return false;
             }
         }
-
+        
         // Si todos los archivos son válidos, retorna true
         return true;
     }
-
-    // Si no se seleccionaron archivos
+    
+    // Si no se seleccionaron archivos o el campo no existe
     $this->form_validation->set_message('validar_imagen', 'Debe seleccionar al menos un archivo.');
     return false;
+}
+public function validar_tiempo_detenido() {
+    // Obtener los valores de los campos de tiempo
+    $anos = (int)$this->input->post('tiempo_detenido_anos');
+    $meses = (int)$this->input->post('tiempo_detenido_meses');
+    $dias = (int)$this->input->post('tiempo_detenido_dias');
+    $horas = (int)$this->input->post('tiempo_detenido_horas');
+    
+    // Verificar si al menos uno de los campos tiene un valor mayor a 0
+    if ($anos > 0 || $meses > 0 || $dias > 0 || $horas > 0) {
+        return TRUE;
+    }
+    
+    // Si todos son 0, la validación falla
+    return FALSE;
 }
 }

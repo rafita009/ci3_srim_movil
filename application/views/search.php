@@ -84,30 +84,44 @@
                                                     <option value="">Seleccione...</option>
                                                 </select>
                                                 <input type="text" id="valor_busqueda" name="valor_busqueda"
-                                                    class="form-control" placeholder="Ingrese valor" style="display: none;">
+                                                    class="form-control" placeholder="Ingrese valor"
+                                                    style="display: none;">
                                             </div>
                                         </div>
                                         <br>
                                         <div class="row">
                                             <!-- Filtrar por -->
-                                            <div class="col-md-4">
+                                            <div class="col-md-3">
                                                 <label for="filtrar_fecha" class="form-label">Filtrar por:</label>
                                                 <select id="filtrar_fecha" name="filtrar_fecha" class="form-control">
                                                     <option value="registro">Fecha de Registro</option>
-                                                    <option value="procedimiento" selected>Fecha de Procedimiento</option>
+                                                    <option value="procedimiento" selected>Fecha de Procedimiento
+                                                    </option>
                                                 </select>
                                             </div>
 
                                             <!-- Fecha de Inicio -->
-                                            <div class="col-md-4">
+                                            <div class="col-md-3">
                                                 <label for="fecha_inicio" class="form-label">Fecha de Inicio:</label>
-                                                <input type="date" id="fecha_inicio" name="fecha_inicio" class="form-control">
+                                                <input type="date" id="fecha_inicio" name="fecha_inicio"
+                                                    class="form-control">
                                             </div>
 
                                             <!-- Fecha de Fin -->
-                                            <div class="col-md-4">
+                                            <div class="col-md-3">
                                                 <label for="fecha_fin" class="form-label">Fecha de Fin:</label>
                                                 <input type="date" id="fecha_fin" name="fecha_fin" class="form-control">
+                                            </div>
+                                            <!-- Filtrar por resolución -->
+                                            <div class="col-md-3">
+                                                <label for="filtrar_resolucion" class="form-label">Tipo de
+                                                    resolución:</label>
+                                                <select id="filtrar_resolucion" name="filtrar_resolucion"
+                                                    class="form-control">
+                                                    <option value="">Todos</option>
+                                                    <option value="Detención">Detención</option>
+                                                    <option value="Libertad">Libertad</option>
+                                                </select>
                                             </div>
                                         </div>
 
@@ -131,6 +145,57 @@
                             <div class="card shadow">
                                 <div class="card-header bg-dark text-white">
                                     <h5 class="mb-0">Procesos Asociados</h5>
+                                </div>
+                                <!-- Resumen de búsqueda -->
+                                <div class="card-body bg-light py-3">
+                                    <div class="d-flex flex-column">
+                                        <h6 class="font-weight-bold mb-3">Parámetros de búsqueda:</h6>
+
+                                        <div class="d-flex flex-wrap">
+                                            <?php if(!empty($parametros_busqueda['buscar_por'])): ?>
+                                            <div class="p-2 px-3 bg-primary text-white rounded-lg shadow-sm m-2"
+                                                style="font-size: 1rem;">
+                                                <i class="fas fa-filter me-2"></i>
+                                                <strong><?php echo ucfirst($parametros_busqueda['buscar_por']); ?>:</strong>
+                                                <?php echo isset($parametros_busqueda['valor_texto']) ? $parametros_busqueda['valor_texto'] : $parametros_busqueda['valor']; ?>
+                                            </div>
+                                            <?php else: ?>
+                                            <div class="p-2 px-3 bg-secondary text-white rounded-lg shadow-sm m-2"
+                                                style="font-size: 1rem;">
+                                                <i class="fas fa-search me-2"></i>
+                                                <strong>Sin criterio específico</strong>
+                                            </div>
+                                            <?php endif; ?>
+
+                                            <?php if(!empty($parametros_busqueda['fecha_inicio']) && !empty($parametros_busqueda['fecha_fin'])): ?>
+                                            <div class="p-2 px-3 bg-info text-white rounded-lg shadow-sm m-2"
+                                                style="font-size: 1rem;">
+                                                <i class="fas fa-calendar-alt me-2"></i>
+                                                <strong><?php echo ($parametros_busqueda['filtrar_fecha'] == 'registro') ? 'Fecha registro' : 'Fecha procedimiento'; ?>:</strong>
+                                                <?php echo date('d/m/Y', strtotime($parametros_busqueda['fecha_inicio'])); ?>
+                                                -
+                                                <?php echo date('d/m/Y', strtotime($parametros_busqueda['fecha_fin'])); ?>
+                                            </div>
+                                            <?php endif; ?>
+
+                                            <?php if(!empty($parametros_busqueda['filtrar_resolucion'])): ?>
+                                            <div class="p-2 px-3 <?php echo ($parametros_busqueda['filtrar_resolucion'] == 'Detención') ? 'bg-danger' : 'bg-success'; ?> text-white rounded-lg shadow-sm m-2"
+                                                style="font-size: 1rem;">
+                                                <i
+                                                    class="fas <?php echo ($parametros_busqueda['filtrar_resolucion'] == 'Detención') ? 'fa-lock' : 'fa-unlock'; ?> me-2"></i>
+                                                <strong>Resolución:</strong>
+                                                <?php echo $parametros_busqueda['filtrar_resolucion']; ?>
+                                            </div>
+                                            <?php endif; ?>
+                                            <div class="p-2 px-3 bg-dark text-white rounded-lg shadow-sm mt-2 align-self-start"
+                                                style="font-size: 1.1rem;">
+                                                <i class="fas fa-list-ol me-2"></i>
+                                                <strong>Total:</strong> <?php echo count($resultados); ?> resultado(s)
+                                            </div>
+                                        </div>
+
+
+                                    </div>
                                 </div>
                                 <!-- Spinner de carga -->
                                 <div id="loading" style="display: none;">
@@ -196,15 +261,16 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
+                    <h5 class="modal-title" id="exampleModalLabel">Seguro que quieres cerrar sesión?</h5>
                     <button class="close" type="button" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">×</span>
                     </button>
                 </div>
-                <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
+                <div class="modal-body">Selecciona "Cerrar sesión" si estás seguro de que quieres cerrar tu sesión.
+                </div>
                 <div class="modal-footer">
-                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-                    <a class="btn btn-primary" href="<?php echo site_url(); ?>/LoginController/logout">Logout</a>
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancelar</button>
+                    <a class="btn btn-primary" href="<?php echo site_url();?>/LoginController/logout">Cerrar sesión</a>
                 </div>
             </div>
         </div>
@@ -212,174 +278,176 @@
 
 
     <script src="<?php echo base_url(); ?>public/assets/vendor/jquery/jquery.min.js"></script>
-    
+
 
 
     <script>
-        var base_url = '<?php echo base_url(); ?>';
+    var base_url = '<?php echo base_url(); ?>';
     </script>
     <!-- JavaScript para mostrar el campo de búsqueda dinámicamente -->
     <script>
-        function mostrarCampo() {
-            const buscarPor = document.getElementById('buscar_por').value;
-            const selectDB = document.getElementById('seleccion_db');
-            const inputBusqueda = document.getElementById('valor_busqueda');
-            const labelSelect = document.querySelector('label[for="seleccion_db"]');
+    function mostrarCampo() {
+        const buscarPor = document.getElementById('buscar_por').value;
+        const selectDB = document.getElementById('seleccion_db');
+        const inputBusqueda = document.getElementById('valor_busqueda');
+        const labelSelect = document.querySelector('label[for="seleccion_db"]');
 
-            // Función para formatear el texto
-            function formatearTexto(texto) {
-                // Reemplazar guiones bajos por espacios y capitalizar cada palabra
-                return texto.split('_')
-                    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-                    .join(' ');
-            }
+        // Función para formatear el texto
+        function formatearTexto(texto) {
+            // Reemplazar guiones bajos por espacios y capitalizar cada palabra
+            return texto.split('_')
+                .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+                .join(' ');
+        }
 
-            // Lista de campos que requieren select (agregado centro_detencion)
-            const camposSelect = ['distrito', 'canton', 'causa', 'tipo_prueba', 'centro_detencion'];
+        // Lista de campos que requieren select (agregado centro_detencion)
+        const camposSelect = ['distrito', 'canton', 'causa', 'tipo_prueba', 'centro_detencion'];
 
-            if (camposSelect.includes(buscarPor)) {
-                // Mostrar select y ocultar input
-                selectDB.style.display = 'block';
-                inputBusqueda.style.display = 'none';
+        if (camposSelect.includes(buscarPor)) {
+            // Mostrar select y ocultar input
+            selectDB.style.display = 'block';
+            inputBusqueda.style.display = 'none';
 
-                // Formatear el texto del label
-                labelSelect.textContent = `Seleccione ${formatearTexto(buscarPor)}:`;
-                // Limpiar el input
-                inputBusqueda.value = '';
+            // Formatear el texto del label
+            labelSelect.textContent = `Seleccione ${formatearTexto(buscarPor)}:`;
+            // Limpiar el input
+            inputBusqueda.value = '';
 
-                // Mostrar indicador de carga
-                selectDB.innerHTML = '<option value="">Cargando...</option>';
+            // Mostrar indicador de carga
+            selectDB.innerHTML = '<option value="">Cargando...</option>';
 
-                // Cargar opciones del select usando AJAX
-                $.ajax({
-                    url: '<?php echo site_url("SearchController/get_opciones"); ?>',
-                    type: 'GET',
-                    data: {
-                        tipo: buscarPor
-                    },
-                    dataType: 'json',
-                    success: function(response) {
-                        if (response.status === 'success' && response.data) {
-                            // Limpiar select actual
-                            selectDB.innerHTML = '<option value="">Seleccione...</option>';
+            // Cargar opciones del select usando AJAX
+            $.ajax({
+                url: '<?php echo site_url("SearchController/get_opciones"); ?>',
+                type: 'GET',
+                data: {
+                    tipo: buscarPor
+                },
+                dataType: 'json',
+                success: function(response) {
+                    if (response.status === 'success' && response.data) {
+                        // Limpiar select actual
+                        selectDB.innerHTML = '<option value="">Seleccione...</option>';
 
-                            // Agregar nuevas opciones
-                            response.data.forEach(function(item) {
-                                const option = document.createElement('option');
-                                option.value = item.id;
-                                option.textContent = item.nombre;
-                                selectDB.appendChild(option);
-                            });
-                        } else {
-                            console.error('Error en la respuesta:', response);
-                            selectDB.innerHTML = '<option value="">Error al cargar opciones</option>';
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        console.error('Error AJAX:', error);
-                        console.log('Estado:', status);
-                        console.log('Respuesta:', xhr.responseText);
+                        // Agregar nuevas opciones
+                        response.data.forEach(function(item) {
+                            const option = document.createElement('option');
+                            option.value = item.id;
+                            option.textContent = item.nombre;
+                            selectDB.appendChild(option);
+                        });
+                    } else {
+                        console.error('Error en la respuesta:', response);
                         selectDB.innerHTML = '<option value="">Error al cargar opciones</option>';
                     }
-                });
-            } else if (buscarPor) {
-                // Mostrar input y ocultar select
-                selectDB.style.display = 'none';
-                inputBusqueda.style.display = 'block';
-
-                // Actualizar placeholder según tipo
-                switch (buscarPor) {
-                    case 'nombre_apellido':
-                        inputBusqueda.placeholder = 'Ingrese nombres y apellidos';
-                        break;
-                    case 'placa':
-                        inputBusqueda.placeholder = 'Ingrese número de placa';
-                        break;
-                    case 'cedula':
-                        inputBusqueda.placeholder = 'Ingrese número de cédula';
-                        break;
-                    case 'telefono':
-                        inputBusqueda.placeholder = 'Ingrese número de teléfono';
-                        break;
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error AJAX:', error);
+                    console.log('Estado:', status);
+                    console.log('Respuesta:', xhr.responseText);
+                    selectDB.innerHTML = '<option value="">Error al cargar opciones</option>';
                 }
+            });
+        } else if (buscarPor) {
+            // Mostrar input y ocultar select
+            selectDB.style.display = 'none';
+            inputBusqueda.style.display = 'block';
 
-                // Limpiar el select
-                selectDB.value = '';
-            } else {
-                // Si no hay selección, ocultar ambos
-                selectDB.style.display = 'none';
-                inputBusqueda.style.display = 'none';
+            // Actualizar placeholder según tipo
+            switch (buscarPor) {
+                case 'nombre_apellido':
+                    inputBusqueda.placeholder = 'Ingrese nombres y apellidos';
+                    break;
+                case 'placa':
+                    inputBusqueda.placeholder = 'Ingrese número de placa';
+                    break;
+                case 'cedula':
+                    inputBusqueda.placeholder = 'Ingrese número de cédula';
+                    break;
+                case 'telefono':
+                    inputBusqueda.placeholder = 'Ingrese número de teléfono';
+                    break;
             }
+
+            // Limpiar el select
+            selectDB.value = '';
+        } else {
+            // Si no hay selección, ocultar ambos
+            selectDB.style.display = 'none';
+            inputBusqueda.style.display = 'none';
         }
+    }
     </script>
     <script>
-        // Variable global para la tabla
-let tabla;
+    // Variable global para la tabla
+    let tabla;
 
-// Inicialización cuando el documento está listo
-$(document).ready(function() {
-    inicializarDataTable();
+    // Inicialización cuando el documento está listo
+    $(document).ready(function() {
+        inicializarDataTable();
 
-    // Manejador del formulario de búsqueda
-    $('#formBusqueda').on('submit', function(e) {
-        e.preventDefault();
-        $('#loading').show();
+        // Manejador del formulario de búsqueda
+        $('#formBusqueda').on('submit', function(e) {
+            e.preventDefault();
+            $('#loading').show();
 
-        $.ajax({
-            url: $(this).attr('action'),
-            type: 'GET',
-            data: $(this).serialize(),
-            success: function(response) {
-                $('#tablaSearch tbody').html(response);
-                if (tabla) {
-                    tabla.destroy();
+            $.ajax({
+                url: $(this).attr('action'),
+                type: 'GET',
+                data: $(this).serialize(),
+                success: function(response) {
+                    $('#tablaSearch tbody').html(response);
+                    if (tabla) {
+                        tabla.destroy();
+                    }
+                    inicializarDataTable();
+                },
+                error: function() {
+                    alert('Error al realizar la búsqueda');
+                    $('#tablaSearch tbody').html(
+                        '<tr><td colspan="7" class="text-center">Error al realizar la búsqueda</td></tr>'
+                        );
+                },
+                complete: function() {
+                    $('#loading').hide();
                 }
-                inicializarDataTable();
-            },
-            error: function() {
-                alert('Error al realizar la búsqueda');
-                $('#tablaSearch tbody').html('<tr><td colspan="7" class="text-center">Error al realizar la búsqueda</td></tr>');
-            },
-            complete: function() {
-                $('#loading').hide();
-            }
+            });
         });
     });
-});
 
-// Función para inicializar DataTables
-function inicializarDataTable() {
-    try {
-        if ($.fn.DataTable.isDataTable('#tablaSearch')) {
-            $('#tablaSearch').DataTable().destroy();
+    // Función para inicializar DataTables
+    function inicializarDataTable() {
+        try {
+            if ($.fn.DataTable.isDataTable('#tablaSearch')) {
+                $('#tablaSearch').DataTable().destroy();
+            }
+
+            $.fn.dataTable.ext.errMode = 'none'; // Oculta el mensaje de advertencia
+
+            tabla = $('#tablaSearch').DataTable({
+                "language": {
+                    "lengthMenu": "Mostrar _MENU_ registros por página",
+                    "zeroRecords": "No se encontraron resultados",
+                    "info": "Mostrando página _PAGE_ de _PAGES_",
+                    "infoEmpty": "No hay registros disponibles",
+                    "infoFiltered": "(filtrado de _MAX_ registros totales)",
+                    "search": "Buscar:",
+                    "paginate": {
+                        "first": "Primero",
+                        "last": "Último",
+                        "next": "Siguiente",
+                        "previous": "Anterior"
+                    }
+                },
+                "ordering": true,
+                "responsive": true,
+                "retrieve": true,
+                "processing": true
+            });
+        } catch (error) {
+            console.warn('Error inicializando DataTable:', error);
         }
-        
-        $.fn.dataTable.ext.errMode = 'none'; // Oculta el mensaje de advertencia
-
-        tabla = $('#tablaSearch').DataTable({
-            "language": {
-                "lengthMenu": "Mostrar _MENU_ registros por página",
-                "zeroRecords": "No se encontraron resultados",
-                "info": "Mostrando página _PAGE_ de _PAGES_",
-                "infoEmpty": "No hay registros disponibles",
-                "infoFiltered": "(filtrado de _MAX_ registros totales)",
-                "search": "Buscar:",
-                "paginate": {
-                    "first": "Primero",
-                    "last": "Último",
-                    "next": "Siguiente",
-                    "previous": "Anterior"
-                }
-            },
-            "ordering": true,
-            "responsive": true,
-            "retrieve": true,
-            "processing": true
-        });
-    } catch (error) {
-        console.warn('Error inicializando DataTable:', error);
     }
-}
     </script>
 
 
