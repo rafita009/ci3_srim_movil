@@ -75,6 +75,21 @@ class LoginController extends CI_Controller {
         // Guardar los datos del usuario en la sesión
         $rol = $rol_data['ROL']; // Ejemplo: "administrador"
         $estado = $usuario_data['ESTADO']; // Obtener el estado del usuario
+             // Obtener el último login del usuario (si tienes esta tabla en tu BD)
+             $ultimo_acceso = $this->UsersModel->get_last_login($usuario_data['ID_USUARIO']);
+             // Configurar la zona horaria para Ecuador 
+             date_default_timezone_set('America/Guayaquil');
+         // Obtener la fecha del último acceso (si existe)
+             if ($ultimo_acceso) {
+                 // Convertir al formato deseado
+                 $fecha_acceso = new DateTime($ultimo_acceso['FECHA_LOGIN']);
+                 $ultimo_acceso_fecha = $fecha_acceso->format('d/m/Y H:i');
+             } else {
+                 // Si no hay último acceso, usar la fecha actual
+                 $ultimo_acceso_fecha = date('d/m/Y H:i');
+             }
+             // Registrar este login (opcional)
+             $this->UsersModel->register_login($usuario_data['ID_USUARIO']);
 
         $this->session->set_userdata([
             'logged_in' => TRUE, // Indica que el usuario está logueado 
@@ -86,7 +101,7 @@ class LoginController extends CI_Controller {
 
                 // Redirigir a todos los roles al mismo lugar
             if ($rol === 'administrador' || $rol === 'gestor') {
-                redirect('dashboardcontroller/all'); // O la ruta que prefieras para todos
+                redirect('dashboardcontroller/all'); 
             } else {
                 $this->session->set_flashdata('error', 'Rol no asignado. Comuníquese con soporte.');
                 redirect('logincontroller');

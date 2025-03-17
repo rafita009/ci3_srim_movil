@@ -10,10 +10,12 @@ class UsersController extends CI_Controller
         parent::__construct();
         $this->load->library('form_validation'); // Carga la librería de validación de formularios
         $this->load->helper('url');
+        $this->load->helper('notificaciones');
         $this->load->model('PersonasModel'); // Carga el modelo de Persona
         $this->load->model('UsersModel'); // Carga el modelo de Usuario
         $this->load->model('ValidatesModel');
         $this->load->model('RolesModel');
+        $this->load->model('NotificacionesModel');
         $this->load->library('email');
 
     }
@@ -101,6 +103,27 @@ class UsersController extends CI_Controller
             $persona_data['NOMBRES'] . ' ' . $persona_data['APELLIDOS']
         );
 
+
+        $admins = $this->UsersModel->get_usuarios_por_rol('administrador');
+
+            $nombre_completo = $persona_data['NOMBRES'] . ' ' . $persona_data['APELLIDOS'];
+            $rol_nombre = $rol_generado['ROL'] ?? 'Sin rol asignado';
+
+            // Crear notificación para cada administrador
+            foreach ($admins as $admin) {
+                $datos_notificacion = [
+                    'ID_USUARIO' => $admin->ID_USUARIO,
+                    'TITULO' => 'Nuevo usuario generado',
+                    'MENSAJE' => "Se ha generado el usuario '$usuario_generado' para $nombre_completo con rol de $rol_nombre.",
+                    'TIPO' => 'success',
+                    'FECHA_CREACION' => date('Y-m-d H:i:s'),
+                    'LEIDA' => 0,
+                    
+                ];
+
+                $this->NotificacionesModel->crear_notificacion($datos_notificacion);
+            }
+
             // Retornar datos al frontend
             echo json_encode([
                 'status' => 'success',
@@ -167,30 +190,40 @@ class UsersController extends CI_Controller
         // Obtener datos del POST
         $id_usuario = $this->input->post('id_usuario');
         $rol = $this->input->post('rol');
-
+    
+        // Obtener el ID del usuario en sesión
+        $id_usuario_sesion = $this->session->userdata('id_usuario'); // Ajusta esto a tu variable de sesión correcta
+    
         // Validación básica
         if (empty($id_usuario) || empty($rol)) {
             $this->session->set_flashdata('error', 'Selecciona un rol ');
             redirect('RolesController/index');
             return;
         }
-
+    
         // Verificar que el rol sea válido
         if (!in_array($rol, ['administrador', 'gestor'])) {
             $this->session->set_flashdata('error', 'Rol no válido');
             redirect('RolesController/index');
             return;
         }
-
+    
+        // Verificar si el usuario está intentando cambiar su propio rol
+        if ($id_usuario == $id_usuario_sesion) {
+            $this->session->set_flashdata('error', 'No puedes cambiar tu propio rol mientras estás en sesión.');
+            redirect('RolesController/index');
+            return;
+        }
+    
         // Intentar actualizar el rol
         $resultado = $this->RolesModel->actualizar_rol($id_usuario, $rol);
-
+    
         if ($resultado) {
             $this->session->set_flashdata('success', 'Rol actualizado correctamente');
         } else {
             $this->session->set_flashdata('error', 'Error al actualizar el rol');
         }
-
+    
         redirect('RolesController/index');
     }
     public function cambiar_estado()
@@ -199,23 +232,32 @@ class UsersController extends CI_Controller
     $id_usuario = $this->input->post('id_usuario');
     $estado_actual = $this->input->post('estado_actual');
 
+    // Obtener el ID del usuario en sesión
+    $id_usuario_sesion = $this->session->userdata('id_usuario'); // Ajusta esto a tu variable de sesión correcta
+
     // Verificar si el id_usuario y estado_actual son válidos
     if ($id_usuario && $estado_actual) {
-        // Determinar el nuevo estado
-        $nuevo_estado = ($estado_actual == 'AC') ? 'IN' : 'AC'; // Si está activo, se pone inactivo y viceversa
-
-        // Actualizar el estado en la base de datos
-        $data = array('ESTADO' => $nuevo_estado);
-        $this->db->where('ID_USUARIO', $id_usuario);
-        $this->db->update('usuarios', $data);  // Cambia 'tab_usuarios' por el nombre de la tabla de usuarios en tu base de datos
-
-        // Verificar si la actualización fue exitosa
-        if ($this->db->affected_rows() > 0) {
-            // Establecer mensaje de éxito y redirigir
-            $this->session->set_flashdata('success', 'El estado del usuario ha sido actualizado correctamente.');
+        // Verificar si el usuario está intentando desactivarse a sí mismo
+        if ($id_usuario == $id_usuario_sesion && $estado_actual == 'AC') {
+            // No permitir que el usuario desactive su propia cuenta
+            $this->session->set_flashdata('error', 'No puedes desactivar tu propia cuenta mientras estás en sesión.');
         } else {
-            // Establecer mensaje de error si no hubo cambios
-            $this->session->set_flashdata('error', 'No se pudo actualizar el estado del usuario.');
+            // Determinar el nuevo estado
+            $nuevo_estado = ($estado_actual == 'AC') ? 'IN' : 'AC'; // Si está activo, se pone inactivo y viceversa
+
+            // Actualizar el estado en la base de datos
+            $data = array('ESTADO' => $nuevo_estado);
+            $this->db->where('ID_USUARIO', $id_usuario);
+            $this->db->update('usuarios', $data);  // Cambia 'usuarios' por el nombre de la tabla de usuarios en tu base de datos
+
+            // Verificar si la actualización fue exitosa
+            if ($this->db->affected_rows() > 0) {
+                // Establecer mensaje de éxito y redirigir
+                $this->session->set_flashdata('success', 'El estado del usuario ha sido actualizado correctamente.');
+            } else {
+                // Establecer mensaje de error si no hubo cambios
+                $this->session->set_flashdata('error', 'No se pudo actualizar el estado del usuario.');
+            }
         }
     } else {
         // Establecer mensaje de error si falta información
@@ -224,6 +266,7 @@ class UsersController extends CI_Controller
 
     // Redirigir a la página de administración de usuarios
     redirect('RolesController/index');
+
 }
 private function enviar_email_credenciales($email, $usuario, $password, $nombre) {
     // Limpiar cualquier dato previo

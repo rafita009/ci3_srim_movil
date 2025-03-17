@@ -8,7 +8,9 @@ class PdfController extends CI_Controller {
         parent::__construct();
         $this->load->model('UsersModel');
         $this->load->model('SearchModel');
+        $this->load->model('NotificacionesModel');
         $this->load->helper('url');
+        $this->load->helper('notificaciones');
        
     }
     
@@ -71,7 +73,27 @@ class PdfController extends CI_Controller {
             show_error('Infractor no encontrado');
             return;
         }
+        $admins = $this->UsersModel->get_usuarios_por_rol('administrador');
     
+        // Información de la notificación
+        $nombre_usuario = $user_details['NOMBRES'] . ' ' . $user_details['APELLIDOS'];
+        $cedula_infractor = $data['infractor']['C_INFRACTOR'];
+        $nombre_infractor = $data['infractor']['N_INFRACTOR'] . ' ' . $data['infractor']['A_INFRACTOR'];
+        
+        // Crear notificación para cada administrador
+        foreach ($admins as $admin) {
+            $datos_notificacion = [
+                'ID_USUARIO' => $admin->ID_USUARIO,
+                'TITULO' => 'Descarga de PDF',
+                'MENSAJE' => "El usuario $nombre_usuario ha descargado el PDF del proceso #$id_proceso del infractor $nombre_infractor (C.I. $cedula_infractor).",
+                'TIPO' => 'primary',
+                'FECHA_CREACION' => date('Y-m-d H:i:s'),
+                'LEIDA' => 0,
+                'URL' => site_url('SearchController/detalle/' . $id_proceso)
+            ];
+            
+            $this->NotificacionesModel->crear_notificacion($datos_notificacion);
+        }
         // Cargar la biblioteca DOMPDF
         $this->load->library('Pdf');
         
@@ -160,119 +182,5 @@ class PdfController extends CI_Controller {
         // Cargar la vista
         $this->load->view('vista_documentos_pdf', $data);
     }
-    public function vistaPDF($id_proceso) {
-        // Obtener todos los datos como antes
-        $id_usuario = $this->session->userdata('id_usuario');
-        $user_details = $this->UsersModel->get_user_by_id($id_usuario);
     
-        // Obtener el proceso
-        $proceso = $this->SearchModel->obtener_proceso($id_proceso);
-        
-        if (!$proceso) {
-            show_error('Proceso no encontrado');
-            return;
-        }
-    
-        // Preparar array de datos
-        $data = [
-            'usuario' => $user_details['NOMBRES'] . ' ' . $user_details['APELLIDOS'],
-            'foto' => !empty($user_details['FOTO']) ? $user_details['FOTO'] : 'default_profile.png',
-            
-            // Datos del proceso
-            'proceso' => $proceso,
-            
-            // Datos del infractor (este sí usa ID_INFRACTOR del proceso)
-            'infractor' => $this->SearchModel->obtener_infractor($proceso['ID_INFRACTOR']),
-            
-            // El resto de consultas deberían usar id_proceso
-            'act_procede' => $this->SearchModel->obtener_act_procede($id_proceso),
-            'placas' => $this->SearchModel->obtener_placas($id_proceso),
-            'tipo_placa' => $this->SearchModel->obtener_tipo_placa($id_proceso),
-            'ruta_foto' => $this->SearchModel->obtener_foto_infractor($proceso['ID_INFRACTOR']),
-            'causas_distrito_infractor_canton' => $this->SearchModel->obtener_causa_distrito($id_proceso),
-            'pruebas' => $this->SearchModel->obtener_pruebas($id_proceso),
-            'fecha_procedimiento' => $this->SearchModel->obtener_fechas_procedimiento($id_proceso),
-            'fecha_hora_entrada_vm' => $this->SearchModel->obtener_fecha_hora_entrada($id_proceso),
-            'fotos_pertenencias' => $this->SearchModel->obtener_fotos_pertenencias($id_proceso),
-            'fecha_hora_salida_vm' => $this->SearchModel->obtener_fecha_hora_salida($id_proceso),
-            'comentarios' => $this->SearchModel->obtener_comentarios($id_proceso),
-            'archivos_libertad' => $this->SearchModel->obtener_archivos_libertad($id_proceso),
-            'datos_cdit' => $this->SearchModel->obtener_datos_cdit($id_proceso),
-            'archivos_detencion' => $this->SearchModel->obtener_archivos_detencion($id_proceso),
-            
-            // Variables para controlar el modo de impresión
-            'print_mode' => true
-        ];
-    
-        // Cargar la biblioteca de conversión de PDF a imagen
-        $this->load->library('pdf_to_image');
-        
-        // Procesar documentos PDFs de libertad
-        $data['imagenes_documentos_libertad'] = [];
-        if (!empty($data['archivos_libertad'])) {
-            foreach ($data['archivos_libertad'] as $archivo) {
-                $ruta_archivo = $archivo['RUTA_ARCH_LIBERTAD'];
-                $extension = pathinfo($ruta_archivo, PATHINFO_EXTENSION);
-                
-                // Solo procesar PDFs
-                if (strtolower($extension) === 'pdf') {
-                    $ruta_completa = FCPATH . $ruta_archivo;
-                    
-                    // Verificar si el archivo existe
-                    if (file_exists($ruta_completa)) {
-                        // Convertir PDF a imágenes
-                        $imagenes = $this->pdf_to_image
-                            ->set_resolution(150)
-                            ->set_quality(85)
-                            ->convert($ruta_completa);
-                        
-                        if ($imagenes) {
-                            $data['imagenes_documentos_libertad'][] = [
-                                'nombre' => basename($ruta_archivo),
-                                'imagenes' => $imagenes
-                            ];
-                        }
-                    }
-                }
-            }
-        }
-        
-        // Procesar documentos PDFs de detención
-        $data['imagenes_documentos_detencion'] = [];
-        if (!empty($data['archivos_detencion'])) {
-            foreach ($data['archivos_detencion'] as $archivo) {
-                $ruta_archivo = $archivo['RUTA_ARCH_DETENCION'];
-                $extension = pathinfo($ruta_archivo, PATHINFO_EXTENSION);
-                
-                // Solo procesar PDFs
-                if (strtolower($extension) === 'pdf') {
-                    $ruta_completa = FCPATH . $ruta_archivo;
-                    
-                    // Verificar si el archivo existe
-                    if (file_exists($ruta_completa)) {
-                        // Convertir PDF a imágenes
-                        $imagenes = $this->pdf_to_image
-                            ->set_resolution(150)
-                            ->set_quality(85)
-                            ->convert($ruta_completa);
-                        
-                        if ($imagenes) {
-                            $data['imagenes_documentos_detencion'][] = [
-                                'nombre' => basename($ruta_archivo),
-                                'imagenes' => $imagenes
-                            ];
-                        }
-                    }
-                }
-            }
-        }
-    
-        if (!$data['infractor']) {
-            show_error('Infractor no encontrado');
-            return;
-        }
-    
-        // Cargar la vista optimizada para impresión
-        $this->load->view('template_pdf', $data);
-    }
 }

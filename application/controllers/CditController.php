@@ -6,6 +6,7 @@ class CditController extends CI_Controller {
         parent::__construct();
         $this->load->library('form_validation'); // Carga la librería de validación de formularios
         $this->load->helper('url');
+        $this->load->helper('notificaciones');
         $this->load->model('CditModel');
         $this->load->model('UsersModel');
         $this->load->model('RolesModel');
@@ -74,6 +75,19 @@ class CditController extends CI_Controller {
         // Verificar si el cdit ya existe
         if(!$this->CditModel->existeCdit($cdit)) {
             if($this->CditModel->agregarCdit($cdit, $cdit_direccion)) {
+                  // Obtener usuarios con rol de gestor
+            $gestores = $this->UsersModel->get_usuarios_por_rol('gestor');
+
+            // Enviar notificación a cada gestor
+            foreach ($gestores as $gestor) {
+                crear_notificacion(
+                    $gestor->ID_USUARIO,
+                    'Nuevo Centro de Detención',
+                    'Se ha añadido un nuevo Centro de Detención: ' . $cdit,
+                    'success',
+                    null
+                );
+            }
                 $response = array(
                     'success' => true,
                     'message' => 'Centro de detencion guardado correctamente'

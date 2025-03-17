@@ -98,6 +98,22 @@ class InfractoresModel extends CI_Model
         $this->db->where('ACTIVO', 1);
         return $this->db->count_all_results($this->table);
     }
+
+public function tiene_procesos_asociados($id_infractor) {
+    $this->db->where('ID_INFRACTOR', $id_infractor);
+    $cantidad = $this->db->count_all_results('procesos');
+    
+    return $cantidad > 0;
+}
+public function eliminar($id_infractor) {
+    $this->db->where('ID_INFRACTOR', $id_infractor);
+    return $this->db->delete('infractores');
+}
+public function obtener_infractor_por_id($id_infractor) {
+    $this->db->where('ID_INFRACTOR', $id_infractor);
+    $query = $this->db->get('infractores');
+    return $query->row_array();
+}
 }
 
 ?>

@@ -173,9 +173,9 @@ class Busquedamodel extends CI_Model {
                 $this->db->where('DATE(p.FECHA_REGISTRO) >=', $fecha_inicio);
                 $this->db->where('DATE(p.FECHA_REGISTRO) <=', $fecha_fin);
             } else {
-                $this->db->join('fechas_procedimiento fp', 'p.ID_PROCESO = fp.ID_PROCESO', 'left');
-                $this->db->where('DATE(fp.FECHA_PROCEDIMIENTO) >=', $fecha_inicio);
-                $this->db->where('DATE(fp.FECHA_PROCEDIMIENTO) <=', $fecha_fin);
+                $this->db->join('fechas_procedimiento fp1', 'p.ID_PROCESO = fp1.ID_PROCESO', 'left');
+                $this->db->where('DATE(fp1.FECHA_PROCEDIMIENTO) >=', $fecha_inicio);
+                $this->db->where('DATE(fp1.FECHA_PROCEDIMIENTO) <=', $fecha_fin);
             }
         }
         

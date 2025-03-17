@@ -270,5 +270,89 @@ public function contar_total_infractores() {
     $this->db->from('infractores');
     return $this->db->get()->row()->total;
 }
+public function get_last_login($id_usuario) {
+    $this->db->select('FECHA_LOGIN');
+    $this->db->from('usuario_logins');
+    $this->db->where('ID_USUARIO', $id_usuario);
+    $this->db->order_by('FECHA_LOGIN', 'DESC');
+    $this->db->limit(1);
+    $query = $this->db->get();
+    
+    if ($query->num_rows() > 0) {
+        return $query->row_array();
+    }
+    
+    return null;
+}
+public function register_login($id_usuario) {
+    // Obtener datos de manera segura
+    $ip_address = $this->input->ip_address();
+    $user_agent = substr($this->input->user_agent(), 0, 255); // Cortar a 255 caracteres
+    
+    $data = array(
+        'ID_USUARIO' => $id_usuario,
+        'FECHA_LOGIN' => date('Y-m-d H:i:s'),
+        'IP_ADDRESS' => $ip_address,
+        'USER_AGENT' => $user_agent
+    );
+    
+    
+    
+    // Insertar con manejo de errores
+    try {
+        $result = $this->db->insert('usuario_logins', $data);
+        
+        if ($result === FALSE) {
+            // Obtener detalles del error
+            $error = $this->db->error();
+            log_message('error', 'Error al insertar login: ' . $error['message']);
+        }
+        
+        return $result;
+    } catch (Exception $e) {
+        log_message('error', 'Excepción al insertar login: ' . $e->getMessage());
+        return FALSE;
+    }
+}
+public function get_usuarios_por_rol($rol_nombre) {
+    // Primero obtener el ID del rol según su nombre
+    $this->db->where('ROL', $rol_nombre); // Ajusta el nombre de la columna que contiene el nombre del rol
+    $query_rol = $this->db->get('roles'); // Ajusta el nombre de la tabla de roles
+    
+    if ($query_rol->num_rows() == 0) {
+        return array(); // No se encontró el rol
+    }
+    
+    $rol_id = $query_rol->row()->ID_ROL;
+    
+    // Obtener los usuarios con ese rol usando la tabla de relación
+    $this->db->select('u.*'); // Seleccionar todos los campos de la tabla usuarios
+    $this->db->from('usuarios u'); // Ajusta el nombre de la tabla de usuarios
+    $this->db->join('usuarios_roles ur', 'u.ID_USUARIO = ur.ID_USUARIO'); // Ajusta el nombre de la tabla de relación
+    $this->db->where('ur.ID_ROL', $rol_id);
+    $this->db->where('u.ESTADO', 'AC'); // Asumiendo que tienes un campo ESTADO para usuarios activos
+    
+    $query = $this->db->get();
+    return $query->result();
+}
+public function get_logins_with_user_info() {
+    $this->db->select('ul.*, u.USUARIO');
+    $this->db->from('usuario_logins ul');
+    $this->db->join('usuarios u', 'ul.ID_USUARIO = u.ID_USUARIO', 'left');
+    $this->db->order_by('ul.FECHA_LOGIN', 'DESC');
+    
+    $query = $this->db->get();
+    return $query->result_array();
+}
+
+public function eliminar_login($id_login) {
+    return $this->db->delete('usuario_logins', array('ID_LOGIN' => $id_login));
+}
+public function eliminar_todos_logins() {
+    // Opcional: Puedes añadir una condición para no eliminar los logins más recientes
+    // Por ejemplo, mantener los logins de los últimos 30 días
+    
+    return $this->db->empty_table('usuario_logins');
+}
 }
 ?>

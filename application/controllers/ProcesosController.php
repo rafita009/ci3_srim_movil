@@ -11,6 +11,7 @@ class ProcesosController extends CI_Controller
         $this->load->library('form_validation_rules');
         $this->load->library('form_validation'); // Carga la librería de validación de formularios
         $this->load->helper('url');
+        $this->load->helper('notificaciones');
         $this->load->model('ProcesosModel'); // Carga el modelo de Procesos
         $this->load->model('UsersModel'); // Carga el modelo de Usuario
         $this->load->model('ValidatesModel');
@@ -389,10 +390,13 @@ private function guardar_foto_libertad($id_infractor, $id_proceso, $infractor, $
                         '_',
                         $infractor['N_INFRACTOR'] . ' ' . $infractor['A_INFRACTOR']
                     ) . '_' . uniqid(); // Usamos uniqid() para generar un ID único
+                    
+                    // Obtener la extensión del archivo original
+                    $extension = pathinfo($name, PATHINFO_EXTENSION);
 
                     $config = [
                         'upload_path' => $directorio_destino,
-                        'allowed_types' => 'jpg|jpeg|png|gif|webp|svg|avif|pdf',
+                        'allowed_types' => 'jpg|jpeg|png|gif|pdf|webp|svg|avif', // Asegurar que webp esté aquí
                         'max_size' => 2048,
                         'file_name' => $nombre_archivo,
                         'overwrite' => FALSE
@@ -406,6 +410,7 @@ private function guardar_foto_libertad($id_infractor, $id_proceso, $infractor, $
                         'size' => $archivos['foto_libertad']['size'][$index],
                     ];
 
+                    // Reinicializar la biblioteca de carga antes de cada archivo
                     $this->upload->initialize($config);
 
                     if ($this->upload->do_upload('archivo_actual')) {
@@ -418,8 +423,26 @@ private function guardar_foto_libertad($id_infractor, $id_proceso, $infractor, $
                             'RUTA_ARCH_LIBERTAD' => $ruta
                         ]);
                     } else {
-                        log_message('error', 'Error al subir archivo ' . $name . ': ' . $this->upload->display_errors());
-                        throw new Exception('Error al subir el archivo ' . $name . '. Intente nuevamente.');
+                        $error = $this->upload->display_errors('', '');
+                        log_message('error', 'Error al subir archivo ' . $name . ': ' . $error);
+                        
+                        // Si el error es de tipo de archivo no permitido y es webp, intenta una solución alternativa
+                        if (strtolower($extension) === 'webp' && strpos($error, 'tipo de archivo') !== false) {
+                            // Solución alternativa para archivos webp
+                            $tmp_name = $archivos['foto_libertad']['tmp_name'][$index];
+                            $new_path = $directorio_destino . $nombre_archivo . '.webp';
+                            
+                            if (move_uploaded_file($tmp_name, $new_path)) {
+                                $this->db->insert('archivos_libertad', [
+                                    'ID_INFRACTOR' => $id_infractor,
+                                    'ID_PROCESO' => $id_proceso,
+                                    'RUTA_ARCH_LIBERTAD' => $new_path
+                                ]);
+                                continue; // Continuar con el siguiente archivo
+                            }
+                        }
+                        
+                        throw new Exception('Error al subir el archivo ' . $name . '. ' . $error);
                     }
                 }
             }
@@ -438,11 +461,14 @@ private function guardar_foto_detencion($id_infractor, $id_proceso, $infractor, 
     try {
         $directorio_destino = './uploads/fotos_detencion/';
 
+        // Crear el directorio si no existe
         if (!is_dir($directorio_destino)) {
             mkdir($directorio_destino, 0777, true);
         }
 
+        // Verificar si hay archivos válidos en el campo `foto_detencion`
         if (isset($archivos['foto_detencion']['name']) && count($archivos['foto_detencion']['name']) > 0) {
+            // Comprobar si al menos un archivo tiene un tamaño mayor a 0
             $hay_archivo_valido = false;
             foreach ($archivos['foto_detencion']['size'] as $size) {
                 if ($size > 0) {
@@ -465,10 +491,13 @@ private function guardar_foto_detencion($id_infractor, $id_proceso, $infractor, 
                         '_',
                         $infractor['N_INFRACTOR'] . ' ' . $infractor['A_INFRACTOR']
                     ) . '_' . uniqid(); // Usamos uniqid() para generar un ID único
+                    
+                    // Obtener la extensión del archivo original
+                    $extension = pathinfo($name, PATHINFO_EXTENSION);
 
                     $config = [
                         'upload_path' => $directorio_destino,
-                        'allowed_types' => 'jpg|jpeg|png|gif|webp|svg|avif|pdf',
+                        'allowed_types' => 'jpg|jpeg|png|gif|pdf|webp|svg|avif', // Asegurar que webp esté aquí
                         'max_size' => 2048,
                         'file_name' => $nombre_archivo,
                         'overwrite' => FALSE
@@ -482,6 +511,7 @@ private function guardar_foto_detencion($id_infractor, $id_proceso, $infractor, 
                         'size' => $archivos['foto_detencion']['size'][$index],
                     ];
 
+                    // Reinicializar la biblioteca de carga antes de cada archivo
                     $this->upload->initialize($config);
 
                     if ($this->upload->do_upload('archivo_actual')) {
@@ -494,8 +524,26 @@ private function guardar_foto_detencion($id_infractor, $id_proceso, $infractor, 
                             'RUTA_ARCH_DETENCION' => $ruta
                         ]);
                     } else {
-                        log_message('error', 'Error al subir archivo ' . $name . ': ' . $this->upload->display_errors());
-                        throw new Exception('Error al subir el archivo ' . $name . '. Intente nuevamente.');
+                        $error = $this->upload->display_errors('', '');
+                        log_message('error', 'Error al subir archivo ' . $name . ': ' . $error);
+                        
+                        // Si el error es de tipo de archivo no permitido y es webp, intenta una solución alternativa
+                        if (strtolower($extension) === 'webp' && strpos($error, 'tipo de archivo') !== false) {
+                            // Solución alternativa para archivos webp
+                            $tmp_name = $archivos['foto_detencion']['tmp_name'][$index];
+                            $new_path = $directorio_destino . $nombre_archivo . '.webp';
+                            
+                            if (move_uploaded_file($tmp_name, $new_path)) {
+                                $this->db->insert('archivos_detencion', [
+                                    'ID_INFRACTOR' => $id_infractor,
+                                    'ID_PROCESO' => $id_proceso,
+                                    'RUTA_ARCH_DETENCION' => $new_path
+                                ]);
+                                continue; // Continuar con el siguiente archivo
+                            }
+                        }
+                        
+                        throw new Exception('Error al subir el archivo ' . $name . '. ' . $error);
                     }
                 }
             }
@@ -520,21 +568,23 @@ private function guardar_foto_detencion($id_infractor, $id_proceso, $infractor, 
     $this->form_validation->set_rules($rules);
 
     // Validar el formulario
-    if ($this->form_validation->run() === FALSE) {  
-        // Devolver errores en caso de solicitud AJAX
-        if ($this->input->is_ajax_request()) {
-            echo json_encode([
-                'status' => 'error',
-                'errors' => $this->form_validation->error_array()
-            ]);
-            return;
-        }
-
-        // Mensaje de error para solicitudes normales
-        $this->session->set_flashdata('mensaje', [
+   // Cuando hay errores de validación
+if ($this->form_validation->run() === FALSE) {  
+    if ($this->input->is_ajax_request()) {
+        echo json_encode([
             'status' => 'error',
+            'errors' => $this->form_validation->error_array(),
             'message' => 'Por favor, corrige los errores en el formulario.'
         ]);
+        return;
+    }
+    
+    // Para solicitudes normales
+    $this->session->set_flashdata('mensaje', [
+        'status' => 'error',
+        'errors' => $this->form_validation->error_array(),
+        'message' => 'Por favor, corrige los errores en el formulario.'
+    ]);
         redirect('ProcesosController/index');
         return;
     }   
@@ -564,6 +614,24 @@ private function guardar_foto_detencion($id_infractor, $id_proceso, $infractor, 
             throw new Exception('Error en la transacción de la base de datos.');
         }
 
+
+        // Obtener información relevante para la notificación
+        $usuario_actual = $this->session->userdata('USUARIO');
+        $tipo_proceso = isset($datos_proceso['tipo_proceso']) ? $datos_proceso['tipo_proceso'] : 'Nuevo proceso';
+
+        // Identificar a los usuarios que deben recibir la notificación (aquí un ejemplo con administradores)
+        $admins = $this->UsersModel->get_usuarios_por_rol('administrador');
+
+        foreach ($admins as $admin) {
+            crear_notificacion(
+                $admin->ID_USUARIO,
+                'Nuevo proceso registrado',
+                'Se ha registrado el proceso #' . $id_proceso . ' por ' . $usuario_actual,
+                'success', // Tipo: success, primary, warning, danger
+                site_url('SearchController/detalle/' . $id_proceso) // Corrección aquí
+            );
+        }
+
         // Devolver éxito en caso de solicitud AJAX
         if ($this->input->is_ajax_request()) {
             echo json_encode([
@@ -580,6 +648,7 @@ private function guardar_foto_detencion($id_infractor, $id_proceso, $infractor, 
             'message' => '¡Registro guardado exitosamente!',
             'id_proceso' => $id_proceso // Incluir el ID del proceso en el mensaje flash
         ]);
+
         
     } catch (Exception $e) {
         // Revertir transacción y devolver error
@@ -844,7 +913,7 @@ private function guardar_foto_detencion($id_infractor, $id_proceso, $infractor, 
         }
 
         // Definir el rango de fechas permitido
-        $fechaMinima = strtotime('2018-01-01 00:00:00'); // Desde el 1 de enero de 2018
+        $fechaMinima = strtotime('2022-01-01 00:00:00'); // Desde el 1 de enero de 2018
         $fechaActual = time(); // Fecha y hora actual del sistema
 
         // Verificar si está dentro del rango permitido

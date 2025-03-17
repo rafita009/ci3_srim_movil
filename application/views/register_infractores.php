@@ -24,6 +24,8 @@
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
         <!-- jQuery -->
         <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="<?php echo base_url();?>public/assets/js/sweetalert211.js"></script>
+
 
         <!-- Custom styles for this template-->
         <link href="<?php echo base_url(); ?>public/assets/css/sb-admin-2.min.css" rel="stylesheet">
@@ -187,15 +189,15 @@
                                 </div>
                             </div>
                         </div>
-
+                                             
                         <!-- Columna de Datos del Proceso -->
                         <div class="col-md-8">
                             <!-- A.C.T que Procede -->
                             <div class="mb-4">
-                                <h5 class="text-center fw-bold mb-3">A.C.T que Procede</h5>
+                                <h5 class="text-center fw-bold mb-3">Agente de Control de Transito que Procede</h5>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fas fa-search"></i></span>
-                                    <input type="text" id="searchAct" class="form-control" placeholder="Buscar ACT...">
+                                    <input type="text" id="searchAct" class="form-control" placeholder="Busca por Nombres o Numero de Agente">
                                     <button class="btn btn-outline-secondary d-none" id="clearButton" type="button">
                                         <i class="fas fa-times"></i>
                                     </button>
@@ -328,31 +330,32 @@
                             </div>
 
                             <!-- Resolución de Audiencia -->
-                            <div class="row g-3 mt-4">
-                                <div class="col-12">
-                                    <label class="form-label fw-bold required-field mb-3">Resolución de Audiencia</label>
-                                    <div class="d-flex gap-4">
-                                        <div class="resolution-card flex-grow-1">
-                                            <input class="btn-check" type="radio" name="resolucion_audiencia" 
-                                                id="libertad" value="1" required>
-                                            <label class="btn btn-outline-primary w-100 p-4 d-flex flex-column 
-                                                align-items-center" for="libertad">
-                                                <i class="bi bi-unlock fs-1 mb-2"></i>
-                                                <span class="fs-5">Libertad</span>
-                                            </label>
-                                        </div>
-                                        <div class="resolution-card flex-grow-1">
-                                            <input class="btn-check" type="radio" name="resolucion_audiencia" 
-                                                id="detencion" value="2" required>
-                                            <label class="btn btn-outline-primary w-100 p-4 d-flex flex-column 
-                                                align-items-center" for="detencion">
-                                                <i class="bi bi-lock fs-1 mb-2"></i>
-                                                <span class="fs-5">Detención</span>
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                           <!-- Resolución de Audiencia con diseño responsivo -->
+<div class="row g-3 mt-4">
+    <div class="col-12">
+        <label class="form-label fw-bold required-field mb-3">Resolución de Audiencia</label>
+        <div class="d-flex flex-column flex-md-row gap-3">
+            <div class="resolution-card w-100">
+                <input class="btn-check" type="radio" name="resolucion_audiencia" 
+                    id="libertad" value="1" required>
+                <label class="btn btn-outline-primary w-100 p-3 d-flex flex-column 
+                    align-items-center" for="libertad">
+                    <i class="bi bi-unlock fs-3 mb-2"></i>
+                    <span class="fs-6">Libertad</span>
+                </label>
+            </div>
+            <div class="resolution-card w-100">
+                <input class="btn-check" type="radio" name="resolucion_audiencia" 
+                    id="detencion" value="2" required>
+                <label class="btn btn-outline-primary w-100 p-3 d-flex flex-column 
+                    align-items-center" for="detencion">
+                    <i class="bi bi-lock fs-3 mb-2"></i>
+                    <span class="fs-6">Detención</span>
+                </label>
+            </div>
+        </div>
+    </div>
+</div>
 
                             <!-- Campos de Detención (ocultos inicialmente) -->
                             <div id="detencionFields" class="mt-4 d-none">
@@ -471,7 +474,7 @@
                 <div class="row mt-4">
                     <div class="col-12 text-end">
                         <button type="submit" id="btnRegistrarInfractor" class="btn btn-success btn-custom">
-                            <i class="fas fa-save me-2"></i>Registrar Infractor
+                            <i class="fas fa-save me-2"></i>Registrar Proceso
                         </button>
                     </div>
                 </div>
@@ -526,7 +529,6 @@ $(document).on('shown.bs.modal', '#modalVistaInfractor', function() {
     
     // Función para limpiar campos de detención
     function limpiarCamposDetencion() {
-        console.log("Limpiando campos de detención");
         
         // Limpiamos todos los campos de detención
         $("#tiempo_detenido_anos", $modalForm).val("0");
@@ -553,7 +555,6 @@ $(document).on('shown.bs.modal', '#modalVistaInfractor', function() {
     
     // Función para limpiar campos de libertad
     function limpiarCamposLibertad() {
-        console.log("Limpiando campos de libertad");
         
         // Limpiamos todos los campos relacionados con libertad
         $("#foto_libertad", $modalForm).val("");
@@ -567,7 +568,6 @@ $(document).on('shown.bs.modal', '#modalVistaInfractor', function() {
     // Manejadores de eventos para los radio buttons
     $libertadRadio.on("change", function() {
         if ($(this).is(":checked")) {
-            console.log("Opción Libertad seleccionada");
             
             // Mostrar campos de libertad y ocultar campos de detención
             $fotoFieldLibertad.removeClass("d-none");
@@ -585,7 +585,6 @@ $(document).on('shown.bs.modal', '#modalVistaInfractor', function() {
     
     $detencionRadio.on("change", function() {
         if ($(this).is(":checked")) {
-            console.log("Opción Detención seleccionada");
             
             // Ocultar campos de libertad
             $fotoFieldLibertad.addClass("d-none");
@@ -602,7 +601,6 @@ $(document).on('shown.bs.modal', '#modalVistaInfractor', function() {
     });
     
     // Establecer estado inicial cuando se abre el modal
-    console.log("Estado inicial - Libertad:", $libertadRadio.is(":checked"), "Detención:", $detencionRadio.is(":checked"));
     
     if ($libertadRadio.is(":checked")) {
         $libertadRadio.trigger("change");
@@ -742,7 +740,7 @@ $(document).on('shown.bs.modal', '#modalVistaInfractor', function() {
                         Swal.fire({
                             icon: 'error',
                             title: 'Error',
-                            text: 'Por favor, verifica los datos ingresados.'
+                            text: 'Por favor, corrige los errores en el formulario.'
                         });
                     } else {
                         Swal.fire({
@@ -803,69 +801,100 @@ $(document).on('shown.bs.modal', '#modalVistaInfractor', function() {
 </script>
     <!--script para visualizar fotos-->
     <script>
-        $(document).on('shown.bs.modal', '#modalVistaInfractor', function() {
-            const belongingsInput = document.getElementById('belongingsInput');
-            const belongingsPreview = document.getElementById('belongingsPreview');
-
-            if (!belongingsInput || !belongingsPreview) {
-                console.log('Elementos de pertenencias no disponibles');
-                return;
-            }
-
-            let currentFiles = new DataTransfer();
-
-            belongingsInput.addEventListener('change', function(e) {
-                belongingsPreview.innerHTML = '';
-                const files = Array.from(e.target.files);
-
-                currentFiles = new DataTransfer();
-
-                files.forEach((file, index) => {
-                    currentFiles.items.add(file);
-
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        const previewCol = document.createElement('div');
-                        previewCol.className = 'col-4';
-                        previewCol.dataset.fileIndex = index;
-
-                        previewCol.innerHTML = `
-                            <div class="position-relative border rounded overflow-hidden" style="padding-bottom: 100%;">
-                                <img src="${e.target.result}" class="position-absolute top-0 start-0 w-100 h-100 object-fit-cover">
-                                <button type="button" class="btn-close position-absolute top-0 end-0 m-1 bg-white rounded-circle" 
-                                        style="padding: 0.25rem;" aria-label="Close"></button>
-                            </div>`;
-
-                        previewCol.querySelector('.btn-close').onclick = function() {
-                            const fileIndex = parseInt(previewCol.dataset.fileIndex);
-                            const newFiles = new DataTransfer();
-
-                            Array.from(currentFiles.files).forEach((file, idx) => {
-                                if (idx !== fileIndex) {
-                                    newFiles.items.add(file);
-                                }
-                            });
-
-                            currentFiles = newFiles;
-                            belongingsInput.files = currentFiles.files;
-                            previewCol.remove();
-
-                            Array.from(belongingsPreview.children).forEach((col, idx) => {
-                                col.dataset.fileIndex = idx;
-                            });
-
-                            if (belongingsPreview.children.length === 0) {
-                                belongingsInput.value = '';
+$(document).on('shown.bs.modal', '#modalVistaInfractor', function() {
+    // Evitar múltiples inicializaciones usando un flag
+    if ($(this).data('belongings-initialized')) {
+        return;
+    }
+    $(this).data('belongings-initialized', true);
+    
+    const belongingsInput = document.getElementById('belongingsInput');
+    const belongingsPreview = document.getElementById('belongingsPreview');
+    
+    if (!belongingsInput || !belongingsPreview) {
+        console.log('Elementos de pertenencias no disponibles');
+        return;
+    }
+    
+    // Crear un DataTransfer para manejar los archivos
+    let currentFiles = new DataTransfer();
+    
+    // Usar .one() en lugar de .addEventListener para evitar múltiples bindings
+    $(belongingsInput).off('change').on('change', function(e) {
+        // Limpiar la vista previa
+        belongingsPreview.innerHTML = '';
+        
+        // Obtener los archivos seleccionados
+        const files = Array.from(e.target.files);
+        console.log(`Archivos seleccionados: ${files.length}`);
+        
+        // Resetear el DataTransfer
+        currentFiles = new DataTransfer();
+        
+        // Procesar cada archivo
+        files.forEach((file, index) => {
+            // Comprobar si ya existe un archivo con el mismo nombre y tamaño
+            const fileExists = Array.from(currentFiles.files).some(
+                existingFile => existingFile.name === file.name && existingFile.size === file.size
+            );
+            
+            if (!fileExists) {
+                // Añadir al DataTransfer solo si no existe
+                currentFiles.items.add(file);
+                console.log(`Añadido archivo: ${file.name}`);
+                
+                // Crear vista previa
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const previewCol = document.createElement('div');
+                    previewCol.className = 'col-4';
+                    previewCol.dataset.fileIndex = index;
+                    
+                    previewCol.innerHTML = `
+                        <div class="position-relative border rounded overflow-hidden" style="padding-bottom: 100%;">
+                            <img src="${event.target.result}" class="position-absolute top-0 start-0 w-100 h-100 object-fit-cover">
+                            <button type="button" class="btn-close position-absolute top-0 end-0 m-1 bg-white rounded-circle"
+                                     style="padding: 0.25rem;" aria-label="Close"></button>
+                        </div>`;
+                    
+                    // Manejar el evento de eliminación
+                    $(previewCol).find('.btn-close').on('click', function() {
+                        const fileIndex = parseInt(previewCol.dataset.fileIndex);
+                        const newFiles = new DataTransfer();
+                        
+                        Array.from(currentFiles.files).forEach((file, idx) => {
+                            if (idx !== fileIndex) {
+                                newFiles.items.add(file);
                             }
-                        };
-
-                        belongingsPreview.appendChild(previewCol);
-                    }
-                    reader.readAsDataURL(file);
-                });
-            });
+                        });
+                        
+                        // Actualizar los archivos
+                        currentFiles = newFiles;
+                        belongingsInput.files = currentFiles.files;
+                        
+                        // Eliminar la vista previa
+                        previewCol.remove();
+                        
+                        // Actualizar los índices
+                        Array.from(belongingsPreview.children).forEach((col, idx) => {
+                            col.dataset.fileIndex = idx;
+                        });
+                        
+                        // Si no hay archivos, limpiar el input
+                        if (belongingsPreview.children.length === 0) {
+                            belongingsInput.value = '';
+                        }
+                    });
+                    
+                    belongingsPreview.appendChild(previewCol);
+                };
+                
+                reader.readAsDataURL(file);
+            }
         });
-    </script>
+    });
+});
+</script>
 
    
     <!-- Script para presionar boton de guardar -->

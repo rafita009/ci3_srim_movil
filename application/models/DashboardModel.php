@@ -110,4 +110,13 @@ public function obtener_porcentajes_pruebas() {
     
     return $resultados;
 }
+public function obtener_total_procedimientos() {
+    $total_procedimientos = $this->db->select('count(ID_FECHA_PROCEDIMIENTO) as total')
+        ->from('fechas_procedimiento')
+        ->get()
+        ->row()
+        ->total;
+    
+    return $total_procedimientos;
+}
 }

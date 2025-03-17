@@ -32,11 +32,14 @@ public function get_tipo_placas()
 }
 public function get_tipos_pruebas()
 {
-    $query = $this->db->get('tipo_pruebas'); // Obtiene los tipos de placas
+    $this->db->where('ACTIVO', 1);
+    $query = $this->db->get('tipo_pruebas');
     return $query->result_array();
 }
 public function get_cdit(){
-    $query = $this->db->get('cdit'); // Obtiene los cdit
+    $this->db->where('ACTIVO', 1);
+    $this->db->order_by('NOMBRE_CDIT', 'ASC'); // Asumiendo que el campo de ordenación es 'CDIT'
+    $query = $this->db->get('cdit');
     return $query->result_array();
 }
 public function get_proceso($id_infractor)
@@ -115,14 +118,15 @@ public function obtenerProcesos_infractores($id_infractor) {
 }
 public function obtenerProcesoscompletos($id_infractor) {
     $this->db->distinct()
-             ->select('p.ID_PROCESO, p.RESOLUCION, p.FECHA_REGISTRO, pl.PLACA, c.CAUSA')
+             ->select('p.ID_PROCESO, p.RESOLUCION, p.FECHA_REGISTRO, pl.PLACA, c.CAUSA, fp.FECHA_PROCEDIMIENTO')
              ->from('procesos p')
              ->join('placas pl', 'p.ID_PLACA = pl.ID_PLACA', 'left')
              ->join('causa_distrito_infractor_canton cdic', 'p.ID_INFRACTOR = cdic.ID_INFRACTOR', 'left')
              ->join('causas c', 'cdic.ID_CAUSA = c.ID_CAUSA', 'left')
+             ->join('fechas_procedimiento fp', 'p.ID_PROCESO = fp.ID_PROCESO', 'left')
              ->where('p.ID_INFRACTOR', $id_infractor)
              ->where('p.ID_PROCESO IS NOT NULL')
-             ->group_by('p.ID_PROCESO')  // Simplificamos el GROUP BY
+             ->group_by('p.ID_PROCESO')
              ->order_by('p.ID_PROCESO', 'ASC');
 
     $result = $this->db->get()->result_array();

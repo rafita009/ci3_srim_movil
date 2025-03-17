@@ -53,7 +53,7 @@ class Form_validation_rules {
             ],
             [
                 'field' => 'act_id',
-                'label' => 'A.C.T',
+                'label' => 'Agente de Control de Transito',
                 'rules' => 'required|numeric',
                 'errors' => [
                     'required' => 'Debe seleccionar un %s.',
@@ -108,7 +108,7 @@ class Form_validation_rules {
                 'rules' => 'required|callback_validar_fecha_rango',
                 'errors' => [
                     'required' => 'El campo %s es obligatorio.',
-                    'validar_fecha_rango' => 'El campo %s debe estar entre el año 2018 y la fecha actual.'
+                    'validar_fecha_rango' => 'El campo %s debe estar entre el año 2022 y la fecha actual.'
                 ]
             ],
             [

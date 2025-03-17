@@ -21,6 +21,8 @@
 
     <!-- Custom styles for this template-->
     <link href="<?php echo base_url(); ?>public/assets/css/sb-admin-2.min.css" rel="stylesheet">
+    <script src="<?php echo base_url();?>public/assets/js/sweetalert211.js"></script>
+
 
 </head>
 
@@ -53,7 +55,7 @@
                         </a>
                     </div>
 
-                    
+
 
                     <!-- Tabla de Respaldos -->
                     <div class="card shadow mb-4">
@@ -61,21 +63,10 @@
                             <h6 class="m-0 font-weight-bold text-primary">Respaldos Disponibles</h6>
 
                             <!-- Botón para restaurar el último backup -->
-                            <button type="button" class="btn btn-warning" data-toggle="modal"
-                                data-target="#restoreModal">
-                                <i class="fas fa-undo-alt"></i> Subir Último Respaldo
-                            </button>
+
                         </div>
                         <div class="card-body">
-                            <?php if($this->session->flashdata('message')): ?>
-                            <div class="alert alert-<?= $this->session->flashdata('message_type') ?> alert-dismissible fade show"
-                                role="alert">
-                                <?= $this->session->flashdata('message') ?>
-                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
-                            </div>
-                            <?php endif; ?>
+
 
                             <div class="table-responsive">
                                 <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
@@ -103,15 +94,13 @@
                                                     class="btn btn-sm btn-info">
                                                     <i class="fas fa-download"></i> Descargar
                                                 </a>
-                                                <?php if($this->session->userdata('ROL') == 'admin'): ?>
-                                                <a href="<?= site_url('BdController/delete/' . $backup['name']) ?>"
-                                                    class="btn btn-sm btn-danger delete-backup">
+                                                <?php if($this->session->userdata('rol') == 'administrador'): ?>
+                                                <a href="javascript:void(0);"
+                                                    onclick="confirmarEliminarRespaldo('<?= $backup['name'] ?>')"
+                                                    class="btn btn-danger btn-sm">
                                                     <i class="fas fa-trash"></i> Eliminar
                                                 </a>
-                                                <a href="#" class="btn btn-sm btn-warning restore-backup"
-                                                    data-filename="<?= $backup['name'] ?>">
-                                                    <i class="fas fa-undo-alt"></i> Restaurar
-                                                </a>
+
                                                 <?php endif; ?>
                                             </td>
                                         </tr>
@@ -143,8 +132,8 @@
         <i class="fas fa-angle-up"></i>
     </a>
 
-     <!-- Logout Modal-->
-     <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    <!-- Logout Modal-->
+    <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
         aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -154,7 +143,8 @@
                         <span aria-hidden="true">×</span>
                     </button>
                 </div>
-                <div class="modal-body">Selecciona "Cerrar sesión" si estás seguro de que quieres cerrar tu sesión.</div>
+                <div class="modal-body">Selecciona "Cerrar sesión" si estás seguro de que quieres cerrar tu sesión.
+                </div>
                 <div class="modal-footer">
                     <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancelar</button>
                     <a class="btn btn-primary" href="<?php echo site_url();?>/LoginController/logout">Cerrar sesión</a>
@@ -163,33 +153,7 @@
         </div>
     </div>
 
-<!-- Modal de confirmación para restaurar el último respaldo -->
-<div class="modal fade" id="restoreModal" tabindex="-1" role="dialog" aria-labelledby="restoreModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header bg-warning text-white">
-                <h5 class="modal-title" id="restoreModalLabel">Confirmar Restauración</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="alert alert-warning">
-                    <i class="fas fa-exclamation-triangle"></i> <strong>¡Advertencia!</strong> Esta acción restaurará la base de datos al estado del respaldo <strong><?= !empty($ultimo_respaldo) ? $ultimo_respaldo : '' ?></strong>. 
-                    <br><br>
-                    Todos los datos actuales serán reemplazados por los datos del respaldo. Este proceso no se puede deshacer.
-                </div>
-                <p>¿Está seguro que desea continuar?</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-                <a href="<?= site_url('BdController/restore/' . (!empty($ultimo_respaldo) ? $ultimo_respaldo : '')) ?>" class="btn btn-warning">
-                    <i class="fas fa-undo-alt"></i> Sí, Restaurar Base de Datos
-                </a>
-            </div>
-        </div>
-    </div>
-</div>
+
 
     <script src="<?php echo base_url();?>public/assets/vendor/jquery/jquery.min.js"></script>
     <script>
@@ -264,32 +228,120 @@
         }
     });
     </script>
-    <!-- Script para manejar la restauración de respaldos individuales -->
-<script>
-$(document).ready(function() {
-    // Manejador para los botones de restaurar en cada fila
-    $('.restore-backup').on('click', function(e) {
-        e.preventDefault();
-        var filename = $(this).data('filename');
-        
-        // Actualizar el modal con el nombre del archivo seleccionado
-        $('#restoreModalLabel').text('Confirmar Restauración: ' + filename);
-        $('.modal-body .alert strong:last').text(filename);
-        $('.modal-footer a').attr('href', '<?= site_url("BdController/restore/") ?>' + filename);
-        
-        // Mostrar el modal
-        $('#restoreModal').modal('show');
-    });
-    
-    // Confirmación para eliminar respaldos
-    $('.delete-backup').on('click', function(e) {
-        if (!confirm('¿Está seguro que desea eliminar este respaldo? Esta acción no se puede deshacer.')) {
-            e.preventDefault();
-        }
-    });
-});
-</script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Comprobar si hay mensajes de éxito en el flashdata
+        <?php if($this->session->flashdata('success')): ?>
+        Swal.fire({
+            icon: 'success',
+            title: '¡Éxito!',
+            text: '<?= $this->session->flashdata('success'); ?>',
+            confirmButtonColor: '#3085d6',
+            confirmButtonText: 'Aceptar',
+            showCloseButton: true,
+            timer: 2000,
+            timerProgressBar: true
+        });
+        <?php endif; ?>
 
+        // Comprobar si hay mensajes de error en el flashdata
+        <?php if($this->session->flashdata('error')): ?>
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: '<?= $this->session->flashdata('error'); ?>',
+            confirmButtonColor: '#d33',
+            confirmButtonText: 'Cerrar',
+            showCloseButton: true,
+            timer: 2000,
+            timerProgressBar: true
+        });
+        <?php endif; ?>
+
+        // Comprobar si hay mensajes de información en el flashdata
+        <?php if($this->session->flashdata('info')): ?>
+        Swal.fire({
+            icon: 'info',
+            title: 'Información',
+            text: '<?= $this->session->flashdata('info'); ?>',
+            confirmButtonColor: '#3085d6',
+            confirmButtonText: 'Entendido',
+            showCloseButton: true,
+            timer: 2000,
+            timerProgressBar: true
+        });
+        <?php endif; ?>
+
+        // Comprobar si hay mensajes de advertencia en el flashdata
+        <?php if($this->session->flashdata('warning')): ?>
+        Swal.fire({
+            icon: 'warning',
+            title: 'Advertencia',
+            text: '<?= $this->session->flashdata('warning'); ?>',
+            confirmButtonColor: '#f8bb86',
+            confirmButtonText: 'Entendido',
+            showCloseButton: true,
+            timer: 2000,
+            timerProgressBar: true
+        });
+        <?php endif; ?>
+
+        // Para la compatibilidad retroactiva con el nombre 'mensaje'
+        <?php if($this->session->flashdata('mensaje')): ?>
+        Swal.fire({
+            icon: 'success',
+            title: 'Mensaje',
+            text: '<?= $this->session->flashdata('mensaje'); ?>',
+            confirmButtonColor: '#3085d6',
+            confirmButtonText: 'Aceptar',
+            showCloseButton: true,
+            timer: 2000,
+            timerProgressBar: true
+        });
+        <?php endif; ?>
+
+        // Para la compatibilidad con mensajes tipo array
+        <?php 
+    $mensaje_flash = $this->session->flashdata('mensaje_array');
+    if (isset($mensaje_flash) && is_array($mensaje_flash)):
+        $icon = isset($mensaje_flash['status']) ? $mensaje_flash['status'] : 'info';
+        $title = ($icon === 'success') ? '¡Éxito!' : (($icon === 'error') ? 'Error' : 'Mensaje');
+        $buttonColor = ($icon === 'success') ? '#3085d6' : (($icon === 'error') ? '#d33' : '#3085d6');
+        $buttonText = ($icon === 'error') ? 'Cerrar' : 'Aceptar';
+    ?>
+        Swal.fire({
+            icon: '<?= $icon ?>',
+            title: '<?= $title ?>',
+            text: '<?= addslashes($mensaje_flash['message']) ?>',
+            confirmButtonColor: '<?= $buttonColor ?>',
+            confirmButtonText: '<?= $buttonText ?>',
+            showCloseButton: true,
+            timer: 2000,
+            timerProgressBar: true
+        });
+        <?php endif; ?>
+    });
+    </script>
+    <script>
+    function confirmarEliminarRespaldo(filename) {
+        Swal.fire({
+            title: '¿Estás seguro?',
+            html: `Estás a punto de eliminar el respaldo: <strong>${filename}</strong><br>
+               Esta acción eliminará permanentemente el archivo de la carpeta de respaldos.`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Redirigir a la acción de eliminación
+                window.location.href = '<?= site_url("BdController/delete/") ?>' + encodeURIComponent(filename);
+            }
+        });
+    }
+    </script>
     <!-- DataTables JS -->
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>

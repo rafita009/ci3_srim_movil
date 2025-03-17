@@ -7,6 +7,7 @@ class InfractoresController extends CI_Controller
     {
         parent::__construct();
         $this->load->helper('url');
+        $this->load->helper('notificaciones');
         $this->load->helper('form');
         $this->load->model('InfractoresModel');
         $this->load->model('UsersModel');
@@ -32,7 +33,6 @@ class InfractoresController extends CI_Controller
             $user_details = $this->UsersModel->get_user_by_id($id_usuario);
             $datos = $this->InfractoresModel->getInfractores();
             $total_infractores = count($datos);
-
 
             // Preparar los datos para la vista
             $data = [
@@ -74,13 +74,29 @@ class InfractoresController extends CI_Controller
 
         // Verificar si la cédula ya existe
         if ($this->ProcesosModel->existe_cedula($cedula)) {
-            $response = array(
-                'success' => false,
-                'message' => 'La cédula ya está registrada en el sistema.'
-            );
-            echo json_encode($response);
-            return;
-        }
+                // Obtener la información del infractor existente
+                $infractor_existente = $this->ProcesosModel->obtener_infractor_por_cedula($cedula);
+                
+                if ($infractor_existente) {
+                    $id_infractor = $infractor_existente->ID_INFRACTOR; // Asumiendo que este es el nombre del campo
+                    
+                    $response = array(
+                        'success' => false,
+                        'message' => 'La cédula ya está registrada en el sistema.',
+                        'infractor_existe' => true,
+                        'id_infractor' => $id_infractor,
+                        'modal_url' => site_url('ProcesosController/cargar_vista_modal/' . $id_infractor)
+                    );
+                } else {
+                    $response = array(
+                        'success' => false,
+                        'message' => 'La cédula ya está registrada en el sistema, pero no se pudo cargar la información.'
+                    );
+                }
+                
+                echo json_encode($response);
+                return;
+            }
 
         if ($this->ProcesosModel->existe_nombre_apellido($nombre, $apellido)) {
             $response = array(
@@ -354,6 +370,41 @@ class InfractoresController extends CI_Controller
                 echo json_encode($response);
     }
 
+    public function eliminar_infractor($id_infractor) {
+        // Obtener información del infractor antes de eliminarlo
+        $infractor = $this->InfractoresModel->obtener_infractor_por_id($id_infractor);
+        
+        // Verificar nuevamente que no tenga procesos
+        if (!$this->InfractoresModel->tiene_procesos_asociados($id_infractor)) {
+            $resultado = $this->InfractoresModel->eliminar($id_infractor);
+            
+            if ($resultado) {
+                // Obtener usuarios con rol de gestor
+                $gestores = $this->UsersModel->get_usuarios_por_rol('gestor');
     
+                // Enviar notificación a cada gestor
+                foreach ($gestores as $gestor) {
+                    crear_notificacion(
+                        $gestor->ID_USUARIO,
+                        'Infractor sin procesos asociados eliminado',
+                        'Se ha eliminado el infractor: ' . $infractor['N_INFRACTOR'] . ' ' . $infractor['A_INFRACTOR'],
+                        'danger',
+                        null
+                    );
+                }
+    
+                $this->session->set_flashdata('mensaje', 'Infractor eliminado correctamente');
+                $this->session->set_flashdata('tipo_mensaje', 'success');
+            } else {
+                $this->session->set_flashdata('mensaje', 'No se pudo eliminar el infractor');
+                $this->session->set_flashdata('tipo_mensaje', 'error');
+            }
+        } else {
+            $this->session->set_flashdata('mensaje', 'No se puede eliminar. El infractor tiene procesos asociados.');
+            $this->session->set_flashdata('tipo_mensaje', 'warning');
+        }
+        
+        redirect('InfractoresController/index');
+    }
 }
 ?>

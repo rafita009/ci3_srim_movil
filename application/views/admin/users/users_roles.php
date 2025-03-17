@@ -22,6 +22,8 @@
 
     <!-- Custom styles for this template-->
     <link href="<?php echo base_url(); ?>public/assets/css/sb-admin-2.min.css" rel="stylesheet">
+    <script src="<?php echo base_url();?>public/assets/js/sweetalert211.js"></script>
+
 
 </head>
 
@@ -53,21 +55,7 @@
                                     <h3 class="card-title" style="color: black ">Gestión de Roles</h3>
                                 </div>
                                 <div class="card-body p-3">
-                                    <?php if ($this->session->flashdata('success')): ?>
-                                        <div class="alert alert-success alert-dismissible fade show" role="alert">
-                                            <?= $this->session->flashdata('success'); ?>
-                                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                                <span aria-hidden="true">&times;</span>
-                                            </button>
-                                        </div>
-                                    <?php elseif ($this->session->flashdata('error')): ?>
-                                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                            <?= $this->session->flashdata('error'); ?>
-                                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                                <span aria-hidden="true">&times;</span>
-                                            </button>
-                                        </div>
-                                    <?php endif; ?>
+                                    
                                     <div class="d-flex align-items-center mb-3">
 
                                         <div class="table-responsive">
@@ -274,7 +262,100 @@
                 });
             });
         </script>
+ <script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Comprobar si hay mensajes de éxito en el flashdata
+    <?php if($this->session->flashdata('success')): ?>
+        Swal.fire({
+            icon: 'success',
+            title: '¡Éxito!',
+            text: '<?= $this->session->flashdata('success'); ?>',
+            confirmButtonColor: '#3085d6',
+            confirmButtonText: 'Aceptar',
+            showCloseButton: true,
+            timer: 2000,
+            timerProgressBar: true
+        });
+    <?php endif; ?>
 
+    // Comprobar si hay mensajes de error en el flashdata
+    <?php if($this->session->flashdata('error')): ?>
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: '<?= $this->session->flashdata('error'); ?>',
+            confirmButtonColor: '#d33',
+            confirmButtonText: 'Cerrar',
+            showCloseButton: true,
+            timer: 2000,
+            timerProgressBar: true
+        });
+    <?php endif; ?>
+    
+    // Comprobar si hay mensajes de información en el flashdata
+    <?php if($this->session->flashdata('info')): ?>
+        Swal.fire({
+            icon: 'info',
+            title: 'Información',
+            text: '<?= $this->session->flashdata('info'); ?>',
+            confirmButtonColor: '#3085d6',
+            confirmButtonText: 'Entendido',
+            showCloseButton: true,
+            timer: 2000,
+            timerProgressBar: true
+        });
+    <?php endif; ?>
+    
+    // Comprobar si hay mensajes de advertencia en el flashdata
+    <?php if($this->session->flashdata('warning')): ?>
+        Swal.fire({
+            icon: 'warning',
+            title: 'Advertencia',
+            text: '<?= $this->session->flashdata('warning'); ?>',
+            confirmButtonColor: '#f8bb86',
+            confirmButtonText: 'Entendido',
+            showCloseButton: true,
+            timer: 2000,
+            timerProgressBar: true
+        });
+    <?php endif; ?>
+    
+    // Para la compatibilidad retroactiva con el nombre 'mensaje'
+    <?php if($this->session->flashdata('mensaje')): ?>
+        Swal.fire({
+            icon: 'success',
+            title: 'Mensaje',
+            text: '<?= $this->session->flashdata('mensaje'); ?>',
+            confirmButtonColor: '#3085d6',
+            confirmButtonText: 'Aceptar',
+            showCloseButton: true,
+            timer: 2000,
+            timerProgressBar: true
+        });
+    <?php endif; ?>
+    
+    // Para la compatibilidad con mensajes tipo array
+    <?php 
+    $mensaje_flash = $this->session->flashdata('mensaje_array');
+    if (isset($mensaje_flash) && is_array($mensaje_flash)):
+        $icon = isset($mensaje_flash['status']) ? $mensaje_flash['status'] : 'info';
+        $title = ($icon === 'success') ? '¡Éxito!' : (($icon === 'error') ? 'Error' : 'Mensaje');
+        $buttonColor = ($icon === 'success') ? '#3085d6' : (($icon === 'error') ? '#d33' : '#3085d6');
+        $buttonText = ($icon === 'error') ? 'Cerrar' : 'Aceptar';
+    ?>
+        Swal.fire({
+            icon: '<?= $icon ?>',
+            title: '<?= $title ?>',
+            text: '<?= addslashes($mensaje_flash['message']) ?>',
+            confirmButtonColor: '<?= $buttonColor ?>',
+            confirmButtonText: '<?= $buttonText ?>',
+            showCloseButton: true,
+            timer: 2000,
+            timerProgressBar: true
+        });
+    <?php endif; ?>
+});
+</script>
 
         <script src="<?php echo base_url(); ?>public/assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 

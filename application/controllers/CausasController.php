@@ -6,6 +6,7 @@ class CausasController extends CI_Controller {
         parent::__construct();
         $this->load->library('form_validation'); // Carga la librería de validación de formularios
         $this->load->helper('url');
+        $this->load->helper('notificaciones');
         $this->load->model('CausasModel');
         $this->load->model('UsersModel');
         $this->load->model('RolesModel');
@@ -65,6 +66,18 @@ class CausasController extends CI_Controller {
         // Verificar si la causa ya existe
         if(!$this->CausasModel->existeCausa($causa)) {
             if($this->CausasModel->agregarCausa($causa)) {
+                $gestores = $this->UsersModel->get_usuarios_por_rol('gestor');
+
+                // Enviar notificación a cada gestor
+                foreach ($gestores as $gestor) {
+                    crear_notificacion(
+                        $gestor->ID_USUARIO,
+                        'Nuevo Causa Registrada',
+                        'Se ha añadido un nueva Causa: ' . $causa,
+                        'success',
+                        null
+                    );
+                }
                 $response = array(
                     'success' => true,
                     'message' => 'Causa guardada correctamente'

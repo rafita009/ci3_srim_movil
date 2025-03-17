@@ -91,10 +91,10 @@ class BdController extends CI_Controller {
             'newline'     => "\n",               // Carácter de nueva línea
             'foreign_key_checks' => FALSE        // Desactivar verificación de claves foráneas
         );
-
+    
         // Crear el respaldo
         $backup = $this->dbutil->backup($config);
-
+    
         // Nombre del archivo SQL
         $backup_name = 'backup-' . date('Y-m-d-H-i-s') . '.sql';
         
@@ -108,9 +108,16 @@ class BdController extends CI_Controller {
         
         // Guardar el archivo
         write_file($save_path . $backup_name, $backup);
-        
-        // Forzar la descarga del archivo
-        force_download($backup_name, $backup);
+
+        // Establecer mensaje flash
+    $this->session->set_flashdata('mensaje', 'Respaldo generado correctamente: ' . $backup_name);
+    $this->session->set_flashdata('message_type', 'success');
+
+    
+    
+    // Redirigir después de la descarga
+    redirect('BdController');
+
     }
     
     public function scheduled_backup() {
@@ -171,90 +178,49 @@ class BdController extends CI_Controller {
     }
     
     public function delete($filename = NULL) {
+        // Validar que se proporcione un nombre de archivo
         if ($filename === NULL) {
-            $this->session->set_flashdata('message', 'No se especificó el archivo a eliminar');
+            $this->session->set_flashdata('mensaje', 'No se especificó el archivo a eliminar');
             $this->session->set_flashdata('message_type', 'danger');
             redirect('BdController');
         }
-        
+    
+        // Ruta completa del archivo
         $file_path = FCPATH . 'backups/' . $filename;
-        
-        if (file_exists($file_path)) {
+    
+        // Verificar si el archivo existe
+        if (!file_exists($file_path)) {
+            $this->session->set_flashdata('mensaje', 'El archivo de respaldo no existe: ' . $filename);
+            $this->session->set_flashdata('message_type', 'danger');
+            redirect('BdController');
+        }
+    
+        // Intentar eliminar el archivo
+        try {
             if (unlink($file_path)) {
-                $this->session->set_flashdata('message', 'Respaldo eliminado correctamente');
+                // Registro de actividad (opcional)
+                log_message('info', 'Respaldo eliminado: ' . $filename);
+    
+                $this->session->set_flashdata('mensaje', 'Respaldo eliminado correctamente: ' . $filename);
                 $this->session->set_flashdata('message_type', 'success');
             } else {
-                $this->session->set_flashdata('message', 'Error al eliminar el respaldo');
+                // Error al eliminar
+                log_message('error', 'No se pudo eliminar el respaldo: ' . $filename);
+    
+                $this->session->set_flashdata('mensaje', 'Error al eliminar el respaldo: ' . $filename);
                 $this->session->set_flashdata('message_type', 'danger');
             }
-        } else {
-            $this->session->set_flashdata('message', 'El archivo no existe');
+        } catch (Exception $e) {
+            // Capturar cualquier error inesperado
+            log_message('error', 'Excepción al eliminar respaldo: ' . $e->getMessage());
+    
+            $this->session->set_flashdata('mensaje', 'Ocurrió un error al eliminar el respaldo');
             $this->session->set_flashdata('message_type', 'danger');
         }
-        
+    
+        // Redirigir de vuelta a la página de respaldos
         redirect('BdController');
     }
     
-    // Nueva función para restaurar el último respaldo
-    public function restore($filename = NULL) {
-        // Verificar permisos (solo administradores deberían poder hacer esto)
        
-        
-        if ($filename === NULL) {
-            $this->session->set_flashdata('message', 'No se especificó el archivo a restaurar');
-            $this->session->set_flashdata('message_type', 'danger');
-            redirect('BdController');
-        }
-        
-        $file_path = FCPATH . 'backups/' . $filename;
-        
-        if (!file_exists($file_path)) {
-            $this->session->set_flashdata('message', 'El archivo de respaldo no existe');
-            $this->session->set_flashdata('message_type', 'danger');
-            redirect('BdController');
-        }
-        
-        // Leer el contenido del archivo SQL
-        $sql = file_get_contents($file_path);
-        
-        // Dividir las consultas SQL
-        $queries = explode(';', $sql);
-        
-        // Conectar directamente a la base de datos para ejecutar las consultas
-        $this->load->database();
-        
-        // Deshabilitar las verificaciones de claves foráneas
-        $this->db->query('SET FOREIGN_KEY_CHECKS = 0');
-        
-        // Contador de consultas exitosas
-        $success_count = 0;
-        $error_count = 0;
-        
-        // Ejecutar cada consulta
-        foreach ($queries as $query) {
-            $query = trim($query);
-            if ($query) {
-                try {
-                    $this->db->query($query);
-                    $success_count++;
-                } catch (Exception $e) {
-                    $error_count++;
-                    log_message('error', 'Error al restaurar la base de datos: ' . $e->getMessage());
-                }
-            }
-        }
-        
-        // Habilitar nuevamente las verificaciones de claves foráneas
-        $this->db->query('SET FOREIGN_KEY_CHECKS = 1');
-        
-        if ($error_count == 0) {
-            $this->session->set_flashdata('message', 'Base de datos restaurada correctamente. Se ejecutaron ' . $success_count . ' consultas.');
-            $this->session->set_flashdata('message_type', 'success');
-        } else {
-            $this->session->set_flashdata('message', 'La restauración completó con ' . $error_count . ' errores. Consulta el log para más detalles.');
-            $this->session->set_flashdata('message_type', 'warning');
-        }
-        
-        redirect('BdController');
-    }
 }

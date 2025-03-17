@@ -23,6 +23,57 @@
     <!-- Custom styles for this template-->
     <link href="<?php echo base_url(); ?>public/assets/css/sb-admin-2.min.css" rel="stylesheet">
 
+    <!-- Estilos adicionales para mejorar responsividad -->
+<style>
+@media (max-width: 767.98px) {
+    .badge.badge-pill.badge-dark {
+        display: inline-block;
+        width: auto;
+        margin-top: 5px;
+        font-size: 0.85rem;
+        text-align: left;
+        white-space: normal;
+    }
+    
+    .alert-info {
+        padding: 12px;
+    }
+}
+</style>
+<!-- Estilos adicionales para mejor responsividad -->
+<style>
+@media (max-width: 575.98px) {
+    .card-body .d-flex {
+        flex-direction: column;
+        align-items: flex-start !important;
+    }
+    
+    .card-body .d-flex .rounded-circle {
+        margin-bottom: 10px;
+    }
+    
+    .card-body .ml-auto {
+        margin-left: 0 !important;
+        width: 100%;
+    }
+    
+    .card-body .btn-outline-primary {
+        display: block;
+        width: 100%;
+    }
+}
+
+@media (min-width: 576px) and (max-width: 767.98px) {
+    .card-body .d-flex {
+        flex-wrap: wrap;
+    }
+    
+    .card-body .ml-auto {
+        margin-top: 10px;
+        margin-left: 45px !important; /* Alinea con el contenido del documento */
+    }
+}
+</style>
 </head>
 
 <body id="page-top">
@@ -77,17 +128,19 @@
 
                                 <div class="card-body p-4">
                                     <!-- Banner con estado del proceso -->
-                                    <div
-                                        class="alert alert-info mb-4 d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <span class="badge badge-primary p-2 mr-2">Resolución de Audiencia:</span>
-                                            <strong><?= $proceso['RESOLUCION'] ?></strong> 
-                                        </div>
-                                        <span class="badge badge-pill badge-dark">Fecha de Registro: 
-                                         <i class="far fa-calendar-alt mr-1"></i>
-                                            <?= $fecha_registro ?? 'No disponible'; ?>
-                                        </span>
-                                    </div>
+                                  <!-- Banner con estado del proceso mejorado para dispositivos móviles -->
+<div class="alert alert-info mb-4">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center w-100">
+        <div class="mb-2 mb-md-0">
+            <span class="badge badge-primary p-2 mr-2">Resolución de Audiencia:</span>
+            <strong><?= $proceso['RESOLUCION'] ?></strong> 
+        </div>
+        <div class="badge badge-pill badge-dark p-2">
+            <i class="far fa-calendar-alt mr-1"></i>
+            <span>Fecha de Registro: <?= $fecha_registro ?? 'No disponible'; ?></span>
+        </div>
+    </div>
+</div>
 
                                     <div class="row">
                                         <!-- Columna Izquierda: Foto del Infractor y Fotos de Pertenencias -->
@@ -396,61 +449,66 @@
                         </div>
 
                                                <!-- Archivos Libertad (condicional) -->
-                        <?php
-                        // Verificamos si existen archivos de libertad para mostrar la card
-                        $hay_archivos_libertad = !empty($archivos_libertad);
+                                               <?php
+// Verificamos si existen archivos de libertad para mostrar la card
+$hay_archivos_libertad = !empty($archivos_libertad);
 
-                        // Solo mostramos la card si hay archivos de libertad
-                        if ($hay_archivos_libertad):
-                        ?>
-                        <div class="card border-0 shadow-sm rounded-lg mb-4">
-                            <div class="card-header bg-gradient-primary text-white py-2">
-                                <h5 class="mb-0"><i class="fas fa-file-alt mr-2"></i>Archivos Libertad</h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <ul class="list-group">
-                                            <?php foreach ($archivos_libertad as $index => $archivo): 
-                                                $extension = pathinfo($archivo['RUTA_ARCH_LIBERTAD'], PATHINFO_EXTENSION);
-                                                $icon_class = '';
-                                                $bg_class = '';
-                                                
-                                                if ($extension === 'png' || $extension === 'jpg' || $extension === 'jpeg') {
-                                                    $icon_class = 'fa-image';
-                                                    $bg_class = 'bg-info';
-                                                } elseif ($extension === 'pdf') {
-                                                    $icon_class = 'fa-file-pdf';
-                                                    $bg_class = 'bg-danger';
-                                                } elseif ($extension === 'docx' || $extension === 'doc') {
-                                                    $icon_class = 'fa-file-word';
-                                                    $bg_class = 'bg-primary';
-                                                } elseif ($extension === 'xls' || $extension === 'xlsx') {
-                                                    $icon_class = 'fa-file-excel';
-                                                    $bg_class = 'bg-success';
-                                                } else {
-                                                    $icon_class = 'fa-file';
-                                                    $bg_class = 'bg-secondary';
-                                                }
-                                            ?>
-                                            <li class="list-group-item d-flex align-items-center p-2 border-0 mb-2 rounded shadow-sm">
-                                                <span class="mr-3 p-2 rounded-circle <?= $bg_class ?> text-white">
-                                                    <i class="fas <?= $icon_class ?>"></i>
-                                                </span>
-                                                <span class="flex-grow-1">Archivo <?= $index + 1 ?></span>
-                                                <a href="#" data-toggle="modal" data-target="#archivoModal"
-                                                   data-ruta="<?= base_url($archivo['RUTA_ARCH_LIBERTAD']); ?>"
-                                                   class="btn btn-sm btn-outline-primary">
-                                                    <i class="fas fa-eye mr-1"></i> Ver archivo
-                                                </a>
-                                            </li>
-                                            <?php endforeach; ?>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
+// Solo mostramos la card si hay archivos de libertad
+if ($hay_archivos_libertad):
+?>
+<div class="card border-0 shadow-sm rounded-lg mb-4">
+    <div class="card-header bg-gradient-primary text-white py-2">
+        <h5 class="mb-0"><i class="fas fa-file-alt mr-2"></i>Archivos de Libertad</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-12">
+                <ul class="list-group">
+                    <?php foreach ($archivos_libertad as $index => $archivo): 
+                        $extension = pathinfo($archivo['RUTA_ARCH_LIBERTAD'], PATHINFO_EXTENSION);
+                        $icon_class = '';
+                        $bg_class = '';
+                        
+                        if ($extension === 'png' || $extension === 'jpg' || $extension === 'jpeg' || $extension === 'webp') {
+                            $icon_class = 'fa-image';
+                            $bg_class = 'bg-info';
+                        } elseif ($extension === 'pdf') {
+                            $icon_class = 'fa-file-pdf';
+                            $bg_class = 'bg-danger';
+                        } elseif ($extension === 'docx' || $extension === 'doc') {
+                            $icon_class = 'fa-file-word';
+                            $bg_class = 'bg-primary';
+                        } elseif ($extension === 'xls' || $extension === 'xlsx') {
+                            $icon_class = 'fa-file-excel';
+                            $bg_class = 'bg-success';
+                        } else {
+                            $icon_class = 'fa-file';
+                            $bg_class = 'bg-secondary';
+                        }
+                    ?>
+                    <li class="list-group-item d-flex align-items-center p-2 border-0 mb-2 rounded shadow-sm">
+                        <span class="mr-3 p-2 rounded-circle <?= $bg_class ?> text-white">
+                            <i class="fas <?= $icon_class ?>"></i>
+                        </span>
+                        <div class="flex-grow-1">
+                            <h6 class="mb-0">Documento <?= $index + 1 ?></h6>
+                            <p class="mb-0 text-muted small">
+                                <?= strtoupper($extension) ?>
+                            </p>
                         </div>
-                        <?php endif; ?>
+                        <a href="#" data-toggle="modal" data-target="#archivoModal"
+                           data-ruta="<?= base_url($archivo['RUTA_ARCH_LIBERTAD']); ?>"
+                           class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-eye mr-1"></i> Ver archivo
+                        </a>
+                    </li>
+                    <?php endforeach; ?>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<?php endif; ?>
                                             <!-- Detalles de la Detención (condicional) -->
                         <?php
                         // Verificamos si existen datos relevantes de detención
@@ -565,7 +623,7 @@
                                 <hr class="my-4">
                                 <?php endif; ?>
                                 <h5 class="mb-3 text-danger font-weight-bold">
-                                    <i class="fas fa-file-contract mr-2"></i>Boleta de Encarcelamiento
+                                    <i class="fas fa-file-contract mr-2"></i>Archivos de Detencion
                                 </h5>
 
                                 <div class="row">
@@ -598,17 +656,19 @@
                                                     <div class="mr-3 p-3 rounded-circle <?= $bg_class ?> text-white">
                                                         <i class="fas <?= $icon_class ?>"></i>
                                                     </div>
-                                                    <div class="flex-grow-1">
-                                                        <h6 class="mb-1">Documento <?= $index + 1 ?></h6>
-                                                        <p class="mb-0 text-muted small">
-                                                            <?= strtoupper($extension) ?>
-                                                        </p>
-                                                    </div>
-                                                    <a href="#" data-toggle="modal" data-target="#archivoModal"
-                                                       data-ruta="<?= base_url($archivo['RUTA_ARCH_DETENCION']); ?>"
-                                                       class="btn btn-sm btn-outline-primary">
-                                                        <i class="fas fa-eye mr-1"></i> Ver
-                                                    </a>
+                                                    <div class="flex-grow-1 mb-2 mb-sm-0">
+                    <h6 class="mb-1">Documento <?= $index + 1 ?></h6>
+                    <p class="mb-0 text-muted small">
+                        <?= strtoupper($extension) ?>
+                    </p>
+                </div>
+                <div class="ml-auto mt-2 mt-sm-0">
+                    <a href="#" data-toggle="modal" data-target="#archivoModal"
+                       data-ruta="<?= base_url($archivo['RUTA_ARCH_DETENCION']); ?>"
+                       class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-eye mr-1"></i> Ver
+                    </a>
+                </div>
                                                 </div>
                                             </div>
                                         </div>

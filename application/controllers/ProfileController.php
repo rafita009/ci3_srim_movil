@@ -144,15 +144,23 @@ class ProfileController extends CI_Controller {
     }
     public function eliminar_foto()
 {
+    // Para solicitudes AJAX
+    $is_ajax = $this->input->is_ajax_request();
+    
     // Obtener el ID del usuario desde la sesión
-    $userId = $this->session->userdata('id_usuario');  // Usa 'id_usuario' en minúsculas
+    $userId = $this->session->userdata('id_usuario');
 
     if (!$userId) {
-        show_error('No se ha encontrado el ID del usuario en la sesión.');
+        if ($is_ajax) {
+            echo json_encode(['success' => false, 'error' => 'No se ha encontrado el ID del usuario en la sesión.']);
+            return;
+        } else {
+            show_error('No se ha encontrado el ID del usuario en la sesión.');
+        }
     }
 
     // Obtener los detalles del usuario
-    $user = $this->UsersModel->get_user_by_id($userId);  // Asegúrate de que este método esté funcionando correctamente
+    $user = $this->UsersModel->get_user_by_id($userId);
 
     // Verificamos si el usuario tiene una foto personalizada y no es la predeterminada
     if (!empty($user['FOTO']) && $user['FOTO'] !== 'uploads/fotos_usuario/default_profile.png') {
@@ -162,17 +170,41 @@ class ProfileController extends CI_Controller {
         }
 
         // Actualizar la base de datos para que el usuario no tenga foto
-        $this->UsersModel->eliminar_foto($userId);
+        $resultado = $this->UsersModel->eliminar_foto($userId);
 
-        // Redirigir a la vista con un mensaje de éxito
-        $this->session->set_flashdata('mensaje', 'Foto eliminada correctamente.');
+        if ($resultado) {
+            if ($is_ajax) {
+                echo json_encode([
+                    'success' => true, 
+                    'message' => 'Foto eliminada correctamente.',
+                    'default_photo' => base_url('uploads/fotos_usuario/default_profile.png')
+                ]);
+                return;
+            } else {
+                $this->session->set_flashdata('success', 'Foto eliminada correctamente.');
+            }
+        } else {
+            if ($is_ajax) {
+                echo json_encode(['success' => false, 'error' => 'Error al eliminar la foto de la base de datos.']);
+                return;
+            } else {
+                $this->session->set_flashdata('error', 'Error al eliminar la foto de la base de datos.');
+            }
+        }
     } else {
         // Si no hay foto o es la foto predeterminada
-        $this->session->set_flashdata('mensaje', 'No se puede eliminar la foto predeterminada.');
+        if ($is_ajax) {
+            echo json_encode(['success' => false, 'error' => 'No se puede eliminar la foto predeterminada.']);
+            return;
+        } else {
+            $this->session->set_flashdata('error', 'No se puede eliminar la foto predeterminada.');
+        }
     }
 
-    // Redirigir de vuelta a la vista de perfil
-    redirect('ProfileController/index');
+    // Si no es una solicitud AJAX, redirigimos
+    if (!$is_ajax) {
+        redirect('ProfileController/index');
+    }
 }
 
     

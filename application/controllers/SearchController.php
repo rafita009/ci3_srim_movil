@@ -102,12 +102,12 @@ class SearchController extends CI_Controller
         if(!empty($buscar_por) && (!empty($valor) || ($fecha_inicio && $fecha_fin))) {
             // Búsqueda con criterios específicos
             $data['resultados'] = $this->BusquedaModel->buscar(
-                $buscar_por,
-                $valor,
-                $filtrar_fecha,
-                $fecha_inicio,
-                $fecha_fin,
-                $filtrar_resolucion
+                $buscar_por ?: null,  // Si está vacío, pasa null
+                $valor ?: null, 
+                $filtrar_fecha ?: null, 
+                $fecha_inicio ?: null, 
+                $fecha_fin ?: null, 
+                $filtrar_resolucion ?: null
             );
         } else {
             // Búsqueda sin criterios específicos (mostrar todos los procesos)
@@ -257,6 +257,47 @@ class SearchController extends CI_Controller
             echo json_encode(['status' => 'error', 'message' => 'Error al cargar las opciones']);
         }
     }
+    public function logs() {
+        
+        $id_usuario = $this->session->userdata('id_usuario');
+        $user_details = $this->UsersModel->get_user_by_id($id_usuario);
+        // Obtener logins con información de usuario
+        $logins = $this->UsersModel->get_logins_with_user_info();
+        $data = [
+            'usuario' => isset($user_details['NOMBRES']) ? $user_details['NOMBRES'] . ' ' . $user_details['APELLIDOS'] : 'Usuario desconocido',
+            'foto' => !empty($user_details['FOTO']) ? $user_details['FOTO'] : 'default_profile.png',
+            'logins' => $logins,
+            
+        ];
+        
+        $this->load->view('admin/logs', $data);
+    }
     
-    
+    public function eliminar($id_login) {
+        
+        $resultado = $this->UsersModel->eliminar_login($id_login);
+        
+        if($resultado) {
+            $this->session->set_flashdata('mensaje', 'Login eliminado correctamente');
+        } else {
+            $this->session->set_flashdata('error', 'No se pudo eliminar el login');
+        }
+        
+        redirect('SearchController/logs');
+    }
+    public function eliminar_todos() {
+        
+        try {
+            $resultado = $this->UsersModel->eliminar_todos_logins();
+            
+            echo json_encode([
+                'success' => $resultado
+            ]);
+        } catch (Exception $e) {
+            echo json_encode([
+                'success' => false,
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
 }

@@ -5,8 +5,9 @@ class Tipo_p_Controller extends CI_Controller {
     public function __construct() {
         parent::__construct();
         $this->load->library('form_validation'); // Carga la librería de validación de formularios
-        $this->load->helper('url');
         $this->load->model('UsersModel');
+        $this->load->helper('url');
+        $this->load->helper('notificaciones');
         $this->load->model('RolesModel');
         $this->load->model('tipo_p_Model');
         
@@ -65,6 +66,18 @@ class Tipo_p_Controller extends CI_Controller {
         // Verificar si el tipo de prueba ya existe
         if(!$this->tipo_p_Model->existeTipoPrueba($tipo_prueba)) {
             if($this->tipo_p_Model->agregarTipoPrueba($tipo_prueba)) {
+                $gestores = $this->UsersModel->get_usuarios_por_rol('gestor');
+
+                // Enviar notificación a cada gestor
+                foreach ($gestores as $gestor) {
+                    crear_notificacion(
+                        $gestor->ID_USUARIO,
+                        'Nueva Prueba agregada',
+                        'Se ha añadido la prueba: ' . $tipo_prueba,
+                        'success',
+                        null
+                    );
+                }
                 $response = array(
                     'success' => true,
                     'message' => 'Tipo de prueba guardado correctamente'

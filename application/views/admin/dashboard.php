@@ -280,24 +280,36 @@
 
                             <!-- Illustrations -->
                             <div class="card shadow mb-4">
-    <div class="card-header py-3">
-        <h6 class="m-0 font-weight-bold text-primary">Guía del Sistema</h6>
-    </div>
-    <div class="card-body">
-        <div class="text-center">
-            <img class="img-fluid px-3 px-sm-4 mt-3 mb-4" style="width: 25rem;"
-                src="<?php echo base_url();?>public/assets/img/documents.svg"
-                alt="Documentos judiciales">
-        </div>
-        <p>El Sistema de Registro de Infractores y Manejo de Procesos (SCRIM) te permite gestionar eficientemente todos los procedimientos judiciales relacionados con infracciones de tránsito, desde la captura inicial de datos hasta la resolución final.</p>
-        <a href="<?php echo site_url('ManualController/index'); ?>" class="btn btn-primary btn-sm">
-            <i class="fas fa-book mr-1"></i> Ver Manual de Usuario
-        </a>
-    </div>
-</div>
+                                <div class="card-header py-3">
+                                    <h6 class="m-0 font-weight-bold text-primary">Guía del Sistema</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="text-center">
+                                        <img class="img-fluid px-3 px-sm-4 mt-3 mb-4" style="width: 25rem;"
+                                            src="<?php echo base_url();?>public/assets/img/documents.svg"
+                                            alt="Documentos judiciales">
+                                    </div>
+                                    <p>El Sistema de Registro de Infractores y Manejo de Procesos (SCRIM) te permite
+                                        gestionar eficientemente todos los procedimientos judiciales relacionados con
+                                        infracciones de tránsito, desde la captura inicial de datos hasta la resolución
+                                        final.</p>
+
+                                    
+                                    <p></p>
+                                    <a href="<?php echo base_url('public/manuales/manual_administrador_scrim.pdf'); ?>"
+                                        class="btn btn-success btn-sm" download>
+                                        <i class="fas fa-download mr-1"></i> Descargar Manual del Administrador
+                                    </a>
+                                    <p></p>
+                                    <a href="<?php echo base_url('public/manuales/manual_gestor_scrim.pdf'); ?>"
+                                        class="btn btn-primary btn-sm" download>                                                                                                            
+                                        <i class="fas fa-download mr-1"></i> Descargar Manual del Gestor
+                                    </a>
+                                </div>
+                            </div>
 
                             <!-- Approach -->
-                            
+
 
                         </div>
                     </div>

@@ -20,7 +20,7 @@
 
     <!-- Custom styles for this template-->
     <link href="<?php echo base_url(); ?>public/assets/css/sb-admin-2.min.css" rel="stylesheet">
-
+    
     <!-- DataTables CSS -->
     <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap4.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.2/css/bootstrap.css" rel="stylesheet">
@@ -264,7 +264,7 @@
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>
 
     <!-- SweetAlert2 -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="<?php echo base_url();?>public/assets/js/sweetalert211.js"></script>
 
     <!-- Custom scripts -->
     <script src="<?php echo base_url();?>public/assets/js/sb-admin-2.min.js"></script>
@@ -272,11 +272,60 @@
     var baseUrl = '<?php echo base_url(); ?>';
     </script>
     <script>
-   $(document).ready(function() {
-    // Clean up modal when it's closed
+        $(document).ready(function() {
+    // Variable para rastrear si hay un cargador activo
+    let loaderActive = false;
+    
+    // Función para mostrar el cargador
+    function showLoader(message = 'Por favor espere') {
+        // Cerrar cualquier alerta existente primero
+        if (typeof Swal !== 'undefined') {
+            Swal.close();
+        }
+        
+        loaderActive = true;
+        
+        Swal.fire({
+            title: 'Cargando...',
+            text: message,
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+    }
+    
+    // Función para ocultar el cargador
+    function hideLoader() {
+        if (loaderActive && typeof Swal !== 'undefined') {
+            Swal.close();
+            loaderActive = false;
+            
+            // Limpieza adicional por si acaso
+            setTimeout(() => {
+                const swalBackdrops = document.getElementsByClassName('swal2-backdrop-show');
+                if (swalBackdrops.length > 0) {
+                    for (let i = 0; i < swalBackdrops.length; i++) {
+                        swalBackdrops[i].remove();
+                    }
+                }
+                
+                const swalContainers = document.getElementsByClassName('swal2-container');
+                if (swalContainers.length > 0) {
+                    for (let i = 0; i < swalContainers.length; i++) {
+                        swalContainers[i].remove();
+                    }
+                }
+            }, 100);
+        }
+    } // Clean up modal when it's closed
     $(document).on('hidden.bs.modal', '#modalVistaInfractor', function() {
         $(this).remove();
+        // Asegurarse de que el cargador esté cerrado cuando se cierra el modal
+        hideLoader();
     });
+   
 
     // Handler for opening modal buttons
     $(document).on('click', '.cargar-modal-infractor', function() {
@@ -284,15 +333,15 @@
     });
 
     // Function to load and show infractor modal
+    // Handler for opening modal buttons
+    $(document).on('click', '.cargar-modal-infractor', function() {
+        loadInfractorModal($(this).data('id'));
+    });
+
+    // Function to load and show infractor modal
     function loadInfractorModal(id_infractor) {
-        Swal.fire({
-            title: 'Cargando...',
-            text: 'Por favor espere',
-            allowOutsideClick: false,
-            didOpen: () => {
-                Swal.showLoading();
-            }
-        });
+        // Mostrar cargador
+        showLoader('Cargando datos del infractor');
 
         // Remove existing modal if present
         $('#modalVistaInfractor').remove();
@@ -302,37 +351,51 @@
             .done(function(modalContent) {
                 // Create modal structure
                 const modalHTML = `
-                <div class="modal fade" id="modalVistaInfractor" tabindex="-1" role="dialog">
-                    <div class="modal-dialog modal-xl" role="document">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title">Registrar</h5>
-                                <button type="button" class="close" data-dismiss="modal">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
-                            </div>
-                            <div class="modal-body"></div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
+              <div class="modal fade" id="modalVistaInfractor" tabindex="-1" role="dialog" aria-labelledby="tituloModalInfractor" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+        <div class="modal-content rounded-lg shadow-lg">
+            <div class="modal-header bg-primary text-white py-3">
+                <h5 class="modal-title font-weight-bold" id="tituloModalInfractor">
+                    <i class="fas fa-file-alt mr-2"></i>Registrar Proceso
+                </h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
+                    <span aria-hidden="true" class="text-white">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body p-4">
+                <!-- Contenido del modal -->
+            </div>
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                    <i class="fas fa-times mr-2"></i>Cerrar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+                `;
 
                 // Append modal to body and update content
                 $('body').append(modalHTML);
                 $('#modalVistaInfractor .modal-body').html(modalContent);
 
+                // Ocultar cargador antes de mostrar el modal
+                hideLoader();
+                
                 // Show modal after content is loaded
                 $('#modalVistaInfractor').modal('show');
-                Swal.close();
             })
             .fail(function(error) {
+                // Ocultar cargador en caso de error
+                hideLoader();
+                
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
-                    text: 'Error al cargar los datos del infractor'
+                    text: 'Error al cargar los datos del infractor',
+                    confirmButtonText: 'Cerrar',
+                    timer: 3000,
+                    timerProgressBar: true
                 });
             });
     }

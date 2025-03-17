@@ -25,7 +25,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.min.css">
     <!-- JavaScript de SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.all.min.js"></script>
-    
+
 
 </head>
 
@@ -74,11 +74,12 @@
                                             <thead class="bg-dark text-white">
                                                 <tr>
                                                     <th>Nombres</th>
-                                                    <th>Apellidos</th>
                                                     <th>Cédula</th>
                                                     <th>Placa</th>
                                                     <th>Causa</th>
                                                     <th>Procesos Asociados</th>
+                                                    <th>Fecha Procedimiento</th>
+                                                    <th>Fecha Registro</th>
 
                                                 </tr>
                                             </thead>
@@ -86,47 +87,79 @@
                                                 <?php foreach ($infractores as $infractor): ?>
                                                 <?php if (!empty($asociados[$infractor['ID_INFRACTOR']])): ?>
                                                 <tr>
-                                                    <td><?= htmlspecialchars($infractor['N_INFRACTOR']) ?></td>
-                                                    <td><?= htmlspecialchars($infractor['A_INFRACTOR']) ?></td>
+                                                <td><?= htmlspecialchars($infractor['N_INFRACTOR'] . ' ' . $infractor['A_INFRACTOR']) ?></td>
                                                     <td><?= htmlspecialchars($infractor['C_INFRACTOR']) ?></td>
-                                                    
+
+                                                    <!-- Columna PLACA -->
                                                     <td>
                                                         <div class="process-list">
                                                             <?php foreach($asociados[$infractor['ID_INFRACTOR']] as $index => $proceso): ?>
                                                             <div class="process-item p-2"
-                                                                style="border-bottom: 1px solid #eee; min-height: 48px; display: flex; align-items: center;">
+                                                                style="border-bottom: 1px solid #eee; height: 60px; display: flex; align-items: center;">
                                                                 <?= htmlspecialchars($proceso['PLACA'] ?? 'No asignada') ?>
                                                             </div>
                                                             <?php endforeach; ?>
                                                         </div>
                                                     </td>
+
+                                                    <!-- Columna CAUSA -->
                                                     <td>
                                                         <div class="process-list">
                                                             <?php foreach($asociados[$infractor['ID_INFRACTOR']] as $index => $proceso): ?>
                                                             <div class="process-item p-2"
-                                                                style="border-bottom: 1px solid #eee; min-height: 48px; display: flex; align-items: center;">
+                                                                style="border-bottom: 1px solid #eee; height: 60px; display: flex; align-items: center;">
                                                                 <?= htmlspecialchars($proceso['CAUSA'] ?? 'No asignada') ?>
                                                             </div>
                                                             <?php endforeach; ?>
                                                         </div>
                                                     </td>
+
+                                                    <!-- Columna PROCESO/RESOLUCIÓN -->
                                                     <td>
                                                         <div class="process-list">
                                                             <?php foreach($asociados[$infractor['ID_INFRACTOR']] as $index => $proceso): ?>
-                                                            <div class="process-item d-flex align-items-center p-2"
-                                                                style="border-bottom: 1px solid #eee; min-height: 48px;">
-                                                                <span class="me-2">Proceso
-                                                                    #<?= htmlspecialchars($proceso['ID_PROCESO']) ?> -
-                                                                    <?= htmlspecialchars($proceso['RESOLUCION']) ?>
-                                                                </span>
-                                                                <a href="<?= site_url('SearchController/detalle/' . $proceso['ID_PROCESO']) ?>"
-                                                                    class="btn btn-info btn-sm ms-auto">
-                                                                    <i class="bx bx-show"></i> Ver Proceso
-                                                                </a>
+                                                            <div class="process-item d-flex align-items-center justify-content-between p-2"
+                                                                style="border-bottom: 1px solid #eee; height: 60px;">
+                                                                <div>
+                                                                    <span>Proceso
+                                                                        #<?= htmlspecialchars($proceso['ID_PROCESO']) ?>
+                                                                        -
+                                                                        <?= htmlspecialchars($proceso['RESOLUCION']) ?></span>
+                                                                </div>
+                                                                <div>
+                                                                    <a href="<?= site_url('SearchController/detalle/' . $proceso['ID_PROCESO']) ?>"
+                                                                        class="btn btn-info btn-sm">
+                                                                        <i class="bx bx-show"></i> Ver Proceso
+                                                                    </a>
+                                                                </div>
                                                             </div>
                                                             <?php endforeach; ?>
                                                         </div>
-                                                    </td>            
+                                                    </td>
+
+                                                    <!-- Columna FECHA DE PROCEDIMIENTO -->
+                                                    <td>
+                                                        <div class="process-list">
+                                                            <?php foreach($asociados[$infractor['ID_INFRACTOR']] as $index => $proceso): ?>
+                                                            <div class="process-item p-2"
+                                                                style="border-bottom: 1px solid #eee; height: 60px; display: flex; align-items: center;">
+                                                                <?= htmlspecialchars($proceso['FECHA_PROCEDIMIENTO'] ?? 'No disponible') ?>
+                                                            </div>
+                                                            <?php endforeach; ?>
+                                                        </div>
+                                                    </td>
+
+                                                    <!-- Columna FECHA DE REGISTRO -->
+                                                    <td>
+                                                        <div class="process-list">
+                                                            <?php foreach($asociados[$infractor['ID_INFRACTOR']] as $index => $proceso): ?>
+                                                            <div class="process-item p-2"
+                                                                style="border-bottom: 1px solid #eee; height: 60px; display: flex; align-items: center;">
+                                                                <?= htmlspecialchars($proceso['FECHA_REGISTRO'] ?? 'No disponible') ?>
+                                                            </div>
+                                                            <?php endforeach; ?>
+                                                        </div>
+                                                    </td>
                                                 </tr>
                                                 <?php endif; ?>
                                                 <?php endforeach; ?>
@@ -162,8 +195,8 @@
         <i class="fas fa-angle-up"></i>
     </a>
 
-     <!-- Logout Modal-->
-     <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    <!-- Logout Modal-->
+    <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
         aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -173,7 +206,8 @@
                         <span aria-hidden="true">×</span>
                     </button>
                 </div>
-                <div class="modal-body">Selecciona "Cerrar sesión" si estás seguro de que quieres cerrar tu sesión.</div>
+                <div class="modal-body">Selecciona "Cerrar sesión" si estás seguro de que quieres cerrar tu sesión.
+                </div>
                 <div class="modal-footer">
                     <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancelar</button>
                     <a class="btn btn-primary" href="<?php echo site_url();?>/LoginController/logout">Cerrar sesión</a>
@@ -185,23 +219,23 @@
 
     <script>
     $(document).ready(function() {
-    $('#tablaProcesos').DataTable({
-        "language": {
-            "lengthMenu": "Mostrar _MENU_ registros por página",
-            "zeroRecords": "No se encontraron resultados",
-            "info": "Mostrando página _PAGE_ de _PAGES_ (Total: _TOTAL_ registros)",
-            "infoEmpty": "No hay registros disponibles",
-            "infoFiltered": "(filtrado de _MAX_ registros totales)",
-            "search": "Buscar:",
-            "paginate": {
-                "first": "Primero",
-                "last": "Último",
-                "next": "Siguiente",
-                "previous": "Anterior"
+        $('#tablaProcesos').DataTable({
+            "language": {
+                "lengthMenu": "Mostrar _MENU_ registros por página",
+                "zeroRecords": "No se encontraron resultados",
+                "info": "Mostrando página _PAGE_ de _PAGES_ (Total: _TOTAL_ registros)",
+                "infoEmpty": "No hay registros disponibles",
+                "infoFiltered": "(filtrado de _MAX_ registros totales)",
+                "search": "Buscar:",
+                "paginate": {
+                    "first": "Primero",
+                    "last": "Último",
+                    "next": "Siguiente",
+                    "previous": "Anterior"
+                }
             }
-        }
+        });
     });
-});
     </script>
     <!-- DataTables JS -->
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
