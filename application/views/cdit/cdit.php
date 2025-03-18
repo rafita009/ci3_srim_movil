@@ -314,35 +314,42 @@ $(document).ready(function() {
 $(document).ready(function() {
     // Cuando se hace clic en el botón de editar
     $('.btn-editar').on('click', function() {
-        var id = $(this).data('id');
-        
-        // Cargar los datos del CDIT
-        $.ajax({
-            url: '<?php echo site_url('CditController/obtener_cdit/'); ?>' + id,
-            type: 'GET',
-            dataType: 'json',
-            success: function(response) {
-                if (response.success) {
-                    $('#id_cdit').val(response.data.ID_CDIT);
-                    $('#cdit_editar').val(response.data.CDIT);
-                    $('#modalEditarCdit').modal('show');
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: 'No se pudo cargar la información'
-                    });
-                }
-            },
-            error: function(xhr, status, error) {
+    var id = $(this).data('id');
+    
+    console.log('ID del CDIT seleccionado:', id); // Depuración
+    
+    // Cargar los datos del CDIT
+    $.ajax({
+        url: '<?php echo site_url('CditController/obtener_cdit/'); ?>' + id,
+        type: 'GET',
+        dataType: 'json',
+        success: function(response) {
+            console.log('Respuesta del servidor:', response); // Depuración
+            
+            if (response.success) {
+                $('#id_cdit').val(response.data.ID_CDIT);
+                $('#cdit_editar').val(response.data.NOMBRE_CDIT);
+                $('#direccion_editar').val(response.data.DIRECCION); // Añadir campo de dirección
+                $('#modalEditarCdit').modal('show');
+            } else {
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
-                    text: 'Error al cargar los datos: ' + error
+                    text: response.message || 'No se pudo cargar la información'
                 });
             }
-        });
+        },
+        error: function(xhr, status, error) {
+            console.error('Error en la solicitud AJAX:', error); // Depuración
+            
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Error al cargar los datos: ' + error
+            });
+        }
     });
+});
 
     // Manejar el envío del formulario de edición
     $('#formEditarCdit').on('submit', function(e) {

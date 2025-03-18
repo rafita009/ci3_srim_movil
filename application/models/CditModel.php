@@ -25,10 +25,15 @@ class CditModel extends CI_Model {
     }
 
     public function getCditById($id_cdit) {
+        $this->db->select('ID_CDIT, NOMBRE_CDIT, DIRECCION'); // Especificar explícitamente los campos
         $this->db->where('ID_CDIT', $id_cdit);
-        $query = $this->db->get($this->table);
+        $query = $this->db->get('cdit');
+        
         return $query->row_array();
     }
+    
+    
+
 
     public function agregarCdit($cdit, $direccion) {
         $data = [

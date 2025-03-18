@@ -114,22 +114,34 @@ class CditController extends CI_Controller {
             show_404();
         }
     
+        // Añadir depuración
+        log_message('debug', 'Intentando obtener CDIT con ID: ' . $id);
+    
         // Obtener el cdit
         $cdit = $this->CditModel->getCditById($id);
         
         if ($cdit) {
+            // Añadir depuración
+            log_message('debug', 'CDIT encontrado: ' . print_r($cdit, true));
+    
             $response = array(
                 'success' => true,
                 'data' => $cdit
             );
         } else {
+            // Añadir depuración
+            log_message('error', 'No se encontró CDIT con ID: ' . $id);
+    
             $response = array(
                 'success' => false,
-                'message' => 'No se encontró el Centro de detencion'
+                'message' => 'No se encontró el Centro de detención'
             );
         }
     
+        // Imprimir JSON directamente
+        header('Content-Type: application/json');
         echo json_encode($response);
+        exit;
     }
 
         // Función para procesar la actualización
