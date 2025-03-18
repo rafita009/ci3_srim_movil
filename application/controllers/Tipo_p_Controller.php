@@ -9,7 +9,7 @@ class Tipo_p_Controller extends CI_Controller {
         $this->load->helper('url');
         $this->load->helper('notificaciones');
         $this->load->model('RolesModel');
-        $this->load->model('tipo_p_Model');
+        $this->load->model('Tipo_p_Model');
         
         
         
@@ -28,12 +28,12 @@ class Tipo_p_Controller extends CI_Controller {
     {
         $id_usuario = $this->session->userdata('id_usuario');
         $user_details = $this->UsersModel->get_user_by_id($id_usuario);
-        $eliminados = $this->tipo_p_Model->getTiposPruebaEliminadas();
+        $eliminados = $this->Tipo_p_Model->getTiposPruebaEliminadas();
 
        
         $data = [
             'titulo' => 'Tipos de Pruebas',
-            'datos' => $this->tipo_p_Model->getTiposPruebaActivas(),
+            'datos' => $this->Tipo_p_Model->getTiposPruebaActivas(),
             'eliminados' => $eliminados,
             'id_usuario' => $id_usuario,
             'usuario' => $user_details['NOMBRES'] . ' ' . $user_details['APELLIDOS'],
@@ -64,8 +64,8 @@ class Tipo_p_Controller extends CI_Controller {
         }
     
         // Verificar si el tipo de prueba ya existe
-        if(!$this->tipo_p_Model->existeTipoPrueba($tipo_prueba)) {
-            if($this->tipo_p_Model->agregarTipoPrueba($tipo_prueba)) {
+        if(!$this->Tipo_p_Model->existeTipoPrueba($tipo_prueba)) {
+            if($this->Tipo_p_Model->agregarTipoPrueba($tipo_prueba)) {
                 $gestores = $this->UsersModel->get_usuarios_por_rol('gestor');
 
                 // Enviar notificación a cada gestor
@@ -106,7 +106,7 @@ class Tipo_p_Controller extends CI_Controller {
         }
     
         // Obtener el tipo de prueba
-        $tipo_prueba = $this->tipo_p_Model->getTipoPruebaById($id);
+        $tipo_prueba = $this->Tipo_p_Model->getTipoPruebaById($id);
         
         if ($tipo_prueba) {
             $response = array(
@@ -144,8 +144,8 @@ class Tipo_p_Controller extends CI_Controller {
                 return;
             }
            
-            if (!$this->tipo_p_Model->existeTipoPrueba($tipo_prueba, $id)) {
-                if ($this->tipo_p_Model->actualizarTipoPrueba($id, $tipo_prueba)) {
+            if (!$this->Tipo_p_Model->existeTipoPrueba($tipo_prueba, $id)) {
+                if ($this->Tipo_p_Model->actualizarTipoPrueba($id, $tipo_prueba)) {
                     $response = array(
                         'success' => true,
                         'message' => 'Tipo de Prueba actualizado correctamente'
@@ -169,14 +169,14 @@ class Tipo_p_Controller extends CI_Controller {
    
     public function eliminar($id)
     {
-        $this->tipo_p_Model->eliminartipo_prueba($id);
+        $this->Tipo_p_Model->eliminartipo_prueba($id);
         $this->session->set_flashdata('success', 'Tipo de Prueba eliminada correctamente');
         redirect('Tipo_p_Controller/index');
     }
 
     public function reactivar($id)
     {
-        $this->tipo_p_Model->reactivartipo_prueba($id);
+        $this->Tipo_p_Model->reactivartipo_prueba($id);
         $this->session->set_flashdata('success', 'Tipo de Prueba reactivada correctamente');
         redirect('Tipo_p_Controller/index');
     }
